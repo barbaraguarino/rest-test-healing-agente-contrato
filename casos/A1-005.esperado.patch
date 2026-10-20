@@ -1,0 +1,13 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
+index 627fe6b..868908c 100644
+--- a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
+@@ -118,7 +118,7 @@ class FreteControllerTest {
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .content("""
+                                     {
+-                                      "destino": {"cep": "69005000", "uf": "AM"},
++                                      "destino": {"uf": "AM"},
+                                       "modalidade": "EXPRESSA",
+                                       "itens": [{"produtoId": 2, "quantidade": 1}]
+                                     }

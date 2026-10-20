@@ -1,0 +1,13 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+index c795d95..9603d4b 100644
+--- a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+@@ -109,7 +109,7 @@ class ProdutoControllerTest {
+                                       "nome": "Pano de Prato",
+                                       "preco": 10.005,
+                                       "categoria": "CASA",
+-                                      "ativo": true,
++                                      "ativo": "ATIVO",
+                                       "estoque": 3,
+                                       "pesoGramas": 80,
+                                       "dimensoes": {"alturaCm": 1, "larguraCm": 40, "comprimentoCm": 60}

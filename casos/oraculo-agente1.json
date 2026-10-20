@@ -1,0 +1,113 @@
+{
+  "versao_api": "linha-de-base-2",
+  "casos": [
+    {
+      "id_caso": "A1-001",
+      "categoria": "renomeacao",
+      "lado": "resposta",
+      "teste_afetado": "ProdutoControllerTest.shouldReturn200WithAllFieldsWhenProductExists",
+      "patch": "casos/A1-001.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-001.esperado.patch"
+    },
+    {
+      "id_caso": "A1-002",
+      "categoria": "renomeacao",
+      "lado": "requisicao",
+      "teste_afetado": "CarrinhoControllerTest.shouldReturn200WithItemAndSubtotalsWhenProductIsAvailable",
+      "patch": "casos/A1-002.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-002.esperado.patch"
+    },
+    {
+      "id_caso": "A1-003",
+      "categoria": "renomeacao",
+      "lado": "resposta",
+      "teste_afetado": "ProdutoControllerTest.shouldReturn201WithAllFieldsWhenPayloadIsComplete",
+      "patch": "casos/A1-003.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-004",
+      "categoria": "remocao",
+      "lado": "resposta",
+      "teste_afetado": "FreteControllerTest.shouldReturn200WithAllFieldsWhenQuotationIsValid",
+      "patch": "casos/A1-004.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-004.esperado.patch"
+    },
+    {
+      "id_caso": "A1-005",
+      "categoria": "remocao",
+      "lado": "requisicao",
+      "teste_afetado": "FreteControllerTest.shouldMultiplyValueAndReduceDeadlineWhenModeIsExpress",
+      "patch": "casos/A1-005.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-005.esperado.patch"
+    },
+    {
+      "id_caso": "A1-006",
+      "categoria": "remocao",
+      "lado": "resposta",
+      "teste_afetado": "PedidoControllerTest.shouldReturn200WithAllFieldsWhenOrderExists",
+      "patch": "casos/A1-006.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-007",
+      "categoria": "alteracao_tipo",
+      "lado": "resposta",
+      "teste_afetado": "ProdutoControllerTest.shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing",
+      "patch": "casos/A1-007.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-007.esperado.patch"
+    },
+    {
+      "id_caso": "A1-008",
+      "categoria": "alteracao_tipo",
+      "lado": "requisicao",
+      "teste_afetado": "ProdutoControllerTest.shouldRoundPriceHalfUpWhenPriceHasThreeDecimalPlaces",
+      "patch": "casos/A1-008.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-008.esperado.patch"
+    },
+    {
+      "id_caso": "A1-009",
+      "categoria": "alteracao_tipo",
+      "lado": "resposta",
+      "teste_afetado": "CarrinhoControllerTest.shouldReturn200WithItemsInInclusionOrderWhenCartExists",
+      "patch": "casos/A1-009.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-010",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldDecreaseStockWhenOrderIsCreated",
+      "patch": "casos/A1-010.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-010.esperado.patch"
+    },
+    {
+      "id_caso": "A1-011",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "ProdutoControllerTest.shouldReturn422WhenSkuAlreadyExists",
+      "patch": "casos/A1-011.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-011.esperado.patch"
+    },
+    {
+      "id_caso": "A1-012",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing",
+      "patch": "casos/A1-012.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    }
+  ]
+}

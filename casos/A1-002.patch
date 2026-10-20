@@ -1,0 +1,44 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..bc06207 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -485,13 +485,13 @@
+             "type" : "integer",
+             "format" : "int64"
+           },
+-          "quantidade" : {
++          "unidades" : {
+             "type" : "integer",
+             "format" : "int32",
+             "minimum" : 1
+           }
+         },
+-        "required" : [ "produtoId", "quantidade" ]
++        "required" : [ "produtoId", "unidades" ]
+       },
+       "ItemCarrinhoResponse" : {
+         "type" : "object",
+diff --git a/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java b/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java
+index 8b2cee3..96c8460 100644
+--- a/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java
++++ b/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java
+@@ -34,7 +34,7 @@ public class CarrinhoService {
+     public CarrinhoResponse adicionarItem(Long carrinhoId, ItemCarrinhoRequest request) {
+         Carrinho carrinho = buscarEntidade(carrinhoId);
+         Produto produto = produtoService.buscarEntidade(request.produtoId());
+-        carrinho.adicionar(produto, request.quantidade());
++        carrinho.adicionar(produto, request.unidades());
+         // saveAndFlush grava agora e gera o id do item novo antes de montar a resposta.
+         return CarrinhoResponse.de(repository.saveAndFlush(carrinho));
+     }
+diff --git a/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java b/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
+index a73d2d2..1e9ba88 100644
+--- a/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
+@@ -12,5 +12,5 @@ import jakarta.validation.constraints.NotNull;
+  */
+ public record ItemCarrinhoRequest(
+         @NotNull(message = OBRIGATORIO) Long produtoId,
+-        @NotNull(message = OBRIGATORIO) @Min(value = 1, message = MINIMO_UM) Integer quantidade) {
++        @NotNull(message = OBRIGATORIO) @Min(value = 1, message = MINIMO_UM) Integer unidades) {
+ }

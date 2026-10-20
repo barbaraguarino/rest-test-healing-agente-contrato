@@ -1,0 +1,36 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..56e0cff 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -634,6 +634,10 @@
+             "format" : "int32",
+             "minimum" : 0
+           },
++          "marca" : {
++            "type" : "string",
++            "minLength" : 1
++          },
+           "nome" : {
+             "type" : "string",
+             "minLength" : 1
+@@ -659,7 +663,7 @@
+             }
+           }
+         },
+-        "required" : [ "ativo", "categoria", "dimensoes", "estoque", "nome", "pesoGramas", "preco", "sku" ]
++        "required" : [ "ativo", "categoria", "dimensoes", "estoque", "marca", "nome", "pesoGramas", "preco", "sku" ]
+       },
+       "ProdutoResponse" : {
+         "type" : "object",
+diff --git a/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoRequest.java b/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoRequest.java
+index e01ff62..98f0a83 100644
+--- a/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoRequest.java
+@@ -24,6 +24,7 @@ import java.util.List;
+ public record ProdutoRequest(
+         @NotBlank(message = OBRIGATORIO) String sku,
+         @NotBlank(message = OBRIGATORIO) String nome,
++        @NotBlank(message = OBRIGATORIO) String marca,
+         String descricao,
+         @NotNull(message = OBRIGATORIO) @Positive(message = MAIOR_QUE_ZERO) BigDecimal preco,
+         @NotNull(message = OBRIGATORIO) Categoria categoria,

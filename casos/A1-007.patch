@@ -1,0 +1,36 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..362a7e4 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -678,8 +678,7 @@
+             "$ref" : "#/components/schemas/DimensoesResponse"
+           },
+           "estoque" : {
+-            "type" : "integer",
+-            "format" : "int32"
++            "type" : "string"
+           },
+           "id" : {
+             "type" : "integer",
+diff --git a/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java b/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
+index 6831150..2b2ec56 100644
+--- a/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
+@@ -17,7 +17,7 @@ public record ProdutoResponse(
+         BigDecimal preco,
+         Categoria categoria,
+         Boolean ativo,
+-        Integer estoque,
++        String estoque,
+         Integer pesoGramas,
+         DimensoesResponse dimensoes,
+         List<String> tags) {
+@@ -31,7 +31,7 @@ public record ProdutoResponse(
+                 produto.getPreco(),
+                 produto.getCategoria(),
+                 produto.isAtivo(),
+-                produto.getEstoque(),
++                String.valueOf(produto.getEstoque()),
+                 produto.getPesoGramas(),
+                 DimensoesResponse.de(produto.getDimensoes()),
+                 produto.getTags());

@@ -1,0 +1,13 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+index c795d95..577283c 100644
+--- a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+@@ -94,7 +94,7 @@ class ProdutoControllerTest {
+                     .andExpect(jsonPath("$.descricao").value(nullValue()))
+                     .andExpect(jsonPath("$.tags").value(empty()))
+                     .andExpect(jsonPath("$.ativo").value(false))
+-                    .andExpect(jsonPath("$.estoque").value(is(0)));
++                    .andExpect(jsonPath("$.estoque").value("0"));
+         }
+ 
+         @Test

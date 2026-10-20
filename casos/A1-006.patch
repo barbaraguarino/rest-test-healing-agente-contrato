@@ -1,0 +1,51 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..b8c05e1 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -597,10 +597,6 @@
+               "$ref" : "#/components/schemas/ItemPedidoResponse"
+             }
+           },
+-          "modalidadeFrete" : {
+-            "type" : "string",
+-            "enum" : [ "PADRAO", "EXPRESSA" ]
+-          },
+           "status" : {
+             "type" : "string",
+             "enum" : [ "AGUARDANDO_PAGAMENTO", "CANCELADO" ]
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteResponse.java b/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteResponse.java
+index 03bd0c1..db6aa71 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteResponse.java
+@@ -3,9 +3,9 @@ package br.edu.resttesthealingsut.pedido.dto;
+ import br.edu.resttesthealingsut.pedido.Cliente;
+ 
+ /** Cliente na resposta de pedido. */
+-public record ClienteResponse(String nome, String email) {
++public record ClienteResponse(String nome) {
+ 
+     public static ClienteResponse de(Cliente cliente) {
+-        return new ClienteResponse(cliente.getNome(), cliente.getEmail());
++        return new ClienteResponse(cliente.getNome());
+     }
+ }
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java b/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java
+index 33ea3bb..ca4bd0a 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java
+@@ -12,7 +12,6 @@ public record PedidoResponse(
+         StatusPedido status,
+         ClienteResponse cliente,
+         EnderecoResponse enderecoEntrega,
+-        ModalidadeFrete modalidadeFrete,
+         List<ItemPedidoResponse> itens,
+         BigDecimal subtotal,
+         BigDecimal desconto,
+@@ -25,7 +24,6 @@ public record PedidoResponse(
+                 pedido.getStatus(),
+                 ClienteResponse.de(pedido.getCliente()),
+                 EnderecoResponse.de(pedido.getEnderecoEntrega()),
+-                pedido.getModalidadeFrete(),
+                 pedido.getItens().stream().map(ItemPedidoResponse::de).toList(),
+                 pedido.getSubtotal(),
+                 pedido.getDesconto(),

@@ -1,0 +1,13 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/carrinho/CarrinhoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/carrinho/CarrinhoControllerTest.java
+index cbc6103..401d0cf 100644
+--- a/src/test/java/br/edu/resttesthealingsut/carrinho/CarrinhoControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/carrinho/CarrinhoControllerTest.java
+@@ -53,7 +53,7 @@ class CarrinhoControllerTest {
+             mockMvc.perform(post("/carrinhos/101/itens")
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .content("""
+-                                    {"produtoId": 1, "quantidade": 2}
++                                    {"produtoId": 1, "unidades": 2}
+                                     """))
+                     .andExpect(status().isOk())
+                     .andExpect(jsonPath("$.id").value(is(101)))
