@@ -267,3 +267,9 @@ def caminho_da_expressao(expressao: str) -> str:
     """'$.itens[0].subtotal' -> 'itens[].subtotal'; '$[*].sku' -> '[].sku'."""
     sem_indices = re.sub(r"\[(?:\d+|\*)\]", "[]", expressao.removeprefix("$"))
     return sem_indices.removeprefix(".")
+
+
+def expressao_atinge(expressao: str, caminho: str) -> bool:
+    """A asserção trata do campo `caminho` ou de algo dentro dele."""
+    cam = caminho_da_expressao(expressao)
+    return cam == caminho or cam.startswith(caminho + ".") or cam.startswith(caminho + "[]")

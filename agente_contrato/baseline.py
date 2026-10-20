@@ -103,11 +103,6 @@ def _ultimo(caminho: str) -> str:
     return caminho.rsplit(".", 1)[-1]
 
 
-def _caminho_atinge(expressao: str, caminho: str) -> bool:
-    cam = tj.caminho_da_expressao(expressao)
-    return cam == caminho or cam.startswith(caminho + ".") or cam.startswith(caminho + "[]")
-
-
 # ---------------------------------------------------------------- edições na requisição
 
 def _renomear_chave(texto: str, corpo: tj.No, m: c.Mudanca) -> list[Edicao]:
@@ -260,7 +255,7 @@ def _edicoes_da_mudanca(texto: str, m: c.Mudanca, chamadas: list[tj.Chamada]) ->
                 edicoes += _acrescentar_membro(texto, ch.corpo, m)
         elif m.lado == c.RESPOSTA and ch.status_esperado and 200 <= ch.status_esperado < 300:
             for a in ch.assercoes:
-                if not _caminho_atinge(a.expressao, m.caminho):
+                if not tj.expressao_atinge(a.expressao, m.caminho):
                     continue
                 if m.tipo == c.RENOMEACAO:
                     edicoes += _renomear_expressao(texto, a, m)
