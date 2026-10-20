@@ -84,6 +84,8 @@ python3 -m agente_contrato.rodar_baseline --api ../rest-test-healing-sut --saida
 
 Grava `resultados-agente1.json`, no formato da D74, e `log-baseline.json`, com o que não cabe no formato: tempos do Maven e do teste, mudanças aplicadas e ignoradas, motivos da comparação, casos para revisão manual e se as repetições deram o mesmo resultado. O rótulo e a correção esperada do oráculo só são lidos depois da execução de cada caso.
 
+Os resultados da baseline nos 12 casos do piloto (3 repetições, rodadas em 20/10/2026 pelo commit `dbc9734`) estão em `resultados/piloto/`.
+
 Testes da própria baseline (não precisam do Maven):
 
 ```bash
