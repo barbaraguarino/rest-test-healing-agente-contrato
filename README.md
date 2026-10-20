@@ -2,7 +2,7 @@
 
 Agente 1 do estudo "Manutenção de Testes de APIs REST usando Agentes de IA" (disciplina IA Generativa para Engenharia de Software, 2026.2). O agente repara testes de API quebrados por mudança no contrato OpenAPI da API cobaia (`rest-test-healing-sut`) e não repara quando a quebra é uma regressão do código.
 
-Hoje o repositório tem só os casos do piloto e o oráculo deles. O código da baseline determinística e do agente entra nas próximas tarefas.
+O repositório tem os casos do piloto com o oráculo deles e a baseline determinística do Agente 1 (D75), sem LLM. O agente com LLM entra na T09.
 
 ## Casos do piloto
 
@@ -54,6 +54,49 @@ Em 20/10/2026, com Java 21 e o Maven Wrapper da API cobaia, cada caso foi confer
 ### Congelamento
 
 Os casos e o oráculo do piloto são congelados na tag `oraculo-piloto`, criada depois do merge e antes de qualquer execução. Depois da tag, nenhum arquivo de `casos/` é alterado sem registro como desvio na Operação do Estudo. Os casos da execução final são outros e serão congelados na tag `oraculo-final`.
+
+## Baseline determinística
+
+Lê a diferença entre o contrato OpenAPI antigo e o novo e aplica cada mudança mecanicamente no método de teste afetado: renomeia o campo, retira o campo removido, converte o valor para o tipo novo e acrescenta o campo obrigatório novo com um valor padrão por tipo. Se a diferença não atinge o teste, não repara. Não chama LLM nem API paga.
+
+Python 3.13 com a biblioteca padrão (sem dependências); a API cobaia precisa de Java 21 e do Maven Wrapper dela.
+
+| Módulo | Responsabilidade |
+|---|---|
+| `agente_contrato/contrato.py` | diferença entre dois `openapi.json`, por operação e lado (requisição/resposta 2xx) |
+| `agente_contrato/teste_java.py` | leitura do método de teste: chamadas, corpo JSON com posições, asserções `jsonPath` |
+| `agente_contrato/baseline.py` | as regras da D75: mudança de contrato → edição do teste |
+| `agente_contrato/guarda.py` | recusa reparo que remove teste, acrescenta `@Disabled`, tira asserção ou afrouxa matcher (exceção da D77) |
+| `agente_contrato/comparador.py` | equivalência com a correção esperada (regras 1 a 3 da D95) e troca de cenário |
+| `agente_contrato/execucao.py` | cópia limpa da tag, patch do caso e execução de um único teste pelo Maven |
+| `agente_contrato/resultados.py` | validação e gravação atômica do arquivo de resultados (D74) |
+| `agente_contrato/rodar_baseline.py` | junta tudo e roda os casos |
+
+`contrato.py`, `teste_java.py`, `guarda.py`, `execucao.py` e `resultados.py` são reaproveitados pelo agente com LLM; só `baseline.py` é específico da baseline.
+
+### Como rodar
+
+Na raiz do repositório, com a API cobaia clonada ao lado:
+
+```bash
+python3 -m agente_contrato.rodar_baseline --api ../rest-test-healing-sut --saida resultados-baseline --repeticoes 3
+```
+
+Grava `resultados-agente1.json`, no formato da D74, e `log-baseline.json`, com o que não cabe no formato: tempos do Maven e do teste, mudanças aplicadas e ignoradas, motivos da comparação, casos para revisão manual e se as repetições deram o mesmo resultado. O rótulo e a correção esperada do oráculo só são lidos depois da execução de cada caso.
+
+Testes da própria baseline (não precisam do Maven):
+
+```bash
+python3 -I -m unittest discover -s tests -t .
+```
+
+### Limites conhecidos
+
+- Só o corpo da requisição e das respostas 2xx entram na diferença; parâmetros de caminho e de consulta não.
+- Renomeação é um campo removido e um adicionado no mesmo objeto, com o mesmo tipo e enum; havendo mais de um candidato, não se adivinha.
+- Só edita corpos em text block (`"""`) e asserções `.value(...)` simples; matchers como `hasSize(...)` não são convertidos.
+- O guarda conta asserções; trocar uma por outra do mesmo número é assunto do comparador.
+- O resultado de um teste só vale se o Surefire executou exatamente um teste: o Maven responde `BUILD SUCCESS` com `Tests run: 0` quando o filtro não casa.
 
 ## Licença
 
