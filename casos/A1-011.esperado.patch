@@ -1,0 +1,12 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+index c795d95..e8ff656 100644
+--- a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+@@ -129,6 +129,7 @@ class ProdutoControllerTest {
+                                     {
+                                       "sku": "LIV-001",
+                                       "nome": "Livro Repetido",
++                                      "marca": "Editora Exemplo",
+                                       "preco": 10.00,
+                                       "categoria": "LIVROS",
+                                       "ativo": true,

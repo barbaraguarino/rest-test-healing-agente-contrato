@@ -1,0 +1,39 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..87fd25b 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -685,9 +685,6 @@
+             "type" : "integer",
+             "format" : "int64"
+           },
+-          "nome" : {
+-            "type" : "string"
+-          },
+           "pesoGramas" : {
+             "type" : "integer",
+             "format" : "int32"
+@@ -703,6 +700,9 @@
+             "items" : {
+               "type" : "string"
+             }
++          },
++          "titulo" : {
++            "type" : "string"
+           }
+         }
+       }
+diff --git a/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java b/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
+index 6831150..858cdf4 100644
+--- a/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
+@@ -11,8 +11,8 @@ import java.util.List;
+  */
+ public record ProdutoResponse(
+         Long id,
+-        String sku,
+-        String nome,
++        String codigo,
++        String titulo,
+         String descricao,
+         BigDecimal preco,
+         Categoria categoria,

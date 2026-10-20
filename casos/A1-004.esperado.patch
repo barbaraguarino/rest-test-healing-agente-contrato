@@ -1,0 +1,14 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
+index 627fe6b..e951544 100644
+--- a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
+@@ -46,8 +46,7 @@ class FreteControllerTest {
+                     .andExpect(jsonPath("$.modalidade").value("PADRAO"))
+                     .andExpect(jsonPath("$.valor").value(decimal("17.00")))
+                     .andExpect(jsonPath("$.prazoDias").value(is(3)))
+-                    .andExpect(jsonPath("$.freteGratis").value(false))
+-                    .andExpect(jsonPath("$.pesoTotalGramas").value(is(500)));
++                    .andExpect(jsonPath("$.freteGratis").value(false));
+         }
+ 
+         @ParameterizedTest(name = "{0}: valor {2}, prazo {3}")

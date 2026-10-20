@@ -1,0 +1,37 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..ed9b5c8 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -671,9 +671,6 @@
+             "type" : "string",
+             "enum" : [ "ELETRONICOS", "LIVROS", "VESTUARIO", "CASA" ]
+           },
+-          "descricao" : {
+-            "type" : "string"
+-          },
+           "dimensoes" : {
+             "$ref" : "#/components/schemas/DimensoesResponse"
+           },
+@@ -695,6 +692,9 @@
+           "preco" : {
+             "type" : "number"
+           },
++          "resumo" : {
++            "type" : "string"
++          },
+           "sku" : {
+             "type" : "string"
+           },
+diff --git a/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java b/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
+index 6831150..c46fbba 100644
+--- a/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
+@@ -13,7 +13,7 @@ public record ProdutoResponse(
+         Long id,
+         String sku,
+         String nome,
+-        String descricao,
++        String resumo,
+         BigDecimal preco,
+         Categoria categoria,
+         Boolean ativo,

@@ -1,0 +1,33 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..d8c7211 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -360,10 +360,6 @@
+             "type" : "string",
+             "enum" : [ "PADRAO", "EXPRESSA" ]
+           },
+-          "pesoTotalGramas" : {
+-            "type" : "integer",
+-            "format" : "int32"
+-          },
+           "prazoDias" : {
+             "type" : "integer",
+             "format" : "int32"
+diff --git a/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteResponse.java b/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteResponse.java
+index 41825f4..848ddeb 100644
+--- a/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteResponse.java
+@@ -9,11 +9,10 @@ public record CotacaoFreteResponse(
+         ModalidadeFrete modalidade,
+         BigDecimal valor,
+         Integer prazoDias,
+-        Boolean freteGratis,
+-        Integer pesoTotalGramas) {
++        Boolean freteGratis) {
+ 
+     public static CotacaoFreteResponse de(ModalidadeFrete modalidade, ResultadoFrete resultado) {
+         return new CotacaoFreteResponse(
+-                modalidade, resultado.valor(), resultado.prazoDias(), resultado.freteGratis(), resultado.pesoTotalGramas());
++                modalidade, resultado.valor(), resultado.prazoDias(), resultado.freteGratis());
+     }
+ }

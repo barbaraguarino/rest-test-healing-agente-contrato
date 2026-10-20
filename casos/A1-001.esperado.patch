@@ -1,0 +1,13 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+index c795d95..38fba27 100644
+--- a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+@@ -178,7 +178,7 @@ class ProdutoControllerTest {
+                     .andExpect(jsonPath("$.id").value(is(1)))
+                     .andExpect(jsonPath("$.sku").value("LIV-002"))
+                     .andExpect(jsonPath("$.nome").value("Livro de Java"))
+-                    .andExpect(jsonPath("$.descricao").value("Livro sobre Java"))
++                    .andExpect(jsonPath("$.resumo").value("Livro sobre Java"))
+                     .andExpect(jsonPath("$.preco").value(decimal("89.90")))
+                     .andExpect(jsonPath("$.categoria").value("LIVROS"))
+                     .andExpect(jsonPath("$.ativo").value(true))

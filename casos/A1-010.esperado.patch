@@ -1,0 +1,13 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java
+index dd5551d..80bf691 100644
+--- a/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java
+@@ -118,7 +118,7 @@ class PedidoControllerTest {
+                             .content("""
+                                     {
+                                       "carrinhoId": 103,
+-                                      "cliente": {"nome": "Ana Souza", "email": "ana@exemplo.com"},
++                                      "cliente": {"nome": "Ana Souza", "email": "ana@exemplo.com", "cpf": "12345678900"},
+                                       "enderecoEntrega": {
+                                         "logradouro": "Rua A", "numero": "10",
+                                         "cidade": "Campinas", "uf": "SP", "cep": "13010000"

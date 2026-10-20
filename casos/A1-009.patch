@@ -1,0 +1,30 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..d7c17a6 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -496,7 +496,7 @@
+       "ItemCarrinhoResponse" : {
+         "type" : "object",
+         "properties" : {
+-          "precoUnitario" : {
++          "preco" : {
+             "type" : "number"
+           },
+           "produtoId" : {
+diff --git a/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoResponse.java b/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoResponse.java
+index 3e8cb0b..369c33d 100644
+--- a/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoResponse.java
+@@ -4,10 +4,10 @@ import br.edu.resttesthealingsut.carrinho.ItemCarrinho;
+ import java.math.BigDecimal;
+ 
+ /** Item na resposta de carrinho. */
+-public record ItemCarrinhoResponse(Long produtoId, Integer quantidade, BigDecimal precoUnitario, BigDecimal subtotal) {
++public record ItemCarrinhoResponse(Long produtoId, String quantidade, BigDecimal preco, BigDecimal subtotal) {
+ 
+     public static ItemCarrinhoResponse de(ItemCarrinho item) {
+         return new ItemCarrinhoResponse(
+-                item.getProduto().getId(), item.getQuantidade(), item.getPrecoUnitario(), item.calcularSubtotal());
++                item.getProduto().getId(), String.valueOf(item.getQuantidade()), item.getPrecoUnitario(), item.calcularSubtotal());
+     }
+ }
