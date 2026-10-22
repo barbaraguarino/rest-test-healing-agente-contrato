@@ -155,3 +155,11 @@ def diferenca(antigo: dict, novo: dict) -> list[Mudanca]:
                 mudancas.append(Mudanca(CAMPO_OBRIGATORIO_NOVO, metodo, rota, lado, c,
                                         antes=velhos[c], depois=novos[c]))
     return mudancas
+
+
+def rotas_do_contrato(contrato: dict) -> dict[str, set[str]]:
+    """Rotas do contrato por método HTTP; usada para resolver a URL de uma chamada de teste."""
+    rotas: dict[str, set[str]] = {}
+    for metodo, rota, _ in achatar(contrato):
+        rotas.setdefault(metodo, set()).add(rota)
+    return rotas

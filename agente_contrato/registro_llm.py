@@ -40,7 +40,7 @@ class OrcamentoEsgotado(Exception):
     """O gasto acumulado chegou ao limite da rodada (`--orcamento-usd`, D105)."""
 
     def __init__(self, gasto: float, limite: float):
-        super().__init__(f"gasto de US$ {gasto:.6f} chegou ao limite de US$ {limite:.2f}")
+        super().__init__(f"gasto de US$ {gasto:.6f} chegou ao limite de US$ {limite:g}")
         self.gasto, self.limite = gasto, limite
 
 

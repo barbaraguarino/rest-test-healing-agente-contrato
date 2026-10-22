@@ -2,7 +2,7 @@
 
 Agente 1 do estudo "Manutenção de Testes de APIs REST usando Agentes de IA" (disciplina IA Generativa para Engenharia de Software, 2026.2). O agente repara testes de API quebrados por mudança no contrato OpenAPI da API cobaia (`rest-test-healing-sut`) e não repara quando a quebra é uma regressão do código.
 
-O repositório tem os casos do piloto com o oráculo deles e a baseline determinística do Agente 1 (D75), sem LLM. O agente com LLM entra na T09.
+O repositório tem os casos do piloto com o oráculo deles, a baseline determinística do Agente 1 (D75), sem LLM, e a v1 com LLM (Classifier + Repair em pipeline fixo, T09).
 
 ## Casos do piloto
 
@@ -59,7 +59,7 @@ Os casos e o oráculo do piloto são congelados na tag `oraculo-piloto`, criada 
 
 Lê a diferença entre o contrato OpenAPI antigo e o novo e aplica cada mudança mecanicamente no método de teste afetado: renomeia o campo, retira o campo removido, converte o valor para o tipo novo e acrescenta o campo obrigatório novo com um valor padrão por tipo. Se a diferença não atinge o teste, não repara. Não chama LLM nem API paga.
 
-Python 3.13 com a biblioteca padrão (sem dependências); a API cobaia precisa de Java 21 e do Maven Wrapper dela.
+Python 3.13 com a biblioteca padrão (a baseline não tem dependências); a API cobaia precisa de Java 21 e do Maven Wrapper dela.
 
 | Módulo | Responsabilidade |
 |---|---|
@@ -72,7 +72,7 @@ Python 3.13 com a biblioteca padrão (sem dependências); a API cobaia precisa d
 | `agente_contrato/resultados.py` | validação e gravação atômica do arquivo de resultados (D74) |
 | `agente_contrato/rodar_baseline.py` | junta tudo e roda os casos |
 
-`contrato.py`, `teste_java.py`, `guarda.py`, `execucao.py` e `resultados.py` são reaproveitados pelo agente com LLM; só `baseline.py` é específico da baseline.
+`contrato.py`, `teste_java.py`, `guarda.py`, `execucao.py` e `resultados.py` são reaproveitados pelo agente com LLM; só `baseline.py` é específico da baseline. A `rotas_do_contrato` mora em `contrato.py`, com um atalho em `baseline.py` (D103).
 
 ### Como rodar
 
@@ -86,7 +86,7 @@ Grava `resultados-agente1.json`, no formato da D74, e `log-baseline.json`, com o
 
 Os resultados da baseline nos 12 casos do piloto (3 repetições, rodadas em 20/10/2026 pelo commit `dbc9734`) estão em `resultados/piloto/`.
 
-Testes da própria baseline (não precisam do Maven):
+Testes (não precisam do Maven nem da rede; a partir da v1 precisam do SDK instalado, ver abaixo):
 
 ```bash
 python3 -I -m unittest discover -s tests -t .
@@ -99,6 +99,87 @@ python3 -I -m unittest discover -s tests -t .
 - Só edita corpos em text block (`"""`) e asserções `.value(...)` simples; matchers como `hasSize(...)` não são convertidos.
 - O guarda conta asserções; trocar uma por outra do mesmo número é assunto do comparador.
 - O resultado de um teste só vale se o Surefire executou exatamente um teste: o Maven responde `BUILD SUCCESS` com `Tests run: 0` quando o filtro não casa.
+
+## Agente 1 v1 (Classifier + Repair)
+
+Pipeline fixo (D58, D62): o código monta a evidência, o **Classifier** diz se a mudança de contrato é `legitima` ou `problema_real`, e, só se for legítima, o **Repair** devolve o método de teste reparado. O LLM não roda o Maven, não lê arquivo e não grava nada; quem executa, valida, aplica e registra é o código. Decisões: D100 a D106.
+
+| Módulo | Responsabilidade |
+|---|---|
+| `agente_contrato/leitura_falha.py` | mensagem de falha do teste afetado, lida do relatório do Surefire (sem stack trace) |
+| `agente_contrato/evidencia.py` | texto da evidência: diferença de contrato, falha, método de teste e arquivos de `src/main` do módulo |
+| `prompts/classifier.md`, `prompts/repair.md` | prompts versionados, em português e sem exemplos (D70, D100) |
+| `agente_contrato/prompts.py` | carrega os prompts e devolve o commit em que estão (`+alterado` se há mudança pendente) |
+| `agente_contrato/saida.py` | schemas, validação do JSON, `stop_reason`, códigos `saida_invalida` e `max_tokens`, encaixe do método |
+| `agente_contrato/chamada_llm.py` | SDK oficial, parâmetros fixos da D61, tradução dos erros, leitura da chave do `.env` |
+| `agente_contrato/registro_llm.py` | custo em dólares, trava de orçamento e log das chamadas em JSON Lines |
+| `agente_contrato/rodar_v1.py` | runner: etapas 1 a 3 da D105, reexecução por erro de rede, parada após erros seguidos |
+
+### Instalação e chave da API
+
+```bash
+pip install -r requirements.txt     # anthropic==1.17.0
+cp .env.example .env                # e preencha ANTHROPIC_API_KEY no .env
+```
+
+O `.env` fica fora do Git (`.gitignore`). A chave só é lida desse arquivo; nunca vai para log, resultado ou PR.
+
+### Escada de execução (D105)
+
+Cada etapa é uma execução separada, com `--saida` própria. As etapas 2 e 3 chamam a API **paga**: pedem a confirmação `SIM` e exigem `--orcamento-usd`, e a rodada para ao chegar nele.
+
+```bash
+python3 -m agente_contrato.rodar_v1 --etapa 1 --api ../rest-test-healing-sut --saida resultados/t09-etapa1
+python3 -m agente_contrato.rodar_v1 --etapa 2 --api ../rest-test-healing-sut --saida resultados/t09-etapa2 --orcamento-usd 0.10
+python3 -m agente_contrato.rodar_v1 --etapa 3 --api ../rest-test-healing-sut --saida resultados/t09-etapa3 --orcamento-usd 0.10
+```
+
+| Etapa | O que faz | Custo |
+|---|---|---|
+| 1 | conta os tokens de entrada dos prompts reais dos 4 casos da etapa 3 (roda o Maven para obter a falha; não chama o modelo) | gratuito |
+| 2 | uma chamada real do Classifier no A1-001 e mostra `stop_reason`, `usage`, `thinking_tokens`, `request_id` e a validação | cerca de US$ 0,001 |
+| 3 | A1-001, A1-004, A1-010 e A1-003, 1 repetição, pipeline completo | cerca de US$ 0,014 no caso típico |
+
+O piloto completo (12 casos, 3 repetições) é a T10 e não roda por este comando.
+
+### Saídas
+
+| Arquivo | Conteúdo |
+|---|---|
+| `resultados-agente1.json` | formato da D74 (`tratamento` `agentes`, `versao_agente` `v1`), com `tokens` e `custo_usd` por caso |
+| `chamadas.jsonl` | uma linha por chamada ao LLM, gravada na hora (D106): modelo retornado, `stop_reason`, tokens, `thinking_tokens`, `custo_usd`, `request_id`, latência, commit do prompt, resposta bruta e erro |
+| `log-v1.json` | resumo por caso: rótulo e justificativa do Classifier, tentativas, chamadas, guarda, durações do Maven e do teste (para a T33) |
+
+### Quando o caso ou a rodada termina com erro
+
+| Situação | O que acontece |
+|---|---|
+| Classifier diz `problema_real` | o Repair não roda; `decisao` `nao_reparar`, sem erro |
+| JSON fora do schema, rótulo inválido, método que não encaixa, `refusal`, `model_context_window_exceeded` | `erro` `saida_invalida`, sem nova tentativa (D102) |
+| resposta cortada por `max_tokens` | `erro` `max_tokens` |
+| o guarda recusa o reparo | `erro` `guarda` |
+| o reparo não compila ou o teste não passa | sem `erro`; `compilou` e `passou` dizem o que houve |
+| erro de rede, 408, 409, 429 com `retry-after`, 5xx | o SDK repete 2 vezes; se desistir, o caso é reexecutado uma vez; falhando de novo, `erro` `erro_llm` |
+| 400 (inclui o limite de gasto do workspace), 401, 402, 403, outros 4xx, 429 sem `retry-after` | a rodada para na hora (código de saída 3); o caso não é gravado |
+| 3 `erro_llm` seguidos | a rodada para (código 5). Valor inicial, a revisar depois da T09 |
+| gasto chegou ao `--orcamento-usd` | a rodada para antes da próxima chamada (código 4) |
+
+Valores iniciais a medir: timeout de 120 s por chamada e parada após 3 erros seguidos. A etapa 2 também confirma se a saída estruturada funciona com o pensamento adaptativo e se `output_tokens` inclui o thinking.
+
+### Ensaio sem API paga (etapa 0)
+
+`tests/ensaio_etapa0.py` roda os 4 casos da etapa 3 com o Maven de verdade e um modelo falso que responde o que o oráculo espera (código de teste; o agente em si nunca lê `casos/`):
+
+```bash
+PYTHONPATH=. python3 -m tests.ensaio_etapa0 --api ../rest-test-healing-sut --saida /tmp/ensaio
+```
+
+### Limites conhecidos da v1
+
+- O Classifier só vê o módulo do teste em `src/main`; um problema real fora dele não é visto (D100). O piloto serve para ajustar isso (D99).
+- A mensagem de falha mostra a primeira asserção que falhou, não todas.
+- O Repair só troca o **corpo** do método; anotações e assinatura são as do original.
+- O custo da chamada que falha sem resposta é registrado como zero; o gasto real se confere no Console.
 
 ## Licença
 

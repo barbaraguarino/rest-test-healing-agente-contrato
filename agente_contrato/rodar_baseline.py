@@ -53,6 +53,8 @@ class Execucao:
     guarda_motivos: tuple = ()
     maven_s: list = field(default_factory=list)
     teste_s: list = field(default_factory=list)
+    tokens: int = 0         # entrada + saída das chamadas ao LLM; 0 na baseline
+    custo_usd: float = 0    # 0 na baseline
 
 
 # ---------------------------------------------------------------- execução (sem oráculo)
@@ -115,15 +117,19 @@ def texto_esperado(raiz_repo: Path, correcao: str, rel_arquivo: str, original: s
         return alvo.read_text(encoding="utf-8")
 
 
-def registrar(e: Execucao, oraculo: dict, repeticao: int, raiz_repo: Path) -> tuple[dict, dict]:
-    """Devolve (registro da D74, extras para o log). Único lugar que lê o oráculo."""
-    registro = {"id_caso": e.id_caso, "agente": "agente1", "tratamento": "baseline",
-                "versao_agente": None, "categoria": oraculo["categoria"],
+def registrar(e: Execucao, oraculo: dict, repeticao: int, raiz_repo: Path,
+              tratamento: str = "baseline", versao_agente: str | None = None) -> tuple[dict, dict]:
+    """Devolve (registro da D74, extras para o log). Único lugar que lê o oráculo.
+
+    Os padrões de `tratamento` e `versao_agente` são os da baseline; a v1 passa `agentes` e `v1`.
+    """
+    registro = {"id_caso": e.id_caso, "agente": "agente1", "tratamento": tratamento,
+                "versao_agente": versao_agente, "categoria": oraculo["categoria"],
                 "rotulo_oraculo": oraculo["rotulo_oraculo"], "decisao": e.decisao,
                 "compilou": None, "passou": e.passou, "equivalente_oraculo": None,
                 "assercoes_enfraquecidas": None, "cenario_alterado": None,
-                "repeticao": repeticao, "tempo_s": round(e.tempo_s, 4), "tokens": 0,
-                "custo_usd": 0, "erro": e.erro}
+                "repeticao": repeticao, "tempo_s": round(e.tempo_s, 4), "tokens": e.tokens,
+                "custo_usd": e.custo_usd, "erro": e.erro}
     extras = {"revisao_manual": False, "motivos": []}
     if e.decisao == baseline.REPARAR:
         esperado = (texto_esperado(raiz_repo, oraculo["correcao_esperada"], e.arquivo_relativo,
