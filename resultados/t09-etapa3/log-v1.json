@@ -1,0 +1,96 @@
+{
+  "execucoes": [
+    {
+      "id_caso": "A1-001",
+      "repeticao": 1,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo renomeou \"descricao\" para \"resumo\" na resposta de GET /produtos/{id}, e o ProdutoResponse agora expõe o campo como \"resumo\" (preenchido com produto.getDescricao()), de modo que o teste que ainda procura \"$.descricao\" está desatualizado e a falha \"No value at JSON path \\\"$.descricao\\\"\" é explicada pela diferença registrada.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 18115,
+      "custo_usd": 0.0022183,
+      "guarda": [],
+      "duracao_maven_s": [
+        13.1,
+        12.37
+      ],
+      "duracao_teste_s": [
+        5.29,
+        5.38
+      ],
+      "commit_do_prompt": "82c4edb50d59aa32c6bea056cb787ba1a7260d66",
+      "revisao_manual": false,
+      "motivos": [
+        "mudou uma asserção sobre um campo que a diferença de contrato não atinge"
+      ]
+    },
+    {
+      "id_caso": "A1-004",
+      "repeticao": 1,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo registra a remoção do campo pesoTotalGramas da resposta de POST /fretes/cotacao, e o CotacaoFreteResponse atual já não o contém (só modalidade, valor, prazoDias e freteGratis), então a falha 'No value at JSON path $.pesoTotalGramas' decorre exatamente dessa mudança intencional. O teste ficou desatualizado e deve deixar de asserir esse campo.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 15661,
+      "custo_usd": 0.0018457,
+      "guarda": [],
+      "duracao_maven_s": [
+        13.05,
+        11.97
+      ],
+      "duracao_teste_s": [
+        5.5,
+        5.46
+      ],
+      "commit_do_prompt": "82c4edb50d59aa32c6bea056cb787ba1a7260d66",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-010",
+      "repeticao": 1,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo tornou o campo cliente.cpf obrigatório, e ClienteRequest já exige cpf com @NotBlank, o que explica o 400. O teste envia o cliente sem cpf, então ficou desatualizado; a correção é incluir o cpf no corpo da requisição do teste.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 25765,
+      "custo_usd": 0.0030929,
+      "guarda": [],
+      "duracao_maven_s": [
+        13.05,
+        12.37
+      ],
+      "duracao_teste_s": [
+        5.55,
+        5.6
+      ],
+      "commit_do_prompt": "82c4edb50d59aa32c6bea056cb787ba1a7260d66",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-003",
+      "repeticao": 1,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "O contrato novo registra apenas a renomeação de \"nome\" para \"titulo\", mas o ProdutoResponse também expõe o SKU como \"codigo\" em vez de \"sku\". A falha \"No value at JSON path $.sku\" tem uma causa que as diferenças registradas não explicam, então o código se afasta do contrato e o teste deve ser mantido.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 9244,
+      "custo_usd": 0.0010612,
+      "guarda": [],
+      "duracao_maven_s": [
+        14.4
+      ],
+      "duracao_teste_s": [
+        6.96
+      ],
+      "commit_do_prompt": "82c4edb50d59aa32c6bea056cb787ba1a7260d66",
+      "revisao_manual": false,
+      "motivos": []
+    }
+  ]
+}

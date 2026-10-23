@@ -44,6 +44,31 @@ class _Metodo:
     chamadas: tuple[_Chamada, ...]
 
 
+def _texto_da_asserção(texto: str, a: tj.Assercao) -> str:
+    """O `.andExpect(...)` que contém a asserção, de `.andExpect(` até o parêntese que o fecha.
+
+    Não depende de quebras de linha: um método reescrito pelo LLM com o corpo numa linha só
+    tem as mesmas asserções que o original (T09, etapa 3, A1-001). Sem `.andExpect(` antes da
+    asserção, volta ao texto da linha inteira.
+    """
+    ini = texto.rfind(".andExpect(", 0, a.ini_expressao)
+    if ini >= 0:
+        i, nivel = ini + len(".andExpect"), 0
+        while i < len(texto):
+            proximo = tj._depois_do_literal(texto, i)
+            if proximo != i:
+                i = proximo
+                continue
+            if texto[i] == "(":
+                nivel += 1
+            elif texto[i] == ")":
+                nivel -= 1
+                if nivel == 0:
+                    return texto[ini:i + 1]
+            i += 1
+    return texto[a.ini_linha:a.fim_linha]
+
+
 def _extrair(texto: str, nome: str, rotas: dict[str, set[str]]) -> _Metodo:
     metodo = tj.localizar_metodo(texto, nome)
     chamadas = []
@@ -55,7 +80,7 @@ def _extrair(texto: str, nome: str, rotas: dict[str, set[str]]) -> _Metodo:
             except json.JSONDecodeError as e:
                 raise tj.ErroDeAnalise(f"corpo JSON inválido: {e}") from None
         assercoes = tuple((tj.caminho_da_expressao(a.expressao),
-                           _sem_espacos(texto[a.ini_linha:a.fim_linha]).rstrip(";"))
+                           _sem_espacos(_texto_da_asserção(texto, a)).rstrip(";"))
                           for a in ch.assercoes)
         chamadas.append(_Chamada(ch.metodo_http, ch.url, ch.rota, ch.status_esperado, corpo, assercoes))
     return _Metodo(texto[:metodo.inicio] + texto[metodo.fim:], texto[metodo.inicio:metodo.fim],

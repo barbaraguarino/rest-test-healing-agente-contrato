@@ -288,8 +288,4 @@ def reparar(texto: str, nome_metodo: str, mudancas: list[c.Mudanca],
     return Resultado(REPARAR, _aplicar(texto, edicoes), tuple(aplicadas), tuple(ignoradas))
 
 
-def rotas_do_contrato(contrato: dict) -> dict[str, set[str]]:
-    rotas: dict[str, set[str]] = {}
-    for metodo, rota, _ in c.achatar(contrato):
-        rotas.setdefault(metodo, set()).add(rota)
-    return rotas
+rotas_do_contrato = c.rotas_do_contrato  # atalho: a função passou para contrato.py (D103)
