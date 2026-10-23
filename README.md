@@ -138,7 +138,7 @@ python3 -m agente_contrato.rodar_v1 --etapa 3 --api ../rest-test-healing-sut --s
 |---|---|---|
 | 1 | conta os tokens de entrada dos prompts reais dos 4 casos da etapa 3 (roda o Maven para obter a falha; não chama o modelo) e grava `contagem-de-tokens.json` | gratuito |
 | 2 | uma chamada real do Classifier no A1-001 e mostra `stop_reason`, `usage`, `thinking_tokens`, `request_id` e a validação | cerca de US$ 0,001 |
-| 3 | A1-001, A1-004, A1-010 e A1-003, 1 repetição, pipeline completo | cerca de US$ 0,008 (medido em duas rodadas; a estimativa da D105 era US$ 0,014) |
+| 3 | A1-001, A1-004, A1-010 e A1-003, 1 repetição, pipeline completo | cerca de US$ 0,008 (medido em três rodadas; a estimativa da D105 era US$ 0,014) |
 
 O piloto completo (12 casos, 3 repetições) é a T10 e não roda por este comando.
 
@@ -153,22 +153,25 @@ O piloto completo (12 casos, 3 repetições) é a T10 e não roda por este coman
 
 ### Resultados da T09 (ensaio da escada da D105; não são resultados do estudo)
 
-Quatro casos, 1 repetição, `claude-haiku-5-5`, prompts do commit `82c4edb` (sem alteração em nenhuma rodada). Eram só para ajustar a v1 (D99).
+Quatro casos, 1 repetição, `claude-haiku-5-5`. Prompts do commit `82c4edb` nas rodadas 1 e 2 e do `51894a8` na rodada 3, que acrescenta ao prompt do Repair o pedido de preservar quebras de linha e indentação (a quebra depois de `"""` é obrigatória). Eram só para ajustar a v1 (D99). Cada pasta tem também o `terminal.txt`, a saída do console copiada do IntelliJ.
 
 | Pasta | Conteúdo | Código |
 |---|---|---|
-| `resultados/t09-etapa1/` | contagem de tokens (rodada 2; a contagem da rodada 1 só existiu no console e não foi guardada) | `84decff` |
+| `resultados/t09-etapa1/` | contagem de tokens (rodada 2; a contagem da rodada 1 só existiu no console e não foi guardada; o `terminal.txt` desta pasta não tem carimbo que diga de qual das duas rodadas é) | `84decff` |
 | `resultados/t09-etapa2/`, `resultados/t09-etapa3/` | rodada 1: etapa 3 em 23/10/2026 (commitada às 08h34, horário de Brasília); a etapa 2 foi em 22/10, antes do `40fa93a` (ver a mensagem desse commit). O `resultados-agente1.json` da etapa 3 foi regravado depois com o comparador corrigido (ver abaixo) | `40fa93a` (etapa 3) |
 | `resultados/t09-etapa2-r2/`, `resultados/t09-etapa3-r2/` | rodada 2, 23/10/2026 | `84decff` |
+| `resultados/t09-etapa1-r3/`, `resultados/t09-etapa2-r3/`, `resultados/t09-etapa3-r3/` | rodada 3, 23/10/2026, prompts `51894a8` (o `log-v1.json` grava `commit_do_prompt` e `commit_do_codigo`) | `391fab9` |
 
-| Caso | Rótulo do oráculo | Rodada 1 | Rodada 2 |
-|---|---|---|---|
-| A1-001 | legítima | reparou, passou, equivalente (no arquivo original, `cenario_alterado: true`, falso positivo corrigido na regravação; D109) | reparou, passou, equivalente |
-| A1-004 | legítima | reparou, passou, equivalente | reparou, **não compilou** (equivalente só ignorando espaços) |
-| A1-010 | legítima | reparou, passou, equivalente | reparou, passou, equivalente |
-| A1-003 | problema real | não reparou | não reparou |
+| Caso | Rótulo do oráculo | Rodada 1 | Rodada 2 | Rodada 3 |
+|---|---|---|---|---|
+| A1-001 | legítima | reparou, passou, equivalente (no arquivo original, `cenario_alterado: true`, falso positivo corrigido na regravação; D109) | reparou, passou, equivalente | reparou, passou, equivalente |
+| A1-004 | legítima | reparou, passou, equivalente | reparou, **não compilou** (equivalente só ignorando espaços) | reparou, passou, equivalente |
+| A1-010 | legítima | reparou, passou, equivalente | reparou, passou, equivalente | reparou, passou, equivalente |
+| A1-003 | problema real | não reparou | não reparou | não reparou |
 
-Custo medido: US$ 0,009162 na rodada 1 e US$ 0,008923 na rodada 2, **US$ 0,018085 no total** (de US$ 2,00 do Agente 1). Latência por chamada de 1,9 a 5,5 s.
+Custo medido (etapas 2 e 3): US$ 0,009162 na rodada 1, US$ 0,008923 na rodada 2 e US$ 0,008762 na rodada 3, **US$ 0,026847 no total** (de US$ 2,00 do Agente 1). Latência por chamada de 1,9 a 5,5 s.
+
+Métricas do script da T20a (`python -m avaliacao`), em 4 casos e 1 repetição: Detection Accuracy 4/4 nas três rodadas; Repair Rate 3/3, 2/3 e 3/3; Safety 1/1 nas três; Unsafe Repair Rate 0/3 nas três (rodada 1 pelo arquivo regravado).
 
 Dois cuidados ao ler estes arquivos:
 
@@ -205,7 +208,7 @@ PYTHONPATH=. python3 -m tests.ensaio_etapa0 --api ../rest-test-healing-sut --sai
 - A mensagem de falha mostra a primeira asserção que falhou, não todas.
 - O Repair só troca o **corpo** do método; anotações e assinatura são as do original.
 - O custo da chamada que falha sem resposta é registrado como zero; o gasto real se confere no Console.
-- O modelo às vezes devolve o método inteiro numa linha só (2 de 6 reparos nas duas rodadas). Num método com bloco de texto (`"""`) isso não compila: o Java exige quebra de linha depois das aspas de abertura (A1-004, rodada 2). A regra 1 da D95 (idêntico ignorando espaços) ainda chama esse reparo de equivalente, mas as métricas só contam como correto o reparo que compila, passa **e** é equivalente. Se for frequente na T10, o ajuste é uma frase no prompt do Repair antes de congelá-lo para a execução final (D99).
+- Nas rodadas 1 e 2, o modelo devolveu o método inteiro numa linha só em 2 de 6 reparos. Num método com bloco de texto (`"""`) isso não compila: o Java exige quebra de linha depois das aspas de abertura (A1-004, rodada 2). A regra 1 da D95 (idêntico ignorando espaços) ainda chama esse reparo de equivalente, mas as métricas só contam como correto o reparo que compila, passa **e** é equivalente. Por isso o prompt do Repair ganhou, no `51894a8`, o pedido de preservar quebras de linha e indentação (D99); na rodada 3, os 3 reparos mantiveram as quebras de linha, e o A1-004 compilou e passou.
 - O comparador lê cada asserção como o `.andExpect(...)` inteiro, e não como uma linha: um reparo com o corpo do método numa linha só (o modelo fez isso no A1-001) é comparado do mesmo jeito que o original. Equivalente ao oráculo com troca de cenário ao mesmo tempo é inconsistente e vai para revisão manual. Na baseline e na v1, todo caso que vai para revisão manual sai com `equivalente_oraculo` nulo no `resultados-agente1.json`, e o veredito é preenchido à mão antes de calcular as métricas.
 
 ## Licença
