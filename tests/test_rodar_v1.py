@@ -205,6 +205,25 @@ class EtapasETest(BaseRodada):
         self.assertEqual(len(self.linhas_do_log()), 1)
 
 
+class NotaDoThinkingTest(unittest.TestCase):
+    def _nota(self, thinking, saida=164):
+        return v1._nota_do_thinking(registro_llm.Uso(8619, saida, thinking))
+
+    def test_so_confirma_quando_ha_thinking_para_medir(self):
+        self.assertIn("dentro da saída", self._nota(300, 700))
+
+    def test_zero_nao_confirma_nada(self):
+        nota = self._nota(0)
+        self.assertIn("NÃO confirma", nota)
+        self.assertNotIn("dentro da saída", nota)
+
+    def test_sem_informacao_da_api(self):
+        self.assertIn("não informou", self._nota(None))
+
+    def test_thinking_maior_que_a_saida_e_um_alerta(self):
+        self.assertIn("ATENÇÃO", self._nota(900, 700))
+
+
 class LinhaDeComandoTest(unittest.TestCase):
     def test_etapas_pagas_exigem_orcamento(self):
         for etapa in ("2", "3"):
@@ -217,6 +236,17 @@ class LinhaDeComandoTest(unittest.TestCase):
     def test_nao_existe_etapa_do_piloto_completo(self):
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
             v1._argumentos(["--etapa", "4", "--api", "a", "--saida", "s", "--orcamento-usd", "1"])
+
+    def test_pasta_da_api_inexistente_da_mensagem_clara_antes_de_ler_a_chave_ou_gastar(self):
+        def sem_cliente():
+            raise AssertionError("o cliente não deveria ser criado")
+        erro = io.StringIO()
+        with contextlib.redirect_stderr(erro):
+            codigo = v1.main(["--etapa", "1", "--api", "/nao/existe/rest-healing-sut", "--saida", "x"],
+                             criar_cliente=sem_cliente)
+        self.assertEqual(codigo, 2)
+        self.assertIn("A API cobaia não foi encontrada em /nao/existe/rest-healing-sut", erro.getvalue())
+        self.assertIn("confira o nome da pasta", erro.getvalue())
 
     def test_etapa_3_usa_os_quatro_casos_da_d105(self):
         self.assertEqual(v1.CASOS_DA_ETAPA_3, ("A1-001", "A1-004", "A1-010", "A1-003"))

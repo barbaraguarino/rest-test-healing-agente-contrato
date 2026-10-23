@@ -250,6 +250,19 @@ def etapa_1(entradas: list[Entrada], api: Path, tag: str, cliente, textos: dict[
     return SAIDA_OK
 
 
+def _nota_do_thinking(uso: registro_llm.Uso) -> str:
+    """Só afirma que o thinking está dentro de `output_tokens` quando houve thinking para medir:
+    com 0 a comparação é trivial e não prova nada (a etapa 2 de 22/10/2026 mostrou isso)."""
+    t = uso.thinking_tokens
+    if t is None:
+        return "  (a API não informou)"
+    if t == 0:
+        return "  (o modelo não pensou nesta chamada: isto NÃO confirma se o thinking entra em output_tokens)"
+    if t <= uso.output_tokens:
+        return "  (<= output_tokens: o thinking está dentro da saída)"
+    return "  (ATENÇÃO: maior que output_tokens; o thinking pode ser cobrado à parte)"
+
+
 def etapa_2(entrada: Entrada, api: Path, tag: str, chamador: Chamador, rodar=execucao.rodar_teste) -> int:
     """Uma chamada real do Classifier e tudo o que a D105 manda verificar nela."""
     conta = Conta()
@@ -269,9 +282,7 @@ def etapa_2(entrada: Entrada, api: Path, tag: str, chamador: Chamador, rodar=exe
     print(f"latência         : {r.latencia_s:.2f} s")
     print(f"input_tokens     : {r.uso.input_tokens}")
     print(f"output_tokens    : {r.uso.output_tokens}")
-    print(f"thinking_tokens  : {r.uso.thinking_tokens}"
-          + ("  (<= output_tokens: o thinking está dentro da saída)"
-             if r.uso.thinking_tokens is not None and r.uso.thinking_tokens <= r.uso.output_tokens else ""))
+    print(f"thinking_tokens  : {r.uso.thinking_tokens}" + _nota_do_thinking(r.uso))
     print(f"custo            : US$ {conta.custo_usd:.6f}")
     print(f"resposta bruta   : {r.texto}")
     try:
@@ -305,6 +316,11 @@ def main(argv: list[str] | None = None, criar_cliente=None, rodar=execucao.rodar
     oraculo = json.loads((raiz_repo / "casos" / "oraculo-agente1.json").read_text(encoding="utf-8"))
     if oraculo["versao_api"] != args.tag:
         print(f"o oráculo é da tag {oraculo['versao_api']}, não de {args.tag}", file=sys.stderr)
+        return 2
+    if not (args.api / ".git").exists():
+        print(f"A API cobaia não foi encontrada em {args.api.resolve()}.\n"
+              f"O caminho de --api é relativo ao diretório de trabalho ({Path.cwd()}); confira o nome da pasta.",
+              file=sys.stderr)
         return 2
     ids = {1: CASOS_DA_ETAPA_3, 2: (CASO_DA_ETAPA_2,), 3: CASOS_DA_ETAPA_3}[args.etapa]
     entradas = rodar_baseline._carregar_entradas(raiz_repo, oraculo, set(ids))
