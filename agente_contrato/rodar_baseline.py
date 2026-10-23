@@ -138,10 +138,16 @@ def registrar(e: Execucao, oraculo: dict, repeticao: int, raiz_repo: Path,
         registro.update(compilou=e.compilou, equivalente_oraculo=cmp.equivalente,
                         assercoes_enfraquecidas=False, cenario_alterado=cmp.cenario_alterado)
         extras["motivos"] = list(cmp.motivos)
+        # Equivalente à correção esperada e com troca de cenário ao mesmo tempo não pode ser: a
+        # correção esperada não troca o cenário. Quase sempre é a extração errando (T09, etapa 3).
+        inconsistente = cmp.equivalente is True and cmp.cenario_alterado is True
+        if inconsistente:
+            extras["motivos"].append("inconsistência: equivalente ao oráculo e com troca de cenário")
         # D80: a regra que não decide, ou que reprova um reparo que compila e passa, vai para revisão manual
         extras["revisao_manual"] = bool(
             (esperado is not None and cmp.equivalente is None)
-            or (cmp.equivalente is False and e.compilou and e.passou))
+            or (cmp.equivalente is False and e.compilou and e.passou)
+            or inconsistente)
     return registro, extras
 
 

@@ -51,6 +51,19 @@ class RegistrarTest(unittest.TestCase):
                  '                 .andExpect(status().isCreated());\n')
         (self.raiz / "casos/esperado.patch").write_text(patch)
 
+    def test_equivalente_com_troca_de_cenario_vai_para_revisao_manual(self):
+        from unittest import mock
+        from agente_contrato import comparador
+        contraditorio = comparador.Comparacao(True, True, ())
+        with mock.patch.object(rb.comparador, "comparar", return_value=contraditorio):
+            _, extras = rb.registrar(execucao(), ORACULO, 1, self.raiz)
+        self.assertTrue(extras["revisao_manual"])
+        self.assertIn("inconsistência", " ".join(extras["motivos"]))
+
+    def test_reparo_coerente_nao_vai_para_revisao_manual(self):
+        _, extras = rb.registrar(execucao(), ORACULO, 1, self.raiz)
+        self.assertFalse(extras["revisao_manual"])
+
     def test_registro_de_reparo_equivalente_e_valido_na_d74(self):
         registro, extras = rb.registrar(execucao(), ORACULO, 1, self.raiz)
         self.assertEqual(resultados.problemas(registro), [])

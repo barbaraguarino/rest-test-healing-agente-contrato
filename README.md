@@ -180,6 +180,7 @@ PYTHONPATH=. python3 -m tests.ensaio_etapa0 --api ../rest-test-healing-sut --sai
 - A mensagem de falha mostra a primeira asserção que falhou, não todas.
 - O Repair só troca o **corpo** do método; anotações e assinatura são as do original.
 - O custo da chamada que falha sem resposta é registrado como zero; o gasto real se confere no Console.
+- O comparador lê cada asserção como o `.andExpect(...)` inteiro, e não como uma linha: um reparo com o corpo do método numa linha só (o modelo fez isso no A1-001) é comparado do mesmo jeito que o original. Equivalente ao oráculo com troca de cenário ao mesmo tempo é inconsistente e vai para revisão manual.
 
 ## Licença
 

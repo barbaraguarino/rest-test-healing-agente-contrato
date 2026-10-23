@@ -136,6 +136,29 @@ class CenarioTest(unittest.TestCase):
                         antes=c.Propriedade("string", None, None, False))
         self.assertFalse(self.cenario(java('{"a": 1}'), rem))
 
+    # Formatação do LLM: o comparador não pode depender de uma asserção por linha (T09, etapa 3, A1-001).
+    DUAS_EM_LINHAS = ('.andExpect(jsonPath("$.nome").value("a)b"))\n'
+                      '                .andExpect(jsonPath("$.id").value(is(1)))')
+
+    def _cenario_de_resposta(self, original_asserts, reparado_asserts):
+        orig = java('{"a": 1}', asserts=original_asserts)
+        rep = java('{"a": 1}', asserts=reparado_asserts)
+        r = cp.comparar(orig, rep, None, "teste", [renomeia("nome", "titulo", c.RESPOSTA)], ROTAS)
+        return r.cenario_alterado
+
+    def test_asserções_na_mesma_linha_nao_trocam_cenario(self):
+        achatado = '.andExpect(jsonPath("$.titulo").value("a)b")) .andExpect(jsonPath("$.id").value(is(1)))'
+        self.assertFalse(self._cenario_de_resposta(self.DUAS_EM_LINHAS, achatado))
+
+    def test_valor_alterado_numa_asserção_na_mesma_linha_continua_trocando_cenario(self):
+        achatado = '.andExpect(jsonPath("$.titulo").value("a)b")) .andExpect(jsonPath("$.id").value(is(2)))'
+        self.assertTrue(self._cenario_de_resposta(self.DUAS_EM_LINHAS, achatado))
+
+    def test_asserção_dividida_em_varias_linhas_vale_o_mesmo_que_numa_so(self):
+        dividido = ('.andExpect(\n                    jsonPath("$.titulo")\n                        .value("a)b"))\n'
+                    '                .andExpect(jsonPath("$.id").value(is(1)))')
+        self.assertFalse(self._cenario_de_resposta(self.DUAS_EM_LINHAS, dividido))
+
 
 if __name__ == "__main__":
     unittest.main()
