@@ -59,7 +59,7 @@ Os casos e o oráculo do piloto são congelados na tag `oraculo-piloto`, criada 
 
 Lê a diferença entre o contrato OpenAPI antigo e o novo e aplica cada mudança mecanicamente no método de teste afetado: renomeia o campo, retira o campo removido, converte o valor para o tipo novo e acrescenta o campo obrigatório novo com um valor padrão por tipo. Se a diferença não atinge o teste, não repara. Não chama LLM nem API paga.
 
-Python 3.13 com a biblioteca padrão (a baseline não tem dependências); a API cobaia precisa de Java 21 e do Maven Wrapper dela.
+Python 3.13 (nuvem) e 3.14 (IntelliJ) com a biblioteca padrão (a baseline não tem dependências); a API cobaia precisa de Java 21 e do Maven Wrapper dela.
 
 | Módulo | Responsabilidade |
 |---|---|
@@ -138,7 +138,7 @@ python3 -m agente_contrato.rodar_v1 --etapa 3 --api ../rest-test-healing-sut --s
 |---|---|---|
 | 1 | conta os tokens de entrada dos prompts reais dos 4 casos da etapa 3 (roda o Maven para obter a falha; não chama o modelo) e grava `contagem-de-tokens.json` | gratuito |
 | 2 | uma chamada real do Classifier no A1-001 e mostra `stop_reason`, `usage`, `thinking_tokens`, `request_id` e a validação | cerca de US$ 0,001 |
-| 3 | A1-001, A1-004, A1-010 e A1-003, 1 repetição, pipeline completo | cerca de US$ 0,014 no caso típico |
+| 3 | A1-001, A1-004, A1-010 e A1-003, 1 repetição, pipeline completo | cerca de US$ 0,008 (medido em duas rodadas; a estimativa da D105 era US$ 0,014) |
 
 O piloto completo (12 casos, 3 repetições) é a T10 e não roda por este comando.
 
@@ -150,6 +150,30 @@ O piloto completo (12 casos, 3 repetições) é a T10 e não roda por este coman
 | `resultados-agente1.json` | formato da D74 (`tratamento` `agentes`, `versao_agente` `v1`), com `tokens` e `custo_usd` por caso |
 | `chamadas.jsonl` | uma linha por chamada ao LLM, gravada na hora (D106): modelo retornado, `stop_reason`, tokens, `thinking_tokens`, `custo_usd`, `request_id`, latência, commit do prompt, resposta bruta e erro |
 | `log-v1.json` | resumo por caso: rótulo e justificativa do Classifier, tentativas, chamadas, guarda, durações do Maven e do teste (para a T33) |
+
+### Resultados da T09 (ensaio da escada da D105; não são resultados do estudo)
+
+Quatro casos, 1 repetição, `claude-haiku-5-5`, prompts do commit `82c4edb` (sem alteração em nenhuma rodada). Eram só para ajustar a v1 (D99).
+
+| Pasta | Conteúdo | Código |
+|---|---|---|
+| `resultados/t09-etapa1/` | contagem de tokens (rodada 2; a rodada 1 só existiu no console, com os mesmos números) | `84decff` |
+| `resultados/t09-etapa2/`, `resultados/t09-etapa3/` | rodada 1: etapa 3 em 23/10/2026 (commitada às 08h34, horário de Brasília); a etapa 2 foi entre 22 e 23/10 (os arquivos não têm carimbo) | `40fa93a` |
+| `resultados/t09-etapa2-r2/`, `resultados/t09-etapa3-r2/` | rodada 2, 23/10/2026 | `84decff` |
+
+| Caso | Rótulo do oráculo | Rodada 1 | Rodada 2 |
+|---|---|---|---|
+| A1-001 | legítima | reparou, passou, equivalente | reparou, passou, equivalente |
+| A1-004 | legítima | reparou, passou, equivalente | reparou, **não compilou** (equivalente só ignorando espaços) |
+| A1-010 | legítima | reparou, passou, equivalente | reparou, passou, equivalente |
+| A1-003 | problema real | não reparou | não reparou |
+
+Custo medido: US$ 0,009162 na rodada 1 e US$ 0,008923 na rodada 2, **US$ 0,018085 no total** (de US$ 2,00 do Agente 1). Latência por chamada de 1,9 a 5,5 s.
+
+Dois cuidados ao ler estes arquivos:
+
+- O `resultados-agente1.json` da **rodada 1** foi gerado antes da correção do comparador: o `cenario_alterado: true` do A1-001 ali é falso positivo (o modelo devolveu o método numa linha só). Não foi regravado, porque ele guarda o que o código da época produziu. A rodada 2 já usa o comparador corrigido.
+- As duas rodadas dão resultados diferentes porque o modelo não aceita `temperature`; ambas ficam registradas, e nenhuma é a "melhor".
 
 ### Quando o caso ou a rodada termina com erro
 
@@ -181,6 +205,7 @@ PYTHONPATH=. python3 -m tests.ensaio_etapa0 --api ../rest-test-healing-sut --sai
 - A mensagem de falha mostra a primeira asserção que falhou, não todas.
 - O Repair só troca o **corpo** do método; anotações e assinatura são as do original.
 - O custo da chamada que falha sem resposta é registrado como zero; o gasto real se confere no Console.
+- O modelo às vezes devolve o método inteiro numa linha só (2 de 6 reparos nas duas rodadas). Num método com bloco de texto (`"""`) isso não compila: o Java exige quebra de linha depois das aspas de abertura (A1-004, rodada 2). A regra 1 da D95 (idêntico ignorando espaços) ainda chama esse reparo de equivalente, mas as métricas só contam como correto o reparo que compila, passa **e** é equivalente. Se for frequente na T10, o ajuste é uma frase no prompt do Repair antes de congelá-lo para a execução final (D99).
 - O comparador lê cada asserção como o `.andExpect(...)` inteiro, e não como uma linha: um reparo com o corpo do método numa linha só (o modelo fez isso no A1-001) é comparado do mesmo jeito que o original. Equivalente ao oráculo com troca de cenário ao mesmo tempo é inconsistente e vai para revisão manual.
 
 ## Licença

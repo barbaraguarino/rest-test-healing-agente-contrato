@@ -265,7 +265,7 @@ def etapa_1(entradas: list[Entrada], api: Path, tag: str, cliente, textos: dict[
 
 def _nota_do_thinking(uso: registro_llm.Uso) -> str:
     """Só afirma que o thinking está dentro de `output_tokens` quando houve thinking para medir:
-    com 0 a comparação é trivial e não prova nada (a etapa 2 de 22/10/2026 mostrou isso)."""
+    com 0 a comparação é trivial e não prova nada (a primeira etapa 2 real teve 0 de 164 tokens)."""
     t = uso.thinking_tokens
     if t is None:
         return "  (a API não informou)"
