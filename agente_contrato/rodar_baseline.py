@@ -148,6 +148,10 @@ def registrar(e: Execucao, oraculo: dict, repeticao: int, raiz_repo: Path,
             (esperado is not None and cmp.equivalente is None)
             or (cmp.equivalente is False and e.compilou and e.passou)
             or inconsistente)
+        if extras["revisao_manual"]:
+            # O veredito pendente fica no próprio arquivo: o script da T20a recusa o arquivo com
+            # equivalente_oraculo nulo num caso legítimo reparado até a revisão manual preencher o valor.
+            registro["equivalente_oraculo"] = None
     return registro, extras
 
 

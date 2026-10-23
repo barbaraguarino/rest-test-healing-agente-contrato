@@ -13,7 +13,7 @@
       "passou": true,
       "equivalente_oraculo": true,
       "assercoes_enfraquecidas": false,
-      "cenario_alterado": true,
+      "cenario_alterado": false,
       "repeticao": 1,
       "tempo_s": 7.9637,
       "tokens": 18115,

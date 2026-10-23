@@ -147,9 +147,9 @@ O piloto completo (12 casos, 3 repetições) é a T10 e não roda por este coman
 | Arquivo | Conteúdo |
 |---|---|
 | `contagem-de-tokens.json` | só na etapa 1: tokens de entrada contados por caso e prompt, caracteres, commit dos prompts e data |
-| `resultados-agente1.json` | formato da D74 (`tratamento` `agentes`, `versao_agente` `v1`), com `tokens` e `custo_usd` por caso |
+| `resultados-agente1.json` | formato da D74 (`tratamento` `agentes`, `versao_agente` `v1`), com `tokens` e `custo_usd` por caso. Caso que vai para revisão manual (D80, D109) sai com `equivalente_oraculo` nulo até o veredito ser preenchido à mão; o script da T20a recusa o arquivo enquanto houver um nulo assim num caso legítimo reparado |
 | `chamadas.jsonl` | uma linha por chamada ao LLM, gravada na hora (D106): modelo retornado, `stop_reason`, tokens, `thinking_tokens`, `custo_usd`, `request_id`, latência, commit do prompt, resposta bruta e erro |
-| `log-v1.json` | resumo por caso: rótulo e justificativa do Classifier, tentativas, chamadas, guarda, durações do Maven e do teste (para a T33) |
+| `log-v1.json` | resumo por caso: rótulo e justificativa do Classifier, tentativas, chamadas, guarda, durações do Maven e do teste (para a T33), commit dos prompts, commit do código (`commit_do_codigo`, último commit que mexeu em `agente_contrato/`, com `+alterado` se havia mudança pendente), revisão manual e motivos da comparação |
 
 ### Resultados da T09 (ensaio da escada da D105; não são resultados do estudo)
 
@@ -157,13 +157,13 @@ Quatro casos, 1 repetição, `claude-haiku-5-5`, prompts do commit `82c4edb` (se
 
 | Pasta | Conteúdo | Código |
 |---|---|---|
-| `resultados/t09-etapa1/` | contagem de tokens (rodada 2; a rodada 1 só existiu no console, com os mesmos números) | `84decff` |
-| `resultados/t09-etapa2/`, `resultados/t09-etapa3/` | rodada 1: etapa 3 em 23/10/2026 (commitada às 08h34, horário de Brasília); a etapa 2 foi entre 22 e 23/10 (os arquivos não têm carimbo) | `40fa93a` |
+| `resultados/t09-etapa1/` | contagem de tokens (rodada 2; a contagem da rodada 1 só existiu no console e não foi guardada) | `84decff` |
+| `resultados/t09-etapa2/`, `resultados/t09-etapa3/` | rodada 1: etapa 3 em 23/10/2026 (commitada às 08h34, horário de Brasília); a etapa 2 foi em 22/10, antes do `40fa93a` (ver a mensagem desse commit). O `resultados-agente1.json` da etapa 3 foi regravado depois com o comparador corrigido (ver abaixo) | `40fa93a` (etapa 3) |
 | `resultados/t09-etapa2-r2/`, `resultados/t09-etapa3-r2/` | rodada 2, 23/10/2026 | `84decff` |
 
 | Caso | Rótulo do oráculo | Rodada 1 | Rodada 2 |
 |---|---|---|---|
-| A1-001 | legítima | reparou, passou, equivalente | reparou, passou, equivalente |
+| A1-001 | legítima | reparou, passou, equivalente (no arquivo original, `cenario_alterado: true`, falso positivo corrigido na regravação; D109) | reparou, passou, equivalente |
 | A1-004 | legítima | reparou, passou, equivalente | reparou, **não compilou** (equivalente só ignorando espaços) |
 | A1-010 | legítima | reparou, passou, equivalente | reparou, passou, equivalente |
 | A1-003 | problema real | não reparou | não reparou |
@@ -172,7 +172,7 @@ Custo medido: US$ 0,009162 na rodada 1 e US$ 0,008923 na rodada 2, **US$ 0,01808
 
 Dois cuidados ao ler estes arquivos:
 
-- O `resultados-agente1.json` da **rodada 1** foi gerado antes da correção do comparador: o `cenario_alterado: true` do A1-001 ali é falso positivo (o modelo devolveu o método numa linha só). Não foi regravado, porque ele guarda o que o código da época produziu. A rodada 2 já usa o comparador corrigido.
+- O `resultados-agente1.json` da **rodada 1** foi gerado pelo `40fa93a`, antes da correção do comparador (`4b2c385`, D109), e saiu com `cenario_alterado: true` no A1-001, um falso positivo (o modelo devolveu o método numa linha só). Lido pelo script da T20a, esse arquivo dava Repair Rate 2/3 e Unsafe Repair Rate 1/3. Ele foi **regravado** offline, sem API e sem Maven, com o comparador atual: os reparos vêm de `chamadas.jsonl`, passam de novo pelo encaixe, pelo guarda e por `registrar`, e `compilou`, `passou`, `tempo_s`, `tokens` e `custo_usd` ficam os gravados na rodada. Só o `cenario_alterado` do A1-001 mudou (de `true` para `false`). Com o arquivo regravado, o script da T20a dá Detection Accuracy 4/4, Repair Rate 3/3, Safety 1/1 e Unsafe Repair Rate 0/3. O arquivo original está no histórico, no commit `5a0cb7b`. O `log-v1.json` da rodada 1 não foi regravado e ainda mostra o motivo da comparação antiga no A1-001. A rodada 2 já usa o comparador corrigido.
 - As duas rodadas dão resultados diferentes porque o modelo não aceita `temperature`; ambas ficam registradas, e nenhuma é a "melhor".
 
 ### Quando o caso ou a rodada termina com erro
@@ -206,7 +206,7 @@ PYTHONPATH=. python3 -m tests.ensaio_etapa0 --api ../rest-test-healing-sut --sai
 - O Repair só troca o **corpo** do método; anotações e assinatura são as do original.
 - O custo da chamada que falha sem resposta é registrado como zero; o gasto real se confere no Console.
 - O modelo às vezes devolve o método inteiro numa linha só (2 de 6 reparos nas duas rodadas). Num método com bloco de texto (`"""`) isso não compila: o Java exige quebra de linha depois das aspas de abertura (A1-004, rodada 2). A regra 1 da D95 (idêntico ignorando espaços) ainda chama esse reparo de equivalente, mas as métricas só contam como correto o reparo que compila, passa **e** é equivalente. Se for frequente na T10, o ajuste é uma frase no prompt do Repair antes de congelá-lo para a execução final (D99).
-- O comparador lê cada asserção como o `.andExpect(...)` inteiro, e não como uma linha: um reparo com o corpo do método numa linha só (o modelo fez isso no A1-001) é comparado do mesmo jeito que o original. Equivalente ao oráculo com troca de cenário ao mesmo tempo é inconsistente e vai para revisão manual.
+- O comparador lê cada asserção como o `.andExpect(...)` inteiro, e não como uma linha: um reparo com o corpo do método numa linha só (o modelo fez isso no A1-001) é comparado do mesmo jeito que o original. Equivalente ao oráculo com troca de cenário ao mesmo tempo é inconsistente e vai para revisão manual. Na baseline e na v1, todo caso que vai para revisão manual sai com `equivalente_oraculo` nulo no `resultados-agente1.json`, e o veredito é preenchido à mão antes de calcular as métricas.
 
 ## Licença
 

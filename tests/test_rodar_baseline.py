@@ -56,9 +56,11 @@ class RegistrarTest(unittest.TestCase):
         from agente_contrato import comparador
         contraditorio = comparador.Comparacao(True, True, ())
         with mock.patch.object(rb.comparador, "comparar", return_value=contraditorio):
-            _, extras = rb.registrar(execucao(), ORACULO, 1, self.raiz)
+            registro, extras = rb.registrar(execucao(), ORACULO, 1, self.raiz)
         self.assertTrue(extras["revisao_manual"])
         self.assertIn("inconsistência", " ".join(extras["motivos"]))
+        self.assertIsNone(registro["equivalente_oraculo"])  # pendente, no próprio arquivo de resultados
+        self.assertEqual(resultados.problemas(registro), [])
 
     def test_reparo_coerente_nao_vai_para_revisao_manual(self):
         _, extras = rb.registrar(execucao(), ORACULO, 1, self.raiz)
@@ -95,8 +97,9 @@ class RegistrarTest(unittest.TestCase):
 
     def test_reparo_que_passa_mas_a_regra_reprova_vai_para_revisao_manual(self):
         outro = REPARADO.replace('"a": 1', '"a": 2')  # valor diferente da correção esperada
-        _, extras = rb.registrar(execucao(reparado=outro), ORACULO, 1, self.raiz)
+        registro, extras = rb.registrar(execucao(reparado=outro), ORACULO, 1, self.raiz)
         self.assertTrue(extras["revisao_manual"])
+        self.assertIsNone(registro["equivalente_oraculo"])
 
     def test_erro_de_guarda_fica_registrado(self):
         e = execucao(decisao=b.NAO_REPARAR, compilou=None, passou=False, reparado=None, erro="guarda")

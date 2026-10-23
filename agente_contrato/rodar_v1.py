@@ -191,9 +191,21 @@ def _com_reexecucao(entrada, api, tag, trabalho: Path, chamador, repeticao, cont
     return e, {"rotulo_classifier": None, "justificativa": None, "motivo_erro": motivo}, 2
 
 
+def commit_do_codigo() -> str:
+    """Hash do último commit que mexeu em `agente_contrato/`, com `+alterado` se há mudança pendente.
+
+    Vai para o resumo de cada caso, para o resultado dizer com que código foi gravado sem depender do README.
+    """
+    return prompts.commit_dos_prompts(Path(__file__).resolve().parent)
+
+
 def executar_rodada(entradas: list[Entrada], oraculos: dict, api: Path, tag: str, raiz_repo: Path, pasta: Path,
-                    repeticoes: int, chamador: Chamador, rodar=execucao.rodar_teste) -> int:
-    """Roda os casos e grava, a cada caso, o arquivo de resultados (D74) e o resumo. Devolve o código de saída."""
+                    repeticoes: int, chamador: Chamador, rodar=execucao.rodar_teste,
+                    commit_codigo: str | None = None) -> int:
+    """Roda os casos e grava, a cada caso, o arquivo de resultados (D74) e o resumo. Devolve o código de saída.
+
+    `commit_codigo` nulo só nos testes e no ensaio com cliente falso; `main` passa o de `commit_do_codigo()`.
+    """
     registros, resumo, seguidos = [], [], 0
     pasta.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="v1-") as trabalho:
@@ -221,7 +233,8 @@ def executar_rodada(entradas: list[Entrada], oraculos: dict, api: Path, tag: str
                                "custo_usd": e.custo_usd, "guarda": list(e.guarda_motivos),
                                "duracao_maven_s": [round(x, 2) for x in e.maven_s],
                                "duracao_teste_s": [round(x, 2) for x in e.teste_s],
-                               "commit_do_prompt": chamador.commit, **do_registro})
+                               "commit_do_prompt": chamador.commit, "commit_do_codigo": commit_codigo,
+                               **do_registro})
                 resultados.gravar(pasta / "resultados-agente1.json", tag, registros)
                 (pasta / "log-v1.json").write_text(
                     json.dumps({"execucoes": resumo}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -345,7 +358,8 @@ def main(argv: list[str] | None = None, criar_cliente=None, rodar=execucao.rodar
     cliente = criar_cliente()
     textos = {"classifier": prompts.carregar("classifier"), "repair": prompts.carregar("repair")}
     commit = prompts.commit_dos_prompts()
-    print(f"etapa {args.etapa} | casos {', '.join(ids)} | modelo {chamada_llm.MODELO} | prompts {commit}")
+    print(f"etapa {args.etapa} | casos {', '.join(ids)} | modelo {chamada_llm.MODELO} | prompts {commit} "
+          f"| código {commit_do_codigo()}")
 
     if args.etapa == 1:
         return etapa_1(entradas, args.api, args.tag, cliente, textos, commit, args.saida, rodar)
@@ -360,7 +374,8 @@ def main(argv: list[str] | None = None, criar_cliente=None, rodar=execucao.rodar
     if args.etapa == 2:
         return etapa_2(entradas[0], args.api, args.tag, chamador, rodar)
     por_id = {c["id_caso"]: c for c in oraculo["casos"]}
-    codigo = executar_rodada(entradas, por_id, args.api, args.tag, raiz_repo, args.saida, 1, chamador, rodar)
+    codigo = executar_rodada(entradas, por_id, args.api, args.tag, raiz_repo, args.saida, 1, chamador, rodar,
+                             commit_do_codigo())
     print(f"gasto total: US$ {chamador.orcamento.gasto_usd:.6f} | tokens: {chamador.orcamento.tokens}")
     return codigo
 

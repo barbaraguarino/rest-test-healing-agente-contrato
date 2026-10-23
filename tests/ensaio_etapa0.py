@@ -53,7 +53,8 @@ def main() -> int:
     textos = {n: prompts.carregar(n) for n in ("classifier", "repair")}
     chamador = rodar_v1.Chamador(ClienteFalso(roteiro), LogDeChamadas(args.saida / "chamadas.jsonl"),
                                  Orcamento(1.0), textos, prompts.commit_dos_prompts())
-    codigo = rodar_v1.executar_rodada(entradas, por_id, args.api, oraculo["versao_api"], raiz_repo, args.saida, 1, chamador)
+    codigo = rodar_v1.executar_rodada(entradas, por_id, args.api, oraculo["versao_api"], raiz_repo, args.saida, 1, chamador,
+                                      commit_codigo=rodar_v1.commit_do_codigo())
 
     registros = json.loads((args.saida / "resultados-agente1.json").read_text(encoding="utf-8"))["execucoes"]
     ok = codigo == 0 and len(registros) == len(entradas)

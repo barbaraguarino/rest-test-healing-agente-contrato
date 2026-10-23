@@ -27,14 +27,14 @@ class BaseRodada(unittest.TestCase):
         self.entrada = Entrada("A1-901", self.api.patch, af.CLASSE, af.METODO)
         self.saida = self.pasta / "saida"
 
-    def rodar(self, roteiro, oraculo=None, repeticoes=1, limite=0.10, rodar=None):
+    def rodar(self, roteiro, oraculo=None, repeticoes=1, limite=0.10, rodar=None, commit_codigo="def456"):
         self.cliente = ClienteFalso(roteiro)
         self.orcamento = Orcamento(limite)
         self.log = LogDeChamadas(self.saida / "chamadas.jsonl")
         chamador = v1.Chamador(self.cliente, self.log, self.orcamento, TEXTOS, "abc123")
         oraculo = oraculo or af.ORACULO_LEGITIMO
         codigo = v1.executar_rodada([self.entrada], {"A1-901": oraculo}, self.api.api, af.TAG, self.api.raiz_repo,
-                                    self.saida, repeticoes, chamador, rodar or af.RodarFalso())
+                                    self.saida, repeticoes, chamador, rodar or af.RodarFalso(), commit_codigo)
         return codigo
 
     def registros(self):
@@ -66,6 +66,13 @@ class CaminhoFelizTest(BaseRodada):
         self.assertEqual([l["etapa"] for l in linhas], ["classifier", "repair"])
         self.assertTrue(all(l["commit_do_prompt"] == "abc123" and l["request_id"] == "req_falso" for l in linhas))
         self.assertEqual(self.resumo()[0]["rotulo_classifier"], "legitima")
+
+    def test_o_resumo_grava_o_commit_do_codigo(self):
+        self.rodar([classificacao("legitima"), reparo(af.metodo_certo())])
+        self.assertEqual(self.resumo()[0]["commit_do_codigo"], "def456")
+
+    def test_commit_do_codigo_e_o_hash_da_pasta_do_codigo(self):
+        self.assertRegex(v1.commit_do_codigo(), r"^[0-9a-f]{40}(\+alterado)?$")
 
     def test_regressao_nao_chama_o_repair(self):
         self.rodar([classificacao("problema_real")], oraculo=af.ORACULO_REGRESSAO)
