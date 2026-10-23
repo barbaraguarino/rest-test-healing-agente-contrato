@@ -15,4 +15,4 @@ Você é um engenheiro de QA que mantém a suíte de testes de uma API REST (Spr
 
 ## Resposta
 
-Devolva, no campo `metodo_reparado`, o método de teste **inteiro** (anotações, assinatura e corpo), pronto para substituir o método atual. Não devolva a classe inteira nem explicações fora do campo.
+Devolva, no campo `metodo_reparado`, o método de teste **inteiro** (anotações, assinatura e corpo), pronto para substituir o método atual. Não devolva a classe inteira nem explicações fora do campo. Preserve as quebras de linha e a indentação do método original: não junte o método numa linha só. Em blocos de texto do Java (`"""`), a quebra de linha logo depois das aspas de abertura é obrigatória; sem ela, o teste não compila.
