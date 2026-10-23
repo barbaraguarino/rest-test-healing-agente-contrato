@@ -158,7 +158,7 @@ Quatro casos, 1 repetição, `claude-haiku-5-5`. Prompts do commit `82c4edb` nas
 | Pasta | Conteúdo | Código |
 |---|---|---|
 | `resultados/t09-etapa1/` | contagem de tokens (rodada 2; a contagem da rodada 1 só existiu no console e não foi guardada; o `terminal.txt` desta pasta não tem carimbo que diga de qual das duas rodadas é) | `84decff` |
-| `resultados/t09-etapa2/`, `resultados/t09-etapa3/` | rodada 1: etapa 3 em 23/10/2026 (commitada às 08h34, horário de Brasília); a etapa 2 foi em 22/10, antes do `40fa93a` (ver a mensagem desse commit). O `resultados-agente1.json` da etapa 3 foi regravado depois com o comparador corrigido (ver abaixo) | `40fa93a` (etapa 3) |
+| `resultados/t09-etapa2/`, `resultados/t09-etapa3/` | rodada 1: etapa 3 em 23/10/2026 (commitada às 08h34, horário de Brasília); a etapa 2 também foi em 23/10, antes do `40fa93a` (a mensagem desse commit diz 22/10 por engano; o Console confirma 23/10, e o `terminal.txt` ainda mostra a nota do thinking que esse commit corrigiu). O `resultados-agente1.json` da etapa 3 foi regravado depois com o comparador corrigido (ver abaixo) | `40fa93a` (etapa 3) |
 | `resultados/t09-etapa2-r2/`, `resultados/t09-etapa3-r2/` | rodada 2, 23/10/2026 | `84decff` |
 | `resultados/t09-etapa1-r3/`, `resultados/t09-etapa2-r3/`, `resultados/t09-etapa3-r3/` | rodada 3, 23/10/2026, prompts `51894a8` (o `log-v1.json` grava `commit_do_prompt` e `commit_do_codigo`) | `391fab9` |
 
@@ -170,6 +170,8 @@ Quatro casos, 1 repetição, `claude-haiku-5-5`. Prompts do commit `82c4edb` nas
 | A1-003 | problema real | não reparou | não reparou | não reparou |
 
 Custo medido (etapas 2 e 3): US$ 0,009162 na rodada 1, US$ 0,008923 na rodada 2 e US$ 0,008762 na rodada 3, **US$ 0,026847 no total** (de US$ 2,00 do Agente 1). Latência por chamada de 1,9 a 5,5 s.
+
+Conferência no Console da Anthropic (página de logs, 23/10/2026): as 24 chamadas dos `chamadas.jsonl` das três rodadas aparecem com o mesmo `request_id` e os mesmos tokens de entrada e saída, inclusive as 8 com `thinking_tokens` maior que zero, o que confirma que o raciocínio entra em `output_tokens` (D107). O Console mostra mais 3 chamadas que não estão em nenhum log do repositório: um teste de 20 tokens de entrada e 4 de saída em 21/10, que não veio deste código, e um Classifier e um Repair do A1-001 (`req_011CgK6AkRgH5q3RXtRpRxgA` e `req_011CgK6AvB4Bu1jLiS4Jbqxy`, 17.098 tokens de entrada e 956 de saída) feitos entre a etapa 2 e a etapa 3 da rodada 1, provavelmente uma tentativa de etapa 3 interrompida cujo `chamadas.jsonl` não veio para o repositório. Com elas, o total pelos preços da D56 é **US$ 0,029039** (239.541 tokens de entrada e 10.169 de saída em 27 chamadas).
 
 Métricas do script da T20a (`python -m avaliacao`), em 4 casos e 1 repetição: Detection Accuracy 4/4 nas três rodadas; Repair Rate 3/3, 2/3 e 3/3; Safety 1/1 nas três; Unsafe Repair Rate 0/3 nas três (rodada 1 pelo arquivo regravado).
 
