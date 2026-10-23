@@ -1,0 +1,13 @@
+/home/carvalho/Documentos/Projetos/rest-test-healing/rest-test-healing-agente-contrato/.venv/bin/python -m agente_contrato.rodar_v1 --etapa 3 --api ../rest-test-healing-sut --saida resultados/t09-etapa3-r2 --orcamento-usd 0.10
+etapa 3 | casos A1-001, A1-004, A1-010, A1-003 | modelo claude-haiku-5-5 | prompts 82c4edb50d59aa32c6bea056cb787ba1a7260d66
+ATENÇÃO: vai chamar a API PAGA (trava de US$ 0.10).
+Digite SIM para continuar: SIM
+A1-001 r1: decisao=reparar compilou=True passou=True erro=None tokens=18210 custo=US$ 0.002266 (acumulado US$ 0.002266)
+A1-004 r1: decisao=reparar compilou=False passou=False erro=None tokens=15597 custo=US$ 0.001814 (acumulado US$ 0.004079)
+A1-010 r1: decisao=reparar compilou=True passou=True erro=None tokens=25260 custo=US$ 0.002840 (acumulado US$ 0.006920)
+A1-003 r1: decisao=nao_reparar compilou=None passou=False erro=None tokens=9253 custo=US$ 0.001066 (acumulado US$ 0.007986)
+gasto total: US$ 0.007986 | tokens: 68320
+
+Process finished with exit code 0
+
+

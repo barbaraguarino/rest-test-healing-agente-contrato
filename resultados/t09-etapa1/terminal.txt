@@ -1,0 +1,14 @@
+/home/carvalho/Documentos/Projetos/rest-test-healing/rest-test-healing-agente-contrato/.venv/bin/python -m agente_contrato.rodar_v1 --etapa 1 --api ../rest-test-healing-sut --saida resultados/t09-etapa1
+etapa 1 | casos A1-001, A1-004, A1-010, A1-003 | modelo claude-haiku-5-5 | prompts 82c4edb50d59aa32c6bea056cb787ba1a7260d66
+A1-001 classifier: 8375 tokens de entrada (estimativa da API; 20036 caracteres; só a entrada custaria US$ 0.000838)
+A1-001 repair: 8283 tokens de entrada (estimativa da API; 19735 caracteres; só a entrada custaria US$ 0.000828)
+A1-004 classifier: 7307 tokens de entrada (estimativa da API; 15960 caracteres; só a entrada custaria US$ 0.000731)
+A1-004 repair: 7215 tokens de entrada (estimativa da API; 15659 caracteres; só a entrada custaria US$ 0.000722)
+A1-010 classifier: 12063 tokens de entrada (estimativa da API; 28365 caracteres; só a entrada custaria US$ 0.001206)
+A1-010 repair: 11971 tokens de entrada (estimativa da API; 28064 caracteres; só a entrada custaria US$ 0.001197)
+A1-003 classifier: 8658 tokens de entrada (estimativa da API; 21028 caracteres; só a entrada custaria US$ 0.000866)
+A1-003 repair: 8566 tokens de entrada (estimativa da API; 20727 caracteres; só a entrada custaria US$ 0.000857)
+
+Process finished with exit code 0
+
+

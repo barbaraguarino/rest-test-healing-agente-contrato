@@ -1,0 +1,18 @@
+/home/carvalho/Documentos/Projetos/rest-test-healing/rest-test-healing-agente-contrato/.venv/bin/python -m agente_contrato.rodar_v1 --etapa 2 --api ../rest-test-healing-sut --saida resultados/t09-etapa2-r2 --orcamento-usd 0.10
+etapa 2 | casos A1-001 | modelo claude-haiku-5-5 | prompts 82c4edb50d59aa32c6bea056cb787ba1a7260d66
+ATENÇÃO: vai chamar a API PAGA (trava de US$ 0.10).
+Digite SIM para continuar: SIM
+modelo retornado : claude-haiku-5-5
+stop_reason      : end_turn
+request_id       : req_011CgK8TYK88wHzNTDN9UnpB
+latência         : 2.31 s
+input_tokens     : 8619
+output_tokens    : 151
+thinking_tokens  : 0  (o modelo não pensou nesta chamada: isto NÃO confirma se o thinking entra em output_tokens)
+custo            : US$ 0.000937
+resposta bruta   : {"rotulo":"legitima","justificativa":"O contrato novo renomeia \"descricao\" para \"resumo\" em GET /produtos/{id}, e o ProdutoResponse agora expõe getDescricao() no campo \"resumo\" (record com componente resumo), então a falha \"No value at JSON path $.descricao\" é consequência direta da renomeação registrada; o teste deve ser atualizado para $.resumo."}
+validação        : OK, rótulo 'legitima'
+
+Process finished with exit code 0
+
+
