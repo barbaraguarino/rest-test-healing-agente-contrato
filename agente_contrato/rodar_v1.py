@@ -20,6 +20,7 @@ import sys
 import tempfile
 import time
 from contextlib import contextmanager
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -236,17 +237,29 @@ def executar_rodada(entradas: list[Entrada], oraculos: dict, api: Path, tag: str
 
 # ---------------------------------------------------------------- etapas 1 e 2 da D105
 
-def etapa_1(entradas: list[Entrada], api: Path, tag: str, cliente, textos: dict[str, str], rodar=execucao.rodar_teste) -> int:
-    """Conta os tokens de entrada dos prompts reais (gratuito). Não chama o modelo."""
+def etapa_1(entradas: list[Entrada], api: Path, tag: str, cliente, textos: dict[str, str], commit: str,
+            pasta: Path, rodar=execucao.rodar_teste) -> int:
+    """Conta os tokens de entrada dos prompts reais (gratuito) e grava `contagem-de-tokens.json`.
+
+    Não chama o modelo. O arquivo é regravado a cada caso, para uma queda do Maven não perder o que já foi contado.
+    """
+    pasta.mkdir(parents=True, exist_ok=True)
+    contagens = []
     with tempfile.TemporaryDirectory(prefix="v1-") as trabalho:
         for entrada in entradas:
             with preparar(entrada, api, tag, Path(trabalho) / entrada.id_caso, rodar) as (p, _):
                 for etapa in ("classifier", "repair"):
                     n = cliente.contar_tokens(textos[etapa], p.evidencia)
                     custo = registro_llm.custo_usd(registro_llm.Uso(n, 0, None))
+                    caracteres = len(textos[etapa]) + len(p.evidencia)
+                    contagens.append({"id_caso": entrada.id_caso, "prompt": etapa, "tokens_de_entrada": n,
+                                      "caracteres": caracteres, "custo_so_da_entrada_usd": custo})
                     print(f"{entrada.id_caso} {etapa}: {n} tokens de entrada (estimativa da API; "
-                          f"{len(textos[etapa]) + len(p.evidencia)} caracteres; só a entrada custaria US$ {custo:.6f})",
-                          flush=True)
+                          f"{caracteres} caracteres; só a entrada custaria US$ {custo:.6f})", flush=True)
+            (pasta / "contagem-de-tokens.json").write_text(json.dumps(
+                {"data_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "modelo": chamada_llm.MODELO,
+                 "commit_dos_prompts": commit, "contagens": contagens}, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8")
     return SAIDA_OK
 
 
@@ -335,7 +348,7 @@ def main(argv: list[str] | None = None, criar_cliente=None, rodar=execucao.rodar
     print(f"etapa {args.etapa} | casos {', '.join(ids)} | modelo {chamada_llm.MODELO} | prompts {commit}")
 
     if args.etapa == 1:
-        return etapa_1(entradas, args.api, args.tag, cliente, textos, rodar)
+        return etapa_1(entradas, args.api, args.tag, cliente, textos, commit, args.saida, rodar)
 
     if not args.sim:
         print(f"ATENÇÃO: vai chamar a API PAGA (trava de US$ {args.orcamento_usd:.2f}).")

@@ -136,7 +136,7 @@ python3 -m agente_contrato.rodar_v1 --etapa 3 --api ../rest-test-healing-sut --s
 
 | Etapa | O que faz | Custo |
 |---|---|---|
-| 1 | conta os tokens de entrada dos prompts reais dos 4 casos da etapa 3 (roda o Maven para obter a falha; não chama o modelo) | gratuito |
+| 1 | conta os tokens de entrada dos prompts reais dos 4 casos da etapa 3 (roda o Maven para obter a falha; não chama o modelo) e grava `contagem-de-tokens.json` | gratuito |
 | 2 | uma chamada real do Classifier no A1-001 e mostra `stop_reason`, `usage`, `thinking_tokens`, `request_id` e a validação | cerca de US$ 0,001 |
 | 3 | A1-001, A1-004, A1-010 e A1-003, 1 repetição, pipeline completo | cerca de US$ 0,014 no caso típico |
 
@@ -146,6 +146,7 @@ O piloto completo (12 casos, 3 repetições) é a T10 e não roda por este coman
 
 | Arquivo | Conteúdo |
 |---|---|
+| `contagem-de-tokens.json` | só na etapa 1: tokens de entrada contados por caso e prompt, caracteres, commit dos prompts e data |
 | `resultados-agente1.json` | formato da D74 (`tratamento` `agentes`, `versao_agente` `v1`), com `tokens` e `custo_usd` por caso |
 | `chamadas.jsonl` | uma linha por chamada ao LLM, gravada na hora (D106): modelo retornado, `stop_reason`, tokens, `thinking_tokens`, `custo_usd`, `request_id`, latência, commit do prompt, resposta bruta e erro |
 | `log-v1.json` | resumo por caso: rótulo e justificativa do Classifier, tentativas, chamadas, guarda, durações do Maven e do teste (para a T33) |

@@ -186,11 +186,26 @@ class EtapasETest(BaseRodada):
         cliente = ClienteFalso([])
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            codigo = v1.etapa_1([self.entrada], self.api.api, af.TAG, cliente, TEXTOS, af.RodarFalso())
+            codigo = v1.etapa_1([self.entrada], self.api.api, af.TAG, cliente, TEXTOS, "abc123", self.saida,
+                                af.RodarFalso())
         self.assertEqual(codigo, v1.SAIDA_OK)
         self.assertIn("A1-901 classifier:", out.getvalue())
         self.assertIn("A1-901 repair:", out.getvalue())
         self.assertEqual(cliente.chamadas, [])
+
+    def test_etapa_1_grava_a_contagem_na_pasta_de_saida(self):
+        with contextlib.redirect_stdout(io.StringIO()):
+            v1.etapa_1([self.entrada], self.api.api, af.TAG, ClienteFalso([]), TEXTOS, "abc123", self.saida,
+                       af.RodarFalso())
+        dados = json.loads((self.saida / "contagem-de-tokens.json").read_text(encoding="utf-8"))
+        self.assertEqual((dados["modelo"], dados["commit_dos_prompts"]), ("claude-haiku-5-5", "abc123"))
+        self.assertRegex(dados["data_utc"], r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}")
+        self.assertEqual([(c["id_caso"], c["prompt"]) for c in dados["contagens"]],
+                         [("A1-901", "classifier"), ("A1-901", "repair")])
+        for c in dados["contagens"]:
+            self.assertGreater(c["tokens_de_entrada"], 0)
+            self.assertGreater(c["caracteres"], 0)
+            self.assertGreater(c["custo_so_da_entrada_usd"], 0)
 
     def test_etapa_2_mostra_o_que_a_d105_manda_verificar(self):
         chamador = self._chamador([classificacao("legitima", thinking=300, saida=700)])
