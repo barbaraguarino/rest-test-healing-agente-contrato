@@ -1,0 +1,63 @@
+{
+  "data_utc": "2026-10-23T12:46:39+00:00",
+  "modelo": "claude-haiku-5-5",
+  "commit_dos_prompts": "51894a8b561c7581216994e4001fd92b249061ac",
+  "contagens": [
+    {
+      "id_caso": "A1-001",
+      "prompt": "classifier",
+      "tokens_de_entrada": 8375,
+      "caracteres": 20036,
+      "custo_so_da_entrada_usd": 0.0008375
+    },
+    {
+      "id_caso": "A1-001",
+      "prompt": "repair",
+      "tokens_de_entrada": 8369,
+      "caracteres": 19966,
+      "custo_so_da_entrada_usd": 0.0008369
+    },
+    {
+      "id_caso": "A1-004",
+      "prompt": "classifier",
+      "tokens_de_entrada": 7307,
+      "caracteres": 15960,
+      "custo_so_da_entrada_usd": 0.0007307
+    },
+    {
+      "id_caso": "A1-004",
+      "prompt": "repair",
+      "tokens_de_entrada": 7301,
+      "caracteres": 15890,
+      "custo_so_da_entrada_usd": 0.0007301
+    },
+    {
+      "id_caso": "A1-010",
+      "prompt": "classifier",
+      "tokens_de_entrada": 12063,
+      "caracteres": 28365,
+      "custo_so_da_entrada_usd": 0.0012063
+    },
+    {
+      "id_caso": "A1-010",
+      "prompt": "repair",
+      "tokens_de_entrada": 12057,
+      "caracteres": 28295,
+      "custo_so_da_entrada_usd": 0.0012057
+    },
+    {
+      "id_caso": "A1-003",
+      "prompt": "classifier",
+      "tokens_de_entrada": 8658,
+      "caracteres": 21028,
+      "custo_so_da_entrada_usd": 0.0008658
+    },
+    {
+      "id_caso": "A1-003",
+      "prompt": "repair",
+      "tokens_de_entrada": 8652,
+      "caracteres": 20958,
+      "custo_so_da_entrada_usd": 0.0008652
+    }
+  ]
+}

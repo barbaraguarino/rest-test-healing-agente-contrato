@@ -1,0 +1,98 @@
+{
+  "execucoes": [
+    {
+      "id_caso": "A1-001",
+      "repeticao": 1,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo renomeou \"descricao\" para \"resumo\" na resposta de GET /produtos/{id}, e o ProdutoResponse agora expõe o campo como \"resumo\" (preenchido com produto.getDescricao()). A falha \"No value at JSON path $.descricao\" decorre exatamente dessa renomeação registrada, então o teste está desatualizado e deve passar a checar \"$.resumo\".",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 18024,
+      "custo_usd": 0.0021384,
+      "guarda": [],
+      "duracao_maven_s": [
+        13.9,
+        11.66
+      ],
+      "duracao_teste_s": [
+        6.05,
+        5.31
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "391fab9336cdbab7fc6d98e84146b3dd488f7f7c",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-004",
+      "repeticao": 1,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo registra a remoção do campo pesoTotalGramas da resposta de POST /fretes/cotacao, e o CotacaoFreteResponse atual de fato não possui esse campo (só modalidade, valor, prazoDias e freteGratis), então a falha 'No value at JSON path $.pesoTotalGramas' decorre exatamente dessa mudança intencional. O teste ficou desatualizado e deve deixar de checar esse campo.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 15752,
+      "custo_usd": 0.0018568,
+      "guarda": [],
+      "duracao_maven_s": [
+        12.66,
+        13.08
+      ],
+      "duracao_teste_s": [
+        5.44,
+        6.16
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "391fab9336cdbab7fc6d98e84146b3dd488f7f7c",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-010",
+      "repeticao": 1,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo torna o campo cliente.cpf obrigatório e o código implementa isso via @NotBlank em ClienteRequest; o teste não envia cpf, então a falha 400 é a validação esperada, e a correção é adicionar o cpf ao JSON do teste.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 25193,
+      "custo_usd": 0.0027725,
+      "guarda": [],
+      "duracao_maven_s": [
+        13.86,
+        12.82
+      ],
+      "duracao_teste_s": [
+        6.71,
+        5.84
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "391fab9336cdbab7fc6d98e84146b3dd488f7f7c",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-003",
+      "repeticao": 1,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "O teste falha em \"No value at JSON path $.sku\", mas o ProdutoResponse agora expõe o SKU como \"codigo\", e não como \"sku\". As diferenças do contrato registram apenas a renomeação de \"nome\" para \"titulo\" e não mencionam a troca de \"sku\" por \"codigo\", então esse comportamento não está descrito no contrato novo e é uma regressão do código.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 9219,
+      "custo_usd": 0.0010487,
+      "guarda": [],
+      "duracao_maven_s": [
+        17.3
+      ],
+      "duracao_teste_s": [
+        8.58
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "391fab9336cdbab7fc6d98e84146b3dd488f7f7c",
+      "revisao_manual": false,
+      "motivos": []
+    }
+  ]
+}
