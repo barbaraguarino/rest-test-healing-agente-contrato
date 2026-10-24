@@ -72,12 +72,13 @@ class Orcamento:
     máximo, uma chamada (cerca de US$ 0,009 no pior caso, com 16 mil tokens de saída).
     """
 
-    def __init__(self, limite_usd: float):
+    def __init__(self, limite_usd: float, gasto_usd: float = 0.0, tokens: int = 0):
+        """`gasto_usd` e `tokens`: o que a mesma rodada já gastou antes de ser retomada (`gasto_do_log`)."""
         if limite_usd <= 0:
             raise ValueError("o limite de orçamento deve ser positivo")
         self.limite_usd = limite_usd
-        self.gasto_usd = 0.0
-        self.tokens = 0
+        self.gasto_usd = gasto_usd
+        self.tokens = tokens
 
     def somar(self, uso: Uso, custo: float) -> None:
         self.gasto_usd += custo
@@ -105,3 +106,21 @@ class LogDeChamadas:
             f.write(linha + "\n")
             f.flush()
             os.fsync(f.fileno())
+
+
+def gasto_do_log(caminho: Path) -> tuple[float, int]:
+    """Dólares e tokens já registrados num `chamadas.jsonl` (zero se ele não existe).
+
+    Na retomada da etapa 4, o orçamento começa daqui: a trava vale para a rodada inteira, e não
+    para cada vez que o comando roda. Chamada que falhou sem resposta tem custo 0 e tokens nulos.
+    """
+    if not caminho.exists():
+        return 0.0, 0
+    gasto, tokens = Decimal(0), 0
+    for linha in caminho.read_text(encoding="utf-8").splitlines():
+        if not linha.strip():
+            continue
+        c = json.loads(linha)
+        gasto += Decimal(str(c["custo_usd"] or 0))
+        tokens += (c["input_tokens"] or 0) + (c["output_tokens"] or 0)
+    return float(gasto), tokens

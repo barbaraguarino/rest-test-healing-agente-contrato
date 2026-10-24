@@ -113,7 +113,7 @@ Pipeline fixo (D58, D62): o código monta a evidência, o **Classifier** diz se 
 | `agente_contrato/saida.py` | schemas, validação do JSON, `stop_reason`, códigos `saida_invalida` e `max_tokens`, encaixe do método |
 | `agente_contrato/chamada_llm.py` | SDK oficial, parâmetros fixos da D61, tradução dos erros, leitura da chave do `.env` |
 | `agente_contrato/registro_llm.py` | custo em dólares, trava de orçamento e log das chamadas em JSON Lines |
-| `agente_contrato/rodar_v1.py` | runner: etapas 1 a 3 da D105, reexecução por erro de rede, parada após erros seguidos |
+| `agente_contrato/rodar_v1.py` | runner: etapas 1 a 3 da D105 e etapa 4 (piloto da T10), reexecução por erro de rede, parada após erros seguidos, retomada |
 
 ### Instalação e chave da API
 
@@ -126,7 +126,7 @@ O `.env` fica fora do Git (`.gitignore`). A chave só é lida desse arquivo; nun
 
 ### Escada de execução (D105)
 
-Cada etapa é uma execução separada, com `--saida` própria. As etapas 2 e 3 chamam a API **paga**: pedem a confirmação `SIM` e exigem `--orcamento-usd`, e a rodada para ao chegar nele.
+Cada etapa é uma execução separada, com `--saida` própria. As etapas 2, 3 e 4 chamam a API **paga**: pedem a confirmação `SIM` e exigem `--orcamento-usd`, e a rodada para ao chegar nele.
 
 ```bash
 python3 -m agente_contrato.rodar_v1 --etapa 1 --api ../rest-test-healing-sut --saida resultados/t09-etapa1
@@ -140,7 +140,25 @@ python3 -m agente_contrato.rodar_v1 --etapa 3 --api ../rest-test-healing-sut --s
 | 2 | uma chamada real do Classifier no A1-001 e mostra `stop_reason`, `usage`, `thinking_tokens`, `request_id` e a validação | cerca de US$ 0,001 |
 | 3 | A1-001, A1-004, A1-010 e A1-003, 1 repetição, pipeline completo | cerca de US$ 0,008 (medido em três rodadas; a estimativa da D105 era US$ 0,014) |
 
-O piloto completo (12 casos, 3 repetições) é a T10 e não roda por este comando.
+O piloto completo (12 casos, 3 repetições) é a T10 e roda pela etapa 4, abaixo.
+
+### Piloto da T10 (etapa 4)
+
+```bash
+python3 -m agente_contrato.rodar_v1 --etapa 4 --api ../rest-test-healing-sut --saida resultados/t10-piloto --orcamento-usd 0.30
+```
+
+Os 12 casos em ordem de `id_caso`, 3 repetições seguidas de cada caso (A1-001 r1, r2, r3, depois A1-002), API paga, com a confirmação `SIM`. Antes de ler a chave, o comando confere:
+
+- os prompts estão no commit congelado `51894a8` (D105), sem mudança pendente; senão, para com o código de saída 7;
+- `agente_contrato/` não tem mudança pendente, para o `commit_do_codigo` gravado dizer o que rodou (código 7);
+- a pasta de `--saida` não tem rodada anterior, a menos que se use `--retomar` (código 2).
+
+Antes do primeiro caso, roda o Maven uma vez na tag limpa, sem patch (aquecimento da D111f); o resultado fica só no log (`sessoes[].aquecimento`) e não entra nas métricas.
+
+**Retomada.** Se a rodada parar no meio (orçamento, erro fatal, 3 `erro_llm` seguidos, IntelliJ fechado), rode o mesmo comando com `--retomar` e a mesma `--saida`. O que já está gravado no `resultados-agente1.json` **e** no `log-v1.json` é pulado; a execução que estava em andamento roda de novo do início. As chamadas pagas dessa execução continuam no `chamadas.jsonl` e aparecem em `sessoes[].chamadas_sem_registro`. O `--orcamento-usd` vale para a rodada inteira: na retomada, o gasto começa do total já registrado no `chamadas.jsonl`. A retomada recusa a pasta se o commit dos prompts, o do código, os limites ou a tag forem outros. Cada vez que o comando roda vira uma entrada em `sessoes`, com a hora de início em UTC.
+
+A ordem não alterna a baseline e a v1 em cada caso, como pede a ordem de execução do Planejamento: a baseline do piloto já foi rodada antes, na T42 (`resultados/t42-baseline/`). O desvio fica registrado na Operação do Estudo.
 
 ### Saídas
 
@@ -149,7 +167,7 @@ O piloto completo (12 casos, 3 repetições) é a T10 e não roda por este coman
 | `contagem-de-tokens.json` | só na etapa 1: tokens de entrada contados por caso e prompt, caracteres, commit dos prompts e data |
 | `resultados-agente1.json` | formato da D74 (`tratamento` `agentes`, `versao_agente` `v1`), com `tokens` e `custo_usd` por caso. Caso que vai para revisão manual (D80, D109) sai com `equivalente_oraculo` nulo até o veredito ser preenchido à mão; o script da T20a recusa o arquivo enquanto houver um nulo assim num caso legítimo reparado |
 | `chamadas.jsonl` | uma linha por chamada ao LLM, gravada na hora (D106): modelo retornado, `stop_reason`, tokens, `thinking_tokens`, `custo_usd`, `request_id`, latência, commit do prompt, resposta bruta e erro |
-| `log-v1.json` | resumo por caso: rótulo e justificativa do Classifier, tentativas, chamadas, guarda, durações do Maven e do teste (para a T33), commit dos prompts, commit do código (`commit_do_codigo`, último commit que mexeu em `agente_contrato/`, com `+alterado` se havia mudança pendente), revisão manual e motivos da comparação |
+| `log-v1.json` | `limites`, `exclusoes`, `sessoes` (cada vez que o comando rodou: início, execuções já gravadas, chamadas pagas sem registro, aquecimento) e o resumo por caso: rótulo e justificativa do Classifier, tentativas, chamadas, guarda, durações do Maven e do teste (para a T33), commit dos prompts, commit do código (`commit_do_codigo`, último commit que mexeu em `agente_contrato/`, com `+alterado` se havia mudança pendente), revisão manual e motivos da comparação |
 
 ### Resultados da T09 (ensaio da escada da D105; não são resultados do estudo)
 
@@ -192,7 +210,9 @@ Dois cuidados ao ler estes arquivos:
 | erro de rede, 408, 409, 429 com `retry-after`, 5xx | o SDK repete 2 vezes; se desistir, o caso é reexecutado uma vez; falhando de novo, `erro` `erro_llm` |
 | 400 (inclui o limite de gasto do workspace), 401, 402, 403, outros 4xx, 429 sem `retry-after` | a rodada para na hora (código de saída 3); o caso não é gravado |
 | 3 `erro_llm` seguidos | a rodada para (código 5). Valor inicial, a revisar depois da T09 |
-| gasto chegou ao `--orcamento-usd` | a rodada para antes da próxima chamada (código 4) |
+| gasto chegou ao `--orcamento-usd` | a rodada para antes da próxima chamada (código 4); na etapa 4, continua com `--retomar` |
+| etapa 4 com prompts fora do `51894a8` ou código com mudança pendente | não roda, sem ler a chave (código 7) |
+| etapa 4 numa pasta que já tem rodada, sem `--retomar`, ou retomada com outro prompt, código, limite ou tag | não roda, sem ler a chave (código 2) |
 
 Valores iniciais a medir: timeout de 120 s por chamada e parada após 3 erros seguidos. A etapa 2 também confirma se a saída estruturada funciona com o pensamento adaptativo e se `output_tokens` inclui o thinking.
 
@@ -215,6 +235,8 @@ Para mudar um valor, acrescente a opção aos argumentos da execução (no Intel
 ```bash
 PYTHONPATH=. python3 -m tests.ensaio_etapa0 --api ../rest-test-healing-sut --saida /tmp/ensaio
 ```
+
+Com `--piloto`, o ensaio é o da etapa 4: os 12 casos, com o aquecimento e a retomada (`--repeticoes N`, `--retomar`).
 
 ### Limites conhecidos da v1
 
