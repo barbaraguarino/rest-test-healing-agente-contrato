@@ -331,9 +331,16 @@ class LinhaDeComandoTest(unittest.TestCase):
     def test_etapa_1_nao_precisa_de_orcamento(self):
         self.assertEqual(v1._argumentos(["--etapa", "1", "--api", "a", "--saida", "s"]).etapa, 1)
 
-    def test_nao_existe_etapa_do_piloto_completo(self):
+    def test_etapa_4_exige_orcamento(self):
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
-            v1._argumentos(["--etapa", "4", "--api", "a", "--saida", "s", "--orcamento-usd", "1"])
+            v1._argumentos(["--etapa", "4", "--api", "a", "--saida", "s"])
+        self.assertEqual(v1._argumentos(["--etapa", "4", "--api", "a", "--saida", "s", "--orcamento-usd", "1"]).etapa, 4)
+
+    def test_retomar_so_na_etapa_4(self):
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            v1._argumentos(["--etapa", "3", "--api", "a", "--saida", "s", "--orcamento-usd", "1", "--retomar"])
+        self.assertTrue(v1._argumentos(["--etapa", "4", "--api", "a", "--saida", "s", "--orcamento-usd", "1",
+                                        "--retomar"]).retomar)
 
     def test_pasta_da_api_inexistente_da_mensagem_clara_antes_de_ler_a_chave_ou_gastar(self):
         def sem_cliente():
