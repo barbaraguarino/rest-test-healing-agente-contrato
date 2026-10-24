@@ -1,0 +1,13 @@
+$ PYTHONPATH=. .venv/bin/python -m tests.ensaio_etapa0 --api ../rest-test-healing-sut --saida resultados/t42-etapa0  # commit 6fdee1f, 2026-10-23 21:24:15 -0300
+limites: teste 120 s, caso 180 s, chamada ao LLM 120 s (D111)
+A1-001 r1: decisao=reparar compilou=True passou=True erro=None estouro=None tokens=13000 custo=US$ 0.001700 (acumulado US$ 0.001700)
+A1-004 r1: decisao=reparar compilou=True passou=True erro=None estouro=None tokens=13000 custo=US$ 0.001700 (acumulado US$ 0.003400)
+A1-010 r1: decisao=reparar compilou=True passou=True erro=None estouro=None tokens=13000 custo=US$ 0.001700 (acumulado US$ 0.005100)
+A1-003 r1: decisao=nao_reparar compilou=None passou=False erro=None estouro=None tokens=6500 custo=US$ 0.000850 (acumulado US$ 0.005950)
+exclusões (fora das métricas): 0 (nenhuma)
+OK   A1-001 legitima reparar True True True None
+OK   A1-004 legitima reparar True True True None
+OK   A1-010 legitima reparar True True True None
+OK   A1-003 problema_real nao_reparar None False None None
+ENSAIO OK
+código de saída: 0

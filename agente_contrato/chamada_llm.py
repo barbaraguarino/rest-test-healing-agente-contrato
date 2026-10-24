@@ -20,7 +20,7 @@ from .registro_llm import Uso
 MODELO = "claude-haiku-5-5"  # D56
 MAX_TOKENS = 16_000          # D61
 EFFORT = "medium"            # D61
-TIMEOUT_S = 120              # D104: valor inicial, a medir na T09
+TIMEOUT_S = 120              # D104, mantido pela D111(c); `--limite-llm-s` muda na linha de comando
 MAX_RETRIES_SDK = 2          # D104: o padrão do SDK, mantido; as repetições internas não vão para o log
 NOME_DA_CHAVE = "ANTHROPIC_API_KEY"
 
@@ -94,9 +94,9 @@ def ler_chave(caminho: Path) -> str:
 
 
 class ClienteAnthropic:
-    def __init__(self, api_key: str, sdk=None):
+    def __init__(self, api_key: str, sdk=None, timeout_s: float = TIMEOUT_S):
         # `api_key` explícita: o SDK não cai na variável de ambiente por conta própria.
-        self._sdk = sdk or anthropic.Anthropic(api_key=api_key, timeout=TIMEOUT_S, max_retries=MAX_RETRIES_SDK)
+        self._sdk = sdk or anthropic.Anthropic(api_key=api_key, timeout=timeout_s, max_retries=MAX_RETRIES_SDK)
 
     def _traduzindo_erros(self, funcao, **parametros):
         inicio = time.monotonic()

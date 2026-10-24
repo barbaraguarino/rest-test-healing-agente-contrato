@@ -5,14 +5,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agente_contrato import chamada_llm, registro_llm, resultados
+from agente_contrato import chamada_llm, execucao, registro_llm, resultados
 from agente_contrato import rodar_v1 as v1
 from agente_contrato.chamada_llm import ErroDeRede, ErroFatal
 from agente_contrato.rodar_baseline import Entrada
 from agente_contrato.registro_llm import LogDeChamadas, Orcamento
 
 from . import api_falsa as af
-from .fakes import ClienteFalso, classificacao, reparo, resposta
+from .fakes import ClienteFalso, RelogioFalso, classificacao, reparo, resposta
 
 TEXTOS = {"classifier": "SISTEMA CLASSIFIER", "repair": "SISTEMA REPAIR"}
 CUSTO_UMA_CHAMADA = registro_llm.custo_usd(registro_llm.Uso(6000, 500, None))
@@ -183,6 +183,82 @@ class RedeETravasTest(BaseRodada):
         self.assertEqual(self.cliente.chamadas, [])
 
 
+class LimitesDeTempoTest(BaseRodada):
+    """D111 com relógio simulado: o Maven e o LLM só "demoram" no RelogioFalso."""
+
+    def rodar_com_relogio(self, roteiro, duracoes, espera_llm_s=2.0, oraculo=None, caso_s=180):
+        self.relogio = RelogioFalso()
+        self.rodar_falso = af.RodarFalso(duracoes=duracoes, relogio=self.relogio)
+        self.cliente = ClienteFalso(roteiro, self.relogio, espera_llm_s)
+        chamador = v1.Chamador(self.cliente, LogDeChamadas(self.saida / "chamadas.jsonl"), Orcamento(0.10),
+                               TEXTOS, "abc123")
+        limites = execucao.Limites(caso_s=caso_s, llm_s=120, relogio=self.relogio)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            codigo = v1.executar_rodada([self.entrada], {"A1-901": oraculo or af.ORACULO_LEGITIMO}, self.api.api,
+                                        af.TAG, self.api.raiz_repo, self.saida, 1, chamador, self.rodar_falso,
+                                        "def456", limites)
+        self.console = out.getvalue()
+        self.assertEqual(codigo, v1.SAIDA_OK)
+        (r,) = self.registros()
+        self.assertEqual(resultados.problemas(r), [])
+        return r, json.loads((self.saida / "log-v1.json").read_text(encoding="utf-8"))
+
+    def test_estouro_do_teste_final_e_timeout_sem_reexecucao(self):
+        r, log = self.rodar_com_relogio([classificacao("legitima"), reparo(af.metodo_certo())], [10, 500])
+        self.assertEqual((r["decisao"], r["compilou"], r["passou"], r["erro"]), ("reparar", False, False, "timeout"))
+        self.assertEqual(log["execucoes"][0]["estouro"], "teste_final")
+        self.assertEqual(self.rodar_falso.timeouts, [120, 120])  # o inicial e o final, sem terceira vez
+        self.assertEqual(len(self.cliente.chamadas), 2)
+
+    def test_estouro_do_caso_no_teste_final(self):
+        r, log = self.rodar_com_relogio([classificacao("legitima"), reparo(af.metodo_certo())], [10, 110],
+                                        caso_s=100)
+        self.assertEqual((r["decisao"], r["erro"]), ("reparar", "timeout"))
+        self.assertEqual(log["execucoes"][0]["estouro"], "caso")
+        self.assertEqual(self.rodar_falso.timeouts[-1], 100)  # o que restava do caso, menor que 120
+
+    def test_a_espera_do_llm_nao_conta_no_caso(self):
+        r, log = self.rodar_com_relogio([classificacao("legitima"), reparo(af.metodo_certo())], [10, 30],
+                                        espera_llm_s=170)
+        self.assertEqual((r["passou"], r["erro"]), (True, None))
+        x = log["execucoes"][0]
+        self.assertEqual((x["duracao_caso_s"], x["espera_llm_s"], x["estouro"]), (30, 340, None))
+
+    def test_caso_estourado_antes_de_uma_chamada_nao_chama_o_llm(self):
+        r, log = self.rodar_com_relogio([], [10], caso_s=0)
+        self.assertEqual((r["decisao"], r["erro"]), ("nao_reparar", "timeout"))
+        self.assertEqual((log["execucoes"][0]["estouro"], self.cliente.chamadas), ("caso", []))
+
+    def test_estouro_do_maven_inicial_roda_o_maven_mais_uma_vez(self):
+        r, log = self.rodar_com_relogio([classificacao("legitima"), reparo(af.metodo_certo())], [500, 10, 10])
+        self.assertEqual((r["passou"], r["erro"]), (True, None))
+        self.assertEqual(log["execucoes"][0]["tentativas_maven_inicial"], 2)
+        self.assertEqual(log["exclusoes"], [])
+
+    def test_dois_estouros_do_maven_inicial_excluem_o_caso_e_o_log_lista(self):
+        r, log = self.rodar_com_relogio([], [500, 500])
+        self.assertEqual((r["decisao"], r["erro"], r["tokens"]), ("nao_reparar", "erro_execucao", 0))
+        self.assertEqual(self.cliente.chamadas, [])
+        self.assertEqual(log["exclusoes"], [{"id_caso": "A1-901", "repeticao": 1, "erro": "erro_execucao",
+                                             "causa": "estouro_maven_inicial"}])
+        self.assertEqual(log["exclusoes_por_causa"], {"estouro_maven_inicial": 1})
+        self.assertEqual(log["execucoes"][0]["estouro"], "maven_inicial")
+        self.assertIn("exclusões (fora das métricas): 1 (estouro_maven_inicial: 1)", self.console)
+
+    def test_o_log_registra_os_limites_usados(self):
+        _, log = self.rodar_com_relogio([classificacao("legitima"), reparo(af.metodo_certo())], [10, 10])
+        self.assertEqual(log["limites"], {"teste_s": 120, "caso_s": 180, "llm_s": 120})
+        self.assertIn("limites: teste 120 s, caso 180 s, chamada ao LLM 120 s", self.console)
+
+    def test_o_caso_que_estoura_e_falha_do_tratamento(self):
+        """Numa regressão, o reparo que estoura conta como reparo (FP), e não como acerto (VN)."""
+        r, _ = self.rodar_com_relogio([classificacao("legitima"), reparo(af.metodo_certo())], [10, 500],
+                                      oraculo=af.ORACULO_REGRESSAO)
+        self.assertEqual((r["rotulo_oraculo"], r["decisao"], r["passou"], r["erro"]),
+                         ("problema_real", "reparar", False, "timeout"))
+        self.assertNotIn(r["erro"], ("erro_execucao", "erro_llm"))  # entra nas métricas
+
+
 class EtapasETest(BaseRodada):
     def _chamador(self, roteiro):
         self.cliente = ClienteFalso(roteiro)
@@ -269,6 +345,18 @@ class LinhaDeComandoTest(unittest.TestCase):
         self.assertEqual(codigo, 2)
         self.assertIn("A API cobaia não foi encontrada em /nao/existe/rest-healing-sut", erro.getvalue())
         self.assertIn("confira o nome da pasta", erro.getvalue())
+
+    def test_limites_padrao_da_d111_na_linha_de_comando(self):
+        a = v1._argumentos(["--etapa", "1", "--api", "a", "--saida", "s"])
+        self.assertEqual((a.limite_teste_s, a.limite_caso_s, a.limite_llm_s), (120, 180, 120))
+        a = v1._argumentos(["--etapa", "1", "--api", "a", "--saida", "s", "--limite-teste-s", "60",
+                            "--limite-caso-s", "90", "--limite-llm-s", "30"])
+        self.assertEqual((a.limite_teste_s, a.limite_caso_s, a.limite_llm_s), (60, 90, 30))
+
+    def test_o_limite_da_chamada_chega_ao_sdk(self):
+        self.assertEqual(chamada_llm.TIMEOUT_S, 120)
+        sdk = chamada_llm.ClienteAnthropic("chave-falsa", timeout_s=30)._sdk
+        self.assertEqual(sdk.timeout, 30)
 
     def test_etapa_3_usa_os_quatro_casos_da_d105(self):
         self.assertEqual(v1.CASOS_DA_ETAPA_3, ("A1-001", "A1-004", "A1-010", "A1-003"))
