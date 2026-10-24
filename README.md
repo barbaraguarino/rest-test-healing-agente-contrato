@@ -169,6 +169,10 @@ A ordem não alterna a baseline e a v1 em cada caso, como pede a ordem de execu�
 | `chamadas.jsonl` | uma linha por chamada ao LLM, gravada na hora (D106): modelo retornado, `stop_reason`, tokens, `thinking_tokens`, `custo_usd`, `request_id`, latência, commit do prompt, resposta bruta e erro |
 | `log-v1.json` | `limites`, `exclusoes`, `sessoes` (cada vez que o comando rodou: início, execuções já gravadas, chamadas pagas sem registro, aquecimento) e o resumo por caso: rótulo e justificativa do Classifier, tentativas, chamadas, guarda, durações do Maven e do teste (para a T33), commit dos prompts, commit do código (`commit_do_codigo`, último commit que mexeu em `agente_contrato/`, com `+alterado` se havia mudança pendente), revisão manual e motivos da comparação |
 
+### Vereditos do A1-007 depois da D113 (T44)
+
+O veredito `equivalente_oraculo` do A1-007 foi trocado em 24/10/2026, depois de ver os resultados (desvio declarado, registrado na Operação do Estudo): `true` nas 3 repetições da v1 e `false` nas 3 da baseline. O motivo e o veredito anterior ficam em `veredito_revisao_manual` do `log-v1.json` e do `log-baseline.json`. O oráculo da tag `oraculo-piloto` não foi alterado. A saída do teste que confirmou a D113 está em `resultados/t44-d113/saida-abc.txt`. As métricas da T20a ficam nos dois conjuntos, em `resultados/t10-piloto/` e `resultados/t42-baseline/`: `metricas-protocolo-original.json` (vereditos de antes da D113) e `metricas-corrigido-d113.json`.
+
 ### Resultados da T09 (ensaio da escada da D105; não são resultados do estudo)
 
 Quatro casos, 1 repetição, `claude-haiku-5-5`. Prompts do commit `82c4edb` nas rodadas 1 e 2 e do `51894a8` na rodada 3, que acrescenta ao prompt do Repair o pedido de preservar quebras de linha e indentação (a quebra depois de `"""` é obrigatória). Eram só para ajustar a v1 (D99). Cada pasta tem também o `terminal.txt`, a saída do console copiada do IntelliJ.

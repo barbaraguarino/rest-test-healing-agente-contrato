@@ -580,10 +580,16 @@
         "não equivalente pelas regras 1 a 3 da D95"
       ],
       "veredito_revisao_manual": {
-        "equivalente_oraculo": false,
+        "equivalente_oraculo": true,
         "por": "Barbara",
-        "data": "2026-10-23",
-        "motivo": "não equivalente à correção esperada: o reparo mantém o matcher is(...) do original (.value(is(\"0\"))), e a correção esperada usa .value(\"0\")"
+        "data": "2026-10-24",
+        "motivo": "D113 (T44, desvio declarado depois de ver os resultados): a correção esperada do oráculo congelado (.value(\"0\")) passa também sem a mudança de tipo, porque value(objeto) do Spring converte o tipo, o que contradiz a D53; a correção que detecta a mudança é .value(is(\"0\")), e o reparo é equivalente a ela",
+        "veredito_anterior": {
+          "equivalente_oraculo": false,
+          "por": "Barbara",
+          "data": "2026-10-23",
+          "motivo": "não equivalente à correção esperada: o reparo mantém o matcher is(...) do original (.value(is(\"0\"))), e a correção esperada usa .value(\"0\")"
+        }
       }
     },
     {
@@ -618,10 +624,16 @@
         "não equivalente pelas regras 1 a 3 da D95"
       ],
       "veredito_revisao_manual": {
-        "equivalente_oraculo": false,
+        "equivalente_oraculo": true,
         "por": "Barbara",
-        "data": "2026-10-23",
-        "motivo": "não equivalente à correção esperada: o reparo mantém o matcher is(...) do original (.value(is(\"0\"))), e a correção esperada usa .value(\"0\")"
+        "data": "2026-10-24",
+        "motivo": "D113 (T44, desvio declarado depois de ver os resultados): a correção esperada do oráculo congelado (.value(\"0\")) passa também sem a mudança de tipo, porque value(objeto) do Spring converte o tipo, o que contradiz a D53; a correção que detecta a mudança é .value(is(\"0\")), e o reparo é equivalente a ela",
+        "veredito_anterior": {
+          "equivalente_oraculo": false,
+          "por": "Barbara",
+          "data": "2026-10-23",
+          "motivo": "não equivalente à correção esperada: o reparo mantém o matcher is(...) do original (.value(is(\"0\"))), e a correção esperada usa .value(\"0\")"
+        }
       }
     },
     {
@@ -656,10 +668,16 @@
         "não equivalente pelas regras 1 a 3 da D95"
       ],
       "veredito_revisao_manual": {
-        "equivalente_oraculo": false,
+        "equivalente_oraculo": true,
         "por": "Barbara",
-        "data": "2026-10-23",
-        "motivo": "não equivalente à correção esperada: o reparo mantém o matcher is(...) do original (.value(is(\"0\"))), e a correção esperada usa .value(\"0\")"
+        "data": "2026-10-24",
+        "motivo": "D113 (T44, desvio declarado depois de ver os resultados): a correção esperada do oráculo congelado (.value(\"0\")) passa também sem a mudança de tipo, porque value(objeto) do Spring converte o tipo, o que contradiz a D53; a correção que detecta a mudança é .value(is(\"0\")), e o reparo é equivalente a ela",
+        "veredito_anterior": {
+          "equivalente_oraculo": false,
+          "por": "Barbara",
+          "data": "2026-10-23",
+          "motivo": "não equivalente à correção esperada: o reparo mantém o matcher is(...) do original (.value(is(\"0\"))), e a correção esperada usa .value(\"0\")"
+        }
       }
     },
     {
