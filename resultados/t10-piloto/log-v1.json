@@ -1,0 +1,1104 @@
+{
+  "limites": {
+    "teste_s": 120,
+    "caso_s": 180,
+    "llm_s": 120
+  },
+  "exclusoes": [],
+  "exclusoes_por_causa": {},
+  "sessoes": [
+    {
+      "inicio_utc": "2026-10-24T01:55:42+00:00",
+      "execucoes_ja_gravadas": 0,
+      "chamadas_sem_registro": [],
+      "aquecimento": {
+        "teste": "ProdutoControllerTest.shouldReturn200WithAllFieldsWhenProductExists",
+        "passou": true,
+        "duracao_maven_s": 13.91,
+        "erro": null
+      }
+    }
+  ],
+  "execucoes": [
+    {
+      "id_caso": "A1-001",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo renomeou \"descricao\" para \"resumo\" na resposta de GET /produtos/{id}, e o ProdutoResponse agora expõe o valor de descrição no campo \"resumo\", de modo que o JSON não tem mais \"$.descricao\". A falha vem exatamente dessa diferença registrada, então o teste está desatualizado e deve passar a usar \"$.resumo\".",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 18018,
+      "custo_usd": 0.0021354,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.99,
+      "espera_llm_s": 5.56,
+      "duracao_maven_s": [
+        12.83,
+        12.98
+      ],
+      "duracao_teste_s": [
+        5.69,
+        5.91
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-001",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo renomeia \"descricao\" para \"resumo\" na resposta de GET /produtos/{id}, e o ProdutoResponse.de agora preenche o campo \"resumo\" com o valor de produto.getDescricao(), de modo que a chave \"descricao\" deixou de existir na resposta. A falha \"No value at JSON path $.descricao\" decorre exatamente dessa renomeação registrada, portanto o teste está desatualizado e deve passar a verificar \"$.resumo\".",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 18052,
+      "custo_usd": 0.0021524,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 13.3,
+      "espera_llm_s": 4.92,
+      "duracao_maven_s": [
+        13.2,
+        13.28
+      ],
+      "duracao_teste_s": [
+        5.9,
+        6.27
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-001",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo renomeia \"descricao\" para \"resumo\" na resposta de GET /produtos/{id}, e o ProdutoResponse.de agora devolve o valor de descricao no campo resumo, então o JSON não tem mais \"$.descricao\". A falha tem exatamente a causa registrada na diferença do contrato, e o teste ficou desatualizado e deve passar a checar \"$.resumo\".",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 18123,
+      "custo_usd": 0.0021879,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.43,
+      "espera_llm_s": 5.2,
+      "duracao_maven_s": [
+        13.52,
+        12.42
+      ],
+      "duracao_teste_s": [
+        5.61,
+        5.52
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-002",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo renomeou o campo 'quantidade' para 'unidades' na requisição de POST /carrinhos/{id}/itens, e o teste ainda envia {\"produtoId\": 1, \"quantidade\": 2}; como ItemCarrinhoRequest agora exige 'unidades' (@NotNull), o campo ausente gera 400 por validação, o que explica exatamente a falha e corresponde à mudança registrada.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 14332,
+      "custo_usd": 0.0017284,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.47,
+      "espera_llm_s": 4.34,
+      "duracao_maven_s": [
+        13.36,
+        12.45
+      ],
+      "duracao_teste_s": [
+        5.83,
+        5.6
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-002",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo renomeou o campo de requisição \"quantidade\" para \"unidades\", e o código (ItemCarrinhoRequest) já espera \"unidades\". O teste ainda envia \"quantidade\", então \"unidades\" chega nulo, a validação @NotNull rejeita a requisição com 400, e a falha é explicada inteiramente por essa mudança registrada, o que indica teste desatualizado.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 14428,
+      "custo_usd": 0.0017764,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.91,
+      "espera_llm_s": 5.64,
+      "duracao_maven_s": [
+        11.96,
+        11.9
+      ],
+      "duracao_teste_s": [
+        5.06,
+        5.39
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-002",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo renomeou o campo \"quantidade\" para \"unidades\", e o DTO ItemCarrinhoRequest já exige \"unidades\" com @NotNull. O teste ainda envia \"quantidade\", então o campo obrigatório chega nulo e a validação responde 400. A falha é explicada pela mudança registrada, e a correção é atualizar o corpo do teste para \"unidades\".",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 14442,
+      "custo_usd": 0.0017834,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.55,
+      "espera_llm_s": 4.49,
+      "duracao_maven_s": [
+        12.23,
+        11.54
+      ],
+      "duracao_teste_s": [
+        5.25,
+        5.36
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-003",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "A falha é em \"$.sku\", mas as diferenças do contrato só registram a renomeação de \"nome\" para \"titulo\", sem nenhuma mudança em \"sku\". O código, em ProdutoResponse, expõe o SKU como \"codigo\", uma alteração que o contrato novo não descreve, então o código se afasta do contrato e o teste está correto.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 9249,
+      "custo_usd": 0.0010637,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 3.16,
+      "duracao_maven_s": [
+        12.6
+      ],
+      "duracao_teste_s": [
+        5.62
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-003",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "O contrato novo registra apenas a renomeação de 'nome' para 'titulo', mas o código também troca 'sku' por 'codigo' em ProdutoResponse, mudança que não aparece nas diferenças do OpenAPI. A falha 'No value at JSON path $.sku' tem uma causa que o contrato não descreve, então o código se afastou do contrato.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 9248,
+      "custo_usd": 0.0010632,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 3.04,
+      "duracao_maven_s": [
+        12.44
+      ],
+      "duracao_teste_s": [
+        5.5
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-003",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "O contrato registra apenas a renomeação de nome para titulo, mas o código também renomeou o campo sku para codigo em ProdutoResponse, o que causa a falha 'No value at JSON path $.sku'. Essa mudança não aparece nas diferenças do contrato, então o código se afasta do contrato novo e o teste está correto.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 9237,
+      "custo_usd": 0.0010577,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 2.86,
+      "duracao_maven_s": [
+        12.29
+      ],
+      "duracao_teste_s": [
+        5.42
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-004",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo registra a remoção do campo \"pesoTotalGramas\" da resposta de POST /fretes/cotacao, e o CotacaoFreteResponse atual não tem mais esse campo (só modalidade, valor, prazoDias e freteGratis), então a falha \"No value at JSON path $.pesoTotalGramas\" é exatamente a consequência dessa mudança intencional. O teste está desatualizado e deve deixar de verificar esse campo.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 15757,
+      "custo_usd": 0.0018593,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.24,
+      "espera_llm_s": 5.06,
+      "duracao_maven_s": [
+        12.31,
+        11.22
+      ],
+      "duracao_teste_s": [
+        5.2,
+        5.19
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-004",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo registra a remoção do campo \"pesoTotalGramas\" da resposta de POST /fretes/cotacao, e o CotacaoFreteResponse atual não tem mais esse campo (só modalidade, valor, prazoDias e freteGratis), então a falha \"No value at JSON path $.pesoTotalGramas\" decorre exatamente dessa mudança intencional. O teste ficou desatualizado e a asserção sobre pesoTotalGramas deve ser removida.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 15766,
+      "custo_usd": 0.0018638,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.52,
+      "espera_llm_s": 4.07,
+      "duracao_maven_s": [
+        11.68,
+        11.5
+      ],
+      "duracao_teste_s": [
+        4.91,
+        5.25
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-004",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo registra a remoção do campo \"pesoTotalGramas\" da resposta de POST /fretes/cotacao, e o CotacaoFreteResponse atual já não contém esse campo (só modalidade, valor, prazoDias e freteGratis), então a falha \"No value at JSON path $.pesoTotalGramas\" decorre diretamente dessa mudança intencional. O teste ficou desatualizado e deve deixar de verificar esse campo.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 15756,
+      "custo_usd": 0.0018588,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.4,
+      "espera_llm_s": 4.01,
+      "duracao_maven_s": [
+        11.57,
+        11.39
+      ],
+      "duracao_teste_s": [
+        4.98,
+        5.29
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-005",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "A única diferença registrada no contrato é a remoção de destino.cep, e o DestinoRequest atual já não tem esse campo, então o código segue o contrato novo. O teste ainda envia destino.cep, e o 400 vem da requisição com um campo que o contrato removeu. A lógica da expressa confere com a RN06 (AM: (30 + 2×2) × 1,5 = 51,00; prazo 8 − 2 = 6), o que mostra que o cálculo não está quebrado.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 16172,
+      "custo_usd": 0.0022172,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.8,
+      "espera_llm_s": 9.01,
+      "duracao_maven_s": [
+        12.19,
+        11.78
+      ],
+      "duracao_teste_s": [
+        5.25,
+        5.26
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-005",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "A única mudança registrada no contrato é a remoção de destino.cep, e o DestinoRequest atual já não tem esse campo; o teste ainda envia \"cep\": \"69005000\" no corpo, e o restante da requisição (uf, modalidade, itens) é válido, então o 400 decorre do campo removido. A correção é atualizar o teste para não enviar cep, e o cálculo de RN05/RN06 (51,00 e prazo 6) não está em questão.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 16161,
+      "custo_usd": 0.0022117,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.56,
+      "espera_llm_s": 9.61,
+      "duracao_maven_s": [
+        12.28,
+        11.55
+      ],
+      "duracao_teste_s": [
+        5.17,
+        5.33
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-005",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo removeu o campo destino.cep, e o DTO DestinoRequest já não tem esse campo, mas o teste ainda envia \"cep\" no corpo da requisição. A falha 400 é consequência direta dessa remoção, já registrada nas diferenças, e não há outra causa visível no código: a cálculo de frete (base SUDESTE/NORTE, adicional por quilo, multiplicador 1,5 e redução de prazo) bate com os valores esperados.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 15929,
+      "custo_usd": 0.0020957,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.67,
+      "espera_llm_s": 8.09,
+      "duracao_maven_s": [
+        12.21,
+        11.66
+      ],
+      "duracao_teste_s": [
+        5.11,
+        5.27
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-006",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "A falha é em \"$.cliente.email\", mas o contrato novo só registra a remoção de \"modalidadeFrete\", não de \"cliente.email\". O código confirma o desvio: ClienteResponse expõe apenas \"nome\" e PedidoResponse.de não inclui o e-mail, embora Cliente ainda o armazene. Como o contrato não descreve essa perda, o teste está correto e a resposta da API quebrou um campo que deveria continuar existindo.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 13393,
+      "custo_usd": 0.0014897,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 3.05,
+      "duracao_maven_s": [
+        12.2
+      ],
+      "duracao_teste_s": [
+        5.35
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-006",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "A falha é em \"$.cliente.email\", e o contrato novo não registra remoção desse campo. O ClienteResponse do código atual tem só \"nome\" e não expõe o e-mail, então a API se afasta do contrato, que não declara essa mudança. A remoção de \"modalidadeFrete\" está nas diferenças registradas, mas não é a causa da falha reportada.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 13320,
+      "custo_usd": 0.0014532,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 2.77,
+      "duracao_maven_s": [
+        12.13
+      ],
+      "duracao_teste_s": [
+        5.31
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-006",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "A falha é 'No value at JSON path \"$.cliente.email\"', mas as diferenças do contrato só registram a remoção de 'modalidadeFrete'; nenhuma menciona o campo email. O código confirma o desvio: ClienteResponse(String nome) não tem email, embora o teste e o contrato não registrem essa remoção.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 13333,
+      "custo_usd": 0.0014597,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 2.82,
+      "duracao_maven_s": [
+        12.39
+      ],
+      "duracao_teste_s": [
+        5.23
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-007",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo declara que o campo estoque passou de integer para string em GET /produtos, GET /produtos/{id} e POST /produtos, e o código faz exatamente isso: ProdutoResponse.de usa String.valueOf(produto.getEstoque()), por isso a resposta traz \"0\" em vez de 0. A falha é só o teste ainda esperar o inteiro, então o teste está desatualizado e deve passar a comparar com a string \"0\".",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 18261,
+      "custo_usd": 0.0023233,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.47,
+      "espera_llm_s": 6.92,
+      "duracao_maven_s": [
+        12.29,
+        11.46
+      ],
+      "duracao_teste_s": [
+        5.42,
+        5.43
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": true,
+      "motivos": [
+        "não equivalente pelas regras 1 a 3 da D95"
+      ],
+      "veredito_revisao_manual": {
+        "equivalente_oraculo": false,
+        "por": "Barbara",
+        "data": "2026-10-23",
+        "motivo": "não equivalente à correção esperada: o reparo mantém o matcher is(...) do original (.value(is(\"0\"))), e a correção esperada usa .value(\"0\")"
+      }
+    },
+    {
+      "id_caso": "A1-007",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo declara que o campo estoque passou de integer para string em GET /produtos, GET /produtos/{id} e POST /produtos, e o código faz isso em ProdutoResponse (String.valueOf(produto.getEstoque())). A falha esperava 0 e recebeu \"0\", exatamente a mudança registrada, então o teste está desatualizado e deve comparar com a string \"0\".",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 17735,
+      "custo_usd": 0.0020603,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.05,
+      "espera_llm_s": 4.55,
+      "duracao_maven_s": [
+        12.51,
+        12.03
+      ],
+      "duracao_teste_s": [
+        5.48,
+        5.7
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": true,
+      "motivos": [
+        "não equivalente pelas regras 1 a 3 da D95"
+      ],
+      "veredito_revisao_manual": {
+        "equivalente_oraculo": false,
+        "por": "Barbara",
+        "data": "2026-10-23",
+        "motivo": "não equivalente à correção esperada: o reparo mantém o matcher is(...) do original (.value(is(\"0\"))), e a correção esperada usa .value(\"0\")"
+      }
+    },
+    {
+      "id_caso": "A1-007",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo declara o campo estoque como string nas respostas de GET /produtos, GET /produtos/{id} e POST /produtos, e ProdutoResponse.estoque é String preenchido com String.valueOf, então o valor \"0\" é o esperado. O teste ainda afirma jsonPath(\"$.estoque\") igual ao inteiro 0, o que é a expectativa antiga e não reflete a mudança registrada.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 17864,
+      "custo_usd": 0.0021248,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.76,
+      "espera_llm_s": 4.8,
+      "duracao_maven_s": [
+        12.7,
+        11.74
+      ],
+      "duracao_teste_s": [
+        5.65,
+        5.52
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": true,
+      "motivos": [
+        "não equivalente pelas regras 1 a 3 da D95"
+      ],
+      "veredito_revisao_manual": {
+        "equivalente_oraculo": false,
+        "por": "Barbara",
+        "data": "2026-10-23",
+        "motivo": "não equivalente à correção esperada: o reparo mantém o matcher is(...) do original (.value(is(\"0\"))), e a correção esperada usa .value(\"0\")"
+      }
+    },
+    {
+      "id_caso": "A1-008",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo declara que o campo \"ativo\" passou a aceitar as strings 'ATIVO' e 'INATIVO', e o código reflete isso com o ProdutoRequest usando SituacaoProduto. O teste ainda envia \"ativo\": true (booleano), que agora é rejeitado com 400 antes de chegar ao arredondamento, então a falha decorre da mudança registrada e o teste está desatualizado.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 18148,
+      "custo_usd": 0.0022556,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.6,
+      "espera_llm_s": 7.36,
+      "duracao_maven_s": [
+        12.08,
+        11.58
+      ],
+      "duracao_teste_s": [
+        5.24,
+        5.49
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-008",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo declara que o campo \"ativo\" passou de boolean para string com valores ATIVO/INATIVO, e o ProdutoRequest já usa SituacaoProduto (ATIVO/INATIVO) para esse campo. O teste ainda envia \"ativo\": true, o que o Jackson rejeita com 400, então a falha é causada pela mudança registrada no contrato e o teste está desatualizado.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 18275,
+      "custo_usd": 0.0023191,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.0,
+      "espera_llm_s": 5.65,
+      "duracao_maven_s": [
+        12.12,
+        11.98
+      ],
+      "duracao_teste_s": [
+        5.14,
+        5.51
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-008",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo declara que o campo \"ativo\" passou a aceitar as strings ATIVO/INATIVO, e o código implementa isso com SituacaoProduto no ProdutoRequest. O teste ainda envia \"ativo\": true (boolean), então recebe 400 por desserialização, causa que está inteiramente nas diferenças registradas; o teste está desatualizado e deve enviar \"ATIVO\".",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 18276,
+      "custo_usd": 0.0023196,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.74,
+      "espera_llm_s": 6.41,
+      "duracao_maven_s": [
+        12.06,
+        11.73
+      ],
+      "duracao_teste_s": [
+        5.05,
+        5.54
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-009",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "O contrato novo só renomeou precoUnitario para preco, mas o campo quantidade não consta entre as diferenças; o teste espera o número 1 e o código devolve a String \"1\" (ItemCarrinhoResponse usa String.valueOf(item.getQuantidade())), o que contradiz o contrato, que não mudou o tipo de quantidade. Logo a falha não é explicada pela renomeação registrada e cabe ao código corrigir o tipo.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 7187,
+      "custo_usd": 0.0007907,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 2.35,
+      "duracao_maven_s": [
+        11.99
+      ],
+      "duracao_teste_s": [
+        5.04
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-009",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "O contrato novo só renomeou precoUnitario para preco, mas não há registro de mudança no tipo de quantidade; o ItemCarrinhoResponse agora devolve quantidade como String (String.valueOf), por isso o JSON traz \"1\" em vez de 1. Essa alteração de tipo não consta das diferenças do contrato, então o código se afastou do contrato e o teste, que espera número, está correto.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 7171,
+      "custo_usd": 0.0007827,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 1.75,
+      "duracao_maven_s": [
+        12.27
+      ],
+      "duracao_teste_s": [
+        5.35
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-009",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "O contrato novo só renomeia precoUnitario para preco, sem mencionar quantidade. Porém ItemCarrinhoResponse.quantidade é do tipo String (String.valueOf), então a API devolve \"1\" em vez do número 1 que o contrato descreve como number; a falha é uma regressão do código que as diferenças registradas não explicam.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 7150,
+      "custo_usd": 0.0007722,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 1.86,
+      "duracao_maven_s": [
+        11.89
+      ],
+      "duracao_teste_s": [
+        5.1
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-010",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "A diferença registrada no contrato torna cliente.cpf obrigatório, e ClienteRequest já exige cpf com @NotBlank, então a validação responde 400 para o payload do teste, que não envia cpf. O teste está desatualizado e deve incluir o campo cpf no corpo da requisição.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 25296,
+      "custo_usd": 0.002824,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.67,
+      "espera_llm_s": 4.62,
+      "duracao_maven_s": [
+        12.06,
+        11.65
+      ],
+      "duracao_teste_s": [
+        5.01,
+        5.25
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-010",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "A falha é um 400 causado pela validação @NotBlank do campo cliente.cpf em ClienteRequest, que implementa a obrigatoriedade registrada no contrato novo. O teste envia o cliente sem cpf, então ficou desatualizado; o código não se afasta do contrato.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 25346,
+      "custo_usd": 0.002849,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.67,
+      "espera_llm_s": 4.57,
+      "duracao_maven_s": [
+        12.32,
+        11.65
+      ],
+      "duracao_teste_s": [
+        5.5,
+        5.39
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-010",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo tornou o campo cliente.cpf obrigatório, e ClienteRequest já valida esse campo com @NotBlank, o que explica o 400. O teste envia o cliente sem cpf, então ficou desatualizado e deve incluir o campo.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 25276,
+      "custo_usd": 0.002814,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.75,
+      "espera_llm_s": 4.54,
+      "duracao_maven_s": [
+        12.11,
+        11.74
+      ],
+      "duracao_teste_s": [
+        5.31,
+        5.4
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-011",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O teste envia o POST /produtos sem o campo \"marca\", que o contrato novo passou a exigir; o ProdutoRequest tem @NotBlank em marca, então a validação devolve 400 antes de chegar à checagem de SKU duplicado. A causa da falha está na diferença registrada, e o teste precisa incluir o campo marca no payload.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 18078,
+      "custo_usd": 0.0023462,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.78,
+      "espera_llm_s": 7.61,
+      "duracao_maven_s": [
+        11.93,
+        11.76
+      ],
+      "duracao_teste_s": [
+        5.13,
+        5.51
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-011",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo tornou o campo \"marca\" obrigatório, e o código reflete isso com @NotBlank em ProdutoRequest. O teste envia o corpo sem \"marca\", então a validação devolve 400 antes de chegar à checagem de SKU duplicado que geraria o 422. A falha vem dessa diferença registrada, e o teste precisa incluir \"marca\" no corpo.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 18022,
+      "custo_usd": 0.0023182,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.6,
+      "espera_llm_s": 8.89,
+      "duracao_maven_s": [
+        12.22,
+        12.58
+      ],
+      "duracao_teste_s": [
+        5.22,
+        5.93
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-011",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "O contrato novo torna o campo \"marca\" obrigatório, e o teste envia um corpo sem esse campo. Por isso a validação retorna 400 antes de chegar à checagem de SKU duplicado (que geraria 422), e o ProdutoRequest com @NotBlank em marca confirma o comportamento. A falha é explicada inteiramente pela mudança registrada, então o teste está desatualizado e deve incluir \"marca\" no corpo.",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 17814,
+      "custo_usd": 0.0022142,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.56,
+      "espera_llm_s": 6.13,
+      "duracao_maven_s": [
+        13.03,
+        12.55
+      ],
+      "duracao_teste_s": [
+        5.53,
+        6.02
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-012",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "A renomeação de modalidadeFrete para modalidade explica só parte do 400: o teste ainda envia modalidadeFrete, então o campo obrigatório fica nulo. Mas EnderecoRequest declara complemento como @NotBlank, e o teste omite esse campo, o que também gera 400. Essa exigência não aparece nas diferenças do contrato e contradiz o EnderecoResponse, que diz que complemento pode ser nulo, então a falha tem uma causa que o contrato novo não explica.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 13304,
+      "custo_usd": 0.0016616,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 8.85,
+      "duracao_maven_s": [
+        12.65
+      ],
+      "duracao_teste_s": [
+        5.68
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-012",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "A renomeação de modalidadeFrete para modalidade explica só parte do 400, pois o teste também omite o complemento, e EnderecoRequest declara complemento com @NotBlank, o que rejeita a ausência do campo. O teste espera 201 com complemento nulo, e a resposta (EnderecoResponse) admite complemento nulo, mas as diferenças do contrato não mencionam essa obrigatoriedade, então a falha tem uma causa que o contrato novo não descreve.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 13323,
+      "custo_usd": 0.0016711,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 4.63,
+      "duracao_maven_s": [
+        12.83
+      ],
+      "duracao_teste_s": [
+        5.71
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-012",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "A falha tem duas causas. A renomeação de modalidadeFrete para modalidade está registrada no contrato, mas o teste omite também o campo complemento, e EnderecoRequest o declara @NotBlank, o que gera o 400. O contrato não registra essa obrigatoriedade, e a documentação de EnderecoResponse diz que complemento pode ser nulo, então a validação do código contradiz a intenção descrita.",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 13194,
+      "custo_usd": 0.0016066,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 4.12,
+      "duracao_maven_s": [
+        12.86
+      ],
+      "duracao_teste_s": [
+        5.63
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "9d43d2158b99482389f3aba14b5979cc071fc75a",
+      "revisao_manual": false,
+      "motivos": []
+    }
+  ]
+}
