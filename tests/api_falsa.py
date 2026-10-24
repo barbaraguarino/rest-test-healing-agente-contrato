@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from agente_contrato import evidencia
-from agente_contrato.execucao import ResultadoTeste
+from agente_contrato.execucao import ErroDeExecucao, ResultadoTeste
 
 TAG = "t0"
 CLASSE, METODO = "ProdutoControllerTest", "alvo"
@@ -107,14 +107,25 @@ ORACULO_REGRESSAO = {"id_caso": "A1-901", "categoria": "renomeacao", "rotulo_ora
 
 class RodarFalso:
     """Arquivo de teste igual ao original: o teste falha (e o relatório do Surefire é escrito).
-    Arquivo alterado: não compila se tiver NAOCOMPILA; senão passa se usar `$.resumo`."""
+    Arquivo alterado: não compila se tiver NAOCOMPILA; senão passa se usar `$.resumo`.
 
-    def __init__(self, ja_passa: bool = False):
+    `duracoes`: duração simulada de cada chamada, em ordem (o padrão é 1 s). Com `relogio`
+    (um `RelogioFalso`), a chamada avança o relógio; a que passa de `timeout_s` avança só até
+    ele e levanta o `timeout`, como `execucao.rodar_teste`. `timeouts` guarda o que recebeu."""
+
+    def __init__(self, ja_passa: bool = False, duracoes=(), relogio=None):
         self.chamadas = 0
         self.ja_passa = ja_passa
+        self.duracoes, self.relogio, self.timeouts = list(duracoes), relogio, []
 
-    def __call__(self, raiz: Path, classe: str, metodo: str) -> ResultadoTeste:
+    def __call__(self, raiz: Path, classe: str, metodo: str, timeout_s: float = 120) -> ResultadoTeste:
         self.chamadas += 1
+        self.timeouts.append(timeout_s)
+        duracao = self.duracoes.pop(0) if self.duracoes else 1.0
+        if self.relogio is not None:
+            self.relogio.avancar(min(duracao, timeout_s))
+        if duracao > timeout_s:
+            raise ErroDeExecucao(f"{classe}.{metodo} passou de {timeout_s:g}s", "timeout", "estouro")
         texto = (raiz / ARQUIVO_TESTE).read_text(encoding="utf-8")
         if texto == TESTE:
             if self.ja_passa:

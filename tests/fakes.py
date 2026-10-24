@@ -23,13 +23,31 @@ def reparo(metodo: str, **kw) -> Resposta:
     return resposta(json.dumps({"metodo_reparado": metodo}), **kw)
 
 
+class RelogioFalso:
+    """Substitui `time.monotonic` nos limites de tempo (D111): só anda quando alguém manda."""
+
+    def __init__(self):
+        self.agora = 1000.0
+
+    def __call__(self) -> float:
+        return self.agora
+
+    def avancar(self, segundos: float) -> None:
+        self.agora += segundos
+
+
 class ClienteFalso:
-    def __init__(self, roteiro: list):
+    """`espera_s` com `relogio`: cada chamada avança o relógio, como a latência do LLM."""
+
+    def __init__(self, roteiro: list, relogio: RelogioFalso | None = None, espera_s: float = 0.0):
         self.roteiro = list(roteiro)
         self.chamadas: list[tuple[str, str, dict]] = []
+        self.relogio, self.espera_s = relogio, espera_s
 
     def chamar(self, sistema: str, usuario: str, schema: dict) -> Resposta:
         self.chamadas.append((sistema, usuario, schema))
+        if self.relogio is not None:
+            self.relogio.avancar(self.espera_s)
         if not self.roteiro:
             raise AssertionError("o roteiro do cliente falso acabou: chamada inesperada")
         item = self.roteiro.pop(0)

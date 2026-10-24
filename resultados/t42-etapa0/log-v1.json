@@ -1,0 +1,129 @@
+{
+  "limites": {
+    "teste_s": 120,
+    "caso_s": 180,
+    "llm_s": 120
+  },
+  "exclusoes": [],
+  "exclusoes_por_causa": {},
+  "execucoes": [
+    {
+      "id_caso": "A1-001",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "ensaio",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 13000,
+      "custo_usd": 0.0017,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.4,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.08,
+        11.39
+      ],
+      "duracao_teste_s": [
+        5.39,
+        5.21
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "6fdee1f0edf46730fbc7adaa1e12e4d9fe321b0f",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-004",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "ensaio",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 13000,
+      "custo_usd": 0.0017,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.31,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.02,
+        11.3
+      ],
+      "duracao_teste_s": [
+        5.27,
+        5.34
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "6fdee1f0edf46730fbc7adaa1e12e4d9fe321b0f",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-010",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "legitima",
+      "justificativa": "ensaio",
+      "motivo_erro": null,
+      "chamadas": 2,
+      "tokens": 13000,
+      "custo_usd": 0.0017,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.35,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.09,
+        11.34
+      ],
+      "duracao_teste_s": [
+        5.19,
+        5.34
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "6fdee1f0edf46730fbc7adaa1e12e4d9fe321b0f",
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-003",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "tentativas": 1,
+      "rotulo_classifier": "problema_real",
+      "justificativa": "ensaio",
+      "motivo_erro": null,
+      "chamadas": 1,
+      "tokens": 6500,
+      "custo_usd": 0.00085,
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 0.0,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.1
+      ],
+      "duracao_teste_s": [
+        5.47
+      ],
+      "commit_do_prompt": "51894a8b561c7581216994e4001fd92b249061ac",
+      "commit_do_codigo": "6fdee1f0edf46730fbc7adaa1e12e4d9fe321b0f",
+      "revisao_manual": false,
+      "motivos": []
+    }
+  ]
+}

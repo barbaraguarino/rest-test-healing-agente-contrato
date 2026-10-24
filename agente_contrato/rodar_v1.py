@@ -6,6 +6,8 @@ Uso, na raiz do repositório (IntelliJ: módulo `agente_contrato.rodar_v1`, dire
     python -m agente_contrato.rodar_v1 --etapa 2 --api ... --saida ... --orcamento-usd 0.10
     python -m agente_contrato.rodar_v1 --etapa 3 --api ... --saida ... --orcamento-usd 0.10
 
+Limites de tempo da D111: `--limite-teste-s` (120), `--limite-caso-s` (180) e `--limite-llm-s` (120).
+
 As etapas são as da escada da D105. O piloto completo (12 casos, 3 repetições) é a T10 e não
 roda aqui. Quem chama o LLM é o `Chamador`; o LLM nunca roda o Maven nem grava arquivo.
 
@@ -19,7 +21,7 @@ import shutil
 import sys
 import tempfile
 import time
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from datetime import datetime, timezone
 from dataclasses import dataclass
 from pathlib import Path
@@ -63,10 +65,15 @@ class Chamador:
                     erro=None)
         self.log.registrar(**{**base, **campos})
 
-    def chamar(self, id_caso: str, repeticao: int, etapa: str, usuario: str, schema: dict, conta: Conta):
+    def chamar(self, id_caso: str, repeticao: int, etapa: str, usuario: str, schema: dict, conta: Conta,
+               limite: execucao.LimiteDoCaso | None = None):
+        """`limite`: o relógio do caso, que confere antes e para de contar durante a espera (D111b)."""
         self.orcamento.verificar()  # antes de gastar, nunca depois
+        if limite is not None:
+            limite.verificar()
         try:
-            r = self.cliente.chamar(self.textos[etapa], usuario, schema)
+            with limite.fora_da_conta() if limite is not None else nullcontext():
+                r = self.cliente.chamar(self.textos[etapa], usuario, schema)
         except (ErroDeRede, ErroFatal) as e:
             self._linha(id_caso, repeticao, etapa, custo_usd=0.0, latencia_s=round(e.latencia_s, 3),
                         erro=f"{type(e).__name__}: {e.motivo}")
@@ -97,10 +104,12 @@ class CasoPreparado:
     evidencia: str
     maven_s: float
     teste_s: float
+    tentativas_maven_inicial: int = 1
 
 
 @contextmanager
-def preparar(entrada: Entrada, api: Path, tag: str, trabalho: Path, rodar=execucao.rodar_teste):
+def preparar(entrada: Entrada, api: Path, tag: str, trabalho: Path, rodar=execucao.rodar_teste,
+             limite_teste_s: float = execucao.LIMITE_TESTE_S):
     """Cópia limpa da tag, patch do caso, teste afetado falhando e evidência montada.
 
     A evidência é calculada depois do patch: o LLM vê o código novo e o contrato novo.
@@ -113,35 +122,44 @@ def preparar(entrada: Entrada, api: Path, tag: str, trabalho: Path, rodar=execuc
         arquivo = execucao.arquivo_de_teste(copia, entrada.classe)
         original = arquivo.read_text(encoding="utf-8")
 
-        inicial = rodar(copia, entrada.classe, entrada.metodo)
+        inicial, tentativas = execucao.rodar_teste_inicial(rodar, copia, entrada.classe, entrada.metodo,
+                                                           limite_teste_s)
         if inicial.passou:
-            raise execucao.ErroDeExecucao(f"{entrada.id_caso}: o teste afetado passa sem reparo")
+            raise execucao.ErroDeExecucao(f"{entrada.id_caso}: o teste afetado passa sem reparo",
+                                          causa="teste_passa_sem_reparo")
         mudancas = contrato.diferenca(antigo, novo)
         texto = evidencia.montar(mudancas, leitura_falha.ler_falha(copia), entrada.classe, entrada.metodo,
                                  original, evidencia.arquivos_do_modulo(copia, arquivo))
         yield CasoPreparado(arquivo, str(arquivo.relative_to(copia)), original, mudancas,
                             contrato.rotas_do_contrato(novo), texto, inicial.duracao_maven_s,
-                            inicial.duracao_teste_s), copia
+                            inicial.duracao_teste_s, tentativas), copia
     finally:
         shutil.rmtree(copia, ignore_errors=True)
 
 
 def _pipeline(p: CasoPreparado, entrada: Entrada, chamador: Chamador, repeticao: int, conta: Conta,
-              e: Execucao, extras: dict) -> str | None:
+              e: Execucao, extras: dict, limite: execucao.LimiteDoCaso) -> str | None:
     """Classifier, depois Repair. Devolve o arquivo reparado aceito pelo guarda, ou None.
 
-    Cada rejeição preenche `e.erro` (D74/D102) e encerra o caso; nada é repetido (D102).
+    Cada rejeição preenche `e.erro` (D74/D102) e encerra o caso; nada é repetido (D102). O estouro
+    do caso antes de uma chamada também (`timeout`, D111d).
     """
     try:
-        r1 = chamador.chamar(entrada.id_caso, repeticao, "classifier", p.evidencia, saida.SCHEMA_CLASSIFIER, conta)
+        r1 = chamador.chamar(entrada.id_caso, repeticao, "classifier", p.evidencia, saida.SCHEMA_CLASSIFIER, conta,
+                             limite)
         classificacao = saida.ler_classificacao(r1.stop_reason, r1.texto)
         extras.update(rotulo_classifier=classificacao.rotulo, justificativa=classificacao.justificativa)
         if classificacao.rotulo == saida.PROBLEMA_REAL:
             return None  # o código decide pular o Repair (D62); não é erro
-        r2 = chamador.chamar(entrada.id_caso, repeticao, "repair", p.evidencia, saida.SCHEMA_REPAIR, conta)
+        r2 = chamador.chamar(entrada.id_caso, repeticao, "repair", p.evidencia, saida.SCHEMA_REPAIR, conta, limite)
         reparado = saida.encaixar(p.original, entrada.metodo, saida.ler_reparo(r2.stop_reason, r2.texto))
     except saida.SaidaRejeitada as rejeicao:
         e.erro, extras["motivo_erro"] = rejeicao.codigo, rejeicao.motivo
+        return None
+    except execucao.ErroDeExecucao as estouro:
+        if estouro.codigo != "timeout":
+            raise
+        e.erro, e.estouro, extras["motivo_erro"] = "timeout", estouro.causa, str(estouro)
         return None
     veredito = guarda.avaliar(p.original, reparado, entrada.metodo, p.mudancas, p.rotas)
     e.guarda_motivos = veredito.motivos
@@ -152,42 +170,45 @@ def _pipeline(p: CasoPreparado, entrada: Entrada, chamador: Chamador, repeticao:
 
 
 def executar_caso(entrada: Entrada, api: Path, tag: str, trabalho: Path, chamador: Chamador, repeticao: int,
-                  conta: Conta, rodar=execucao.rodar_teste) -> tuple[Execucao, dict]:
-    with preparar(entrada, api, tag, trabalho, rodar) as (p, copia):
+                  conta: Conta, rodar=execucao.rodar_teste,
+                  limites: execucao.Limites = execucao.Limites()) -> tuple[Execucao, dict]:
+    with preparar(entrada, api, tag, trabalho, rodar, limites.teste_s) as (p, copia):
+        limite = limites.caso()  # D111b: a partir da falha recebida
         e = Execucao(entrada.id_caso, entrada.classe, entrada.metodo, baseline.NAO_REPARAR, None, False, None,
                      0.0, original=p.original, arquivo_relativo=p.relativo, mudancas=p.mudancas, rotas=p.rotas,
-                     maven_s=[p.maven_s], teste_s=[p.teste_s])
+                     maven_s=[p.maven_s], teste_s=[p.teste_s], tentativas_maven_inicial=p.tentativas_maven_inicial)
         extras = {"rotulo_classifier": None, "justificativa": None, "motivo_erro": None}
         inicio = time.monotonic()
-        reparado = _pipeline(p, entrada, chamador, repeticao, conta, e, extras)
+        reparado = _pipeline(p, entrada, chamador, repeticao, conta, e, extras, limite)
         e.tempo_s = time.monotonic() - inicio  # da falha ao artefato final, com as chamadas ao LLM
 
         if reparado is not None:
             p.arquivo.write_text(reparado, encoding="utf-8")
             e.decisao, e.reparado = baseline.REPARAR, reparado
-            final = rodar(copia, entrada.classe, entrada.metodo)
-            e.compilou, e.passou = final.compilou, final.passou
-            e.maven_s.append(final.duracao_maven_s)
-            e.teste_s.append(final.duracao_teste_s)
+            rodar_baseline.rodar_final(e, rodar, copia, entrada, limite, limites)
+        e.duracao_caso_s, e.espera_llm_s = limite.decorrido(), limite.espera_llm_s
         return e, extras
 
 
-def _com_reexecucao(entrada, api, tag, trabalho: Path, chamador, repeticao, conta, rodar):
-    """D104: erro de rede ou de infraestrutura do LLM reexecuta o caso uma vez; falhando de novo, `erro_llm`."""
+def _com_reexecucao(entrada, api, tag, trabalho: Path, chamador, repeticao, conta, rodar, limites):
+    """D104: erro de rede ou de infraestrutura do LLM reexecuta o caso uma vez; falhando de novo, `erro_llm`.
+
+    Cada tentativa tem o seu relógio do caso. O Maven inicial já tem a sua reexecução (D111e).
+    """
     for tentativa in (1, 2):
         try:
             e, extras = executar_caso(entrada, api, tag, trabalho / f"{entrada.id_caso}-r{repeticao}-t{tentativa}",
-                                      chamador, repeticao, conta, rodar)
+                                      chamador, repeticao, conta, rodar, limites)
             return e, extras, tentativa
         except ErroDeRede as exc:
             print(f"{entrada.id_caso} r{repeticao}: erro de rede na tentativa {tentativa}: {exc.motivo}", flush=True)
             motivo = exc.motivo
         except execucao.ErroDeExecucao as exc:
-            print(f"{entrada.id_caso} r{repeticao}: ERRO {exc.codigo}: {exc}", flush=True)
-            e = Execucao(entrada.id_caso, entrada.classe, entrada.metodo, baseline.NAO_REPARAR, None, False,
-                         exc.codigo, 0.0)
+            print(f"{entrada.id_caso} r{repeticao}: ERRO {exc.codigo} ({exc.causa}): {exc}", flush=True)
+            e = rodar_baseline.com_erro_de_execucao(entrada, exc)
             return e, {"rotulo_classifier": None, "justificativa": None, "motivo_erro": str(exc)}, tentativa
-    e = Execucao(entrada.id_caso, entrada.classe, entrada.metodo, baseline.NAO_REPARAR, None, False, "erro_llm", 0.0)
+    e = Execucao(entrada.id_caso, entrada.classe, entrada.metodo, baseline.NAO_REPARAR, None, False, "erro_llm", 0.0,
+                 causa="erro_llm")
     return e, {"rotulo_classifier": None, "justificativa": None, "motivo_erro": motivo}, 2
 
 
@@ -201,20 +222,23 @@ def commit_do_codigo() -> str:
 
 def executar_rodada(entradas: list[Entrada], oraculos: dict, api: Path, tag: str, raiz_repo: Path, pasta: Path,
                     repeticoes: int, chamador: Chamador, rodar=execucao.rodar_teste,
-                    commit_codigo: str | None = None) -> int:
+                    commit_codigo: str | None = None,
+                    limites: execucao.Limites = execucao.Limites(llm_s=chamada_llm.TIMEOUT_S)) -> int:
     """Roda os casos e grava, a cada caso, o arquivo de resultados (D74) e o resumo. Devolve o código de saída.
 
     `commit_codigo` nulo só nos testes e no ensaio com cliente falso; `main` passa o de `commit_do_codigo()`.
     """
     registros, resumo, seguidos = [], [], 0
     pasta.mkdir(parents=True, exist_ok=True)
+    print(f"limites: teste {limites.teste_s:g} s, caso {limites.caso_s:g} s, chamada ao LLM {limites.llm_s:g} s "
+          f"(D111)", flush=True)
     with tempfile.TemporaryDirectory(prefix="v1-") as trabalho:
         for entrada in entradas:
             for repeticao in range(1, repeticoes + 1):
                 conta = Conta()
                 try:
                     e, extras, tentativas = _com_reexecucao(entrada, api, tag, Path(trabalho), chamador,
-                                                            repeticao, conta, rodar)
+                                                            repeticao, conta, rodar, limites)
                 except ErroFatal as exc:
                     print(f"PARADA: erro que repetir não resolve: {exc.motivo}", file=sys.stderr)
                     return SAIDA_ERRO_FATAL
@@ -228,23 +252,25 @@ def executar_rodada(entradas: list[Entrada], oraculos: dict, api: Path, tag: str
                 registro, do_registro = rodar_baseline.registrar(e, oraculos[entrada.id_caso], repeticao, raiz_repo,
                                                                  TRATAMENTO, VERSAO)
                 registros.append(registro)
-                resumo.append({"id_caso": e.id_caso, "repeticao": repeticao, "tentativas": tentativas,
-                               **extras, "chamadas": conta.chamadas, "tokens": conta.tokens,
-                               "custo_usd": e.custo_usd, "guarda": list(e.guarda_motivos),
-                               "duracao_maven_s": [round(x, 2) for x in e.maven_s],
-                               "duracao_teste_s": [round(x, 2) for x in e.teste_s],
+                resumo.append({"id_caso": e.id_caso, "repeticao": repeticao, "erro": e.erro, "causa": e.causa,
+                               "tentativas": tentativas, **extras, "chamadas": conta.chamadas, "tokens": conta.tokens,
+                               "custo_usd": e.custo_usd, "guarda": list(e.guarda_motivos), **e.para_o_log(),
                                "commit_do_prompt": chamador.commit, "commit_do_codigo": commit_codigo,
                                **do_registro})
                 resultados.gravar(pasta / "resultados-agente1.json", tag, registros)
+                fora = rodar_baseline.exclusoes(resumo)
                 (pasta / "log-v1.json").write_text(
-                    json.dumps({"execucoes": resumo}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                    json.dumps({"limites": limites.para_o_log(), **fora, "execucoes": resumo},
+                               ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
                 print(f"{e.id_caso} r{repeticao}: decisao={registro['decisao']} compilou={registro['compilou']} "
-                      f"passou={registro['passou']} erro={registro['erro']} tokens={conta.tokens} "
+                      f"passou={registro['passou']} erro={registro['erro']} estouro={e.estouro} tokens={conta.tokens} "
                       f"custo=US$ {e.custo_usd:.6f} (acumulado US$ {chamador.orcamento.gasto_usd:.6f})", flush=True)
                 seguidos = seguidos + 1 if e.erro == "erro_llm" else 0
                 if seguidos >= MAX_ERROS_LLM_SEGUIDOS:
                     print(f"PARADA: {seguidos} erro_llm seguidos", file=sys.stderr)
+                    rodar_baseline.imprimir_exclusoes(rodar_baseline.exclusoes(resumo))
                     return SAIDA_ERROS_SEGUIDOS
+    rodar_baseline.imprimir_exclusoes(rodar_baseline.exclusoes(resumo))
     return SAIDA_OK
 
 
@@ -330,6 +356,9 @@ def _argumentos(argv: list[str] | None) -> argparse.Namespace:
     ap.add_argument("--orcamento-usd", type=float, help="obrigatório nas etapas 2 e 3; a rodada para ao chegar nele")
     ap.add_argument("--env", type=Path, help="arquivo .env com a chave (padrão: .env na raiz do repositório)")
     ap.add_argument("--sim", action="store_true", help="não pedir a confirmação antes de gastar")
+    rodar_baseline.adicionar_limites(ap)
+    ap.add_argument("--limite-llm-s", type=float, default=chamada_llm.TIMEOUT_S,
+                    help="timeout de uma chamada ao LLM, em segundos (D104, D111c)")
     args = ap.parse_args(argv)
     if args.etapa in (2, 3) and not args.orcamento_usd:
         ap.error("as etapas 2 e 3 chamam a API paga: informe --orcamento-usd (ex.: 0.10)")
@@ -354,7 +383,8 @@ def main(argv: list[str] | None = None, criar_cliente=None, rodar=execucao.rodar
 
     if criar_cliente is None:
         def criar_cliente():
-            return chamada_llm.ClienteAnthropic(chamada_llm.ler_chave(args.env or raiz_repo / ".env"))
+            return chamada_llm.ClienteAnthropic(chamada_llm.ler_chave(args.env or raiz_repo / ".env"),
+                                                timeout_s=args.limite_llm_s)
     cliente = criar_cliente()
     textos = {"classifier": prompts.carregar("classifier"), "repair": prompts.carregar("repair")}
     commit = prompts.commit_dos_prompts()
@@ -374,8 +404,9 @@ def main(argv: list[str] | None = None, criar_cliente=None, rodar=execucao.rodar
     if args.etapa == 2:
         return etapa_2(entradas[0], args.api, args.tag, chamador, rodar)
     por_id = {c["id_caso"]: c for c in oraculo["casos"]}
+    limites = execucao.Limites(args.limite_teste_s, args.limite_caso_s, args.limite_llm_s)
     codigo = executar_rodada(entradas, por_id, args.api, args.tag, raiz_repo, args.saida, 1, chamador, rodar,
-                             commit_do_codigo())
+                             commit_do_codigo(), limites)
     print(f"gasto total: US$ {chamador.orcamento.gasto_usd:.6f} | tokens: {chamador.orcamento.tokens}")
     return codigo
 

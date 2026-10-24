@@ -2,6 +2,7 @@
 
 Uso (na raiz do repositório):
     python3 -m agente_contrato.rodar_baseline --api CAMINHO_DA_API_COBAIA --saida PASTA [--repeticoes 3]
+        [--limite-teste-s 120] [--limite-caso-s 180]
 
 Separação exigida pelo CLAUDE.md: `executar_caso` recebe só id, patch e nome do
 teste afetado e nunca vê o oráculo; o rótulo, a categoria e a correção esperada
@@ -16,6 +17,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -55,12 +57,62 @@ class Execucao:
     teste_s: list = field(default_factory=list)
     tokens: int = 0         # entrada + saída das chamadas ao LLM; 0 na baseline
     custo_usd: float = 0    # 0 na baseline
+    # D111: o que vai para o log sobre os limites de tempo
+    estouro: str | None = None           # maven_inicial, teste_final ou caso
+    causa: str | None = None             # causa da exclusão, quando `erro` é de infraestrutura
+    tentativas_maven_inicial: int = 0
+    duracao_caso_s: float | None = None  # contada para o limite do caso, sem a espera do LLM
+    espera_llm_s: float = 0.0
+
+    def para_o_log(self) -> dict:
+        return {"estouro": self.estouro, "tentativas_maven_inicial": self.tentativas_maven_inicial,
+                "duracao_caso_s": None if self.duracao_caso_s is None else round(self.duracao_caso_s, 2),
+                "espera_llm_s": round(self.espera_llm_s, 2),
+                "duracao_maven_s": [round(x, 2) for x in self.maven_s],
+                "duracao_teste_s": [round(x, 2) for x in self.teste_s]}
+
+
+def com_erro_de_execucao(entrada: "Entrada", exc: execucao.ErroDeExecucao) -> Execucao:
+    """Registro de um caso que a infraestrutura não deixou rodar (fora das métricas, D111e)."""
+    e = Execucao(entrada.id_caso, entrada.classe, entrada.metodo, baseline.NAO_REPARAR, None, False,
+                 exc.codigo, 0.0, causa=exc.causa)
+    if exc.causa == "estouro_maven_inicial":
+        e.estouro, e.tentativas_maven_inicial = "maven_inicial", 2
+    return e
+
+
+def rodar_final(e: Execucao, rodar, copia: Path, entrada: "Entrada", limite: execucao.LimiteDoCaso,
+                limites: execucao.Limites) -> None:
+    """Maven final do reparo aceito. O estouro é falha do tratamento (D111d): o agente decidiu
+    reparar, então `decisao` fica `reparar` e o reparo conta como não compilado e não passado."""
+    try:
+        final = execucao.rodar_teste_final(rodar, copia, entrada.classe, entrada.metodo, limite, limites.teste_s)
+    except execucao.ErroDeExecucao as exc:
+        if exc.codigo != "timeout":
+            raise
+        e.compilou, e.passou, e.erro, e.estouro = False, False, "timeout", exc.causa
+        return
+    e.compilou, e.passou = final.compilou, final.passou
+    e.maven_s.append(final.duracao_maven_s)
+    e.teste_s.append(final.duracao_teste_s)
+
+
+def exclusoes(log: list[dict]) -> dict:
+    """Execuções fora das métricas (`erro_execucao` e `erro_llm`), com a causa e a contagem (D111e)."""
+    lista = [{k: x[k] for k in ("id_caso", "repeticao", "erro", "causa")} for x in log
+             if x["erro"] in ("erro_execucao", "erro_llm")]
+    return {"exclusoes": lista, "exclusoes_por_causa": dict(Counter(x["causa"] for x in lista))}
+
+
+def imprimir_exclusoes(dados: dict) -> None:
+    contagem = ", ".join(f"{c}: {n}" for c, n in dados["exclusoes_por_causa"].items()) or "nenhuma"
+    print(f"exclusões (fora das métricas): {len(dados['exclusoes'])} ({contagem})", flush=True)
 
 
 # ---------------------------------------------------------------- execução (sem oráculo)
 
 def executar_caso(entrada: Entrada, api: Path, tag: str, trabalho: Path,
-                  rodar=execucao.rodar_teste) -> Execucao:
+                  rodar=execucao.rodar_teste, limites: execucao.Limites = execucao.Limites()) -> Execucao:
     copia = execucao.preparar_copia(api, tag, trabalho)
     try:
         antigo = contrato.carregar(copia / "docs" / "openapi.json")
@@ -70,12 +122,16 @@ def executar_caso(entrada: Entrada, api: Path, tag: str, trabalho: Path,
         original = arquivo.read_text(encoding="utf-8")
         rel = str(arquivo.relative_to(copia))
 
-        inicial = rodar(copia, entrada.classe, entrada.metodo)
+        inicial, tentativas = execucao.rodar_teste_inicial(rodar, copia, entrada.classe, entrada.metodo,
+                                                           limites.teste_s)
         if inicial.passou:
-            raise execucao.ErroDeExecucao(f"{entrada.id_caso}: o teste afetado passa sem reparo")
+            raise execucao.ErroDeExecucao(f"{entrada.id_caso}: o teste afetado passa sem reparo",
+                                          causa="teste_passa_sem_reparo")
+        limite = limites.caso()  # D111b: a partir da falha recebida
         e = Execucao(entrada.id_caso, entrada.classe, entrada.metodo, baseline.NAO_REPARAR, None,
                      False, None, 0.0, original=original, arquivo_relativo=rel,
-                     maven_s=[inicial.duracao_maven_s], teste_s=[inicial.duracao_teste_s])
+                     maven_s=[inicial.duracao_maven_s], teste_s=[inicial.duracao_teste_s],
+                     tentativas_maven_inicial=tentativas)
 
         inicio = time.monotonic()
         e.rotas = baseline.rotas_do_contrato(novo)
@@ -93,10 +149,8 @@ def executar_caso(entrada: Entrada, api: Path, tag: str, trabalho: Path,
         e.tempo_s = time.monotonic() - inicio  # do recebimento da falha ao artefato final
 
         if e.decisao == baseline.REPARAR:
-            final = rodar(copia, entrada.classe, entrada.metodo)
-            e.compilou, e.passou = final.compilou, final.passou
-            e.maven_s.append(final.duracao_maven_s)
-            e.teste_s.append(final.duracao_teste_s)
+            rodar_final(e, rodar, copia, entrada, limite, limites)
+        e.duracao_caso_s = limite.decorrido()
         return e
     finally:
         shutil.rmtree(copia, ignore_errors=True)
@@ -173,6 +227,14 @@ def _carregar_entradas(raiz_repo: Path, oraculo: dict, filtro: set[str] | None) 
     return entradas
 
 
+def adicionar_limites(ap: argparse.ArgumentParser) -> None:
+    """Opções dos limites de tempo da D111, com os padrões dela; a v1 usa as mesmas."""
+    ap.add_argument("--limite-teste-s", type=float, default=execucao.LIMITE_TESTE_S,
+                    help="limite de uma chamada do mvnw, em segundos (D111a)")
+    ap.add_argument("--limite-caso-s", type=float, default=execucao.LIMITE_CASO_S,
+                    help="limite do caso, sem a espera do LLM, em segundos (D111b)")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--api", required=True, type=Path, help="clone da API cobaia (rest-test-healing-sut)")
@@ -180,6 +242,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--tag", default=TAG_PADRAO)
     ap.add_argument("--repeticoes", type=int, default=REPETICOES_PADRAO)
     ap.add_argument("--casos", nargs="*", help="ids de casos (padrão: todos)")
+    adicionar_limites(ap)
     args = ap.parse_args(argv)
 
     raiz_repo = Path(__file__).resolve().parent.parent
@@ -190,34 +253,43 @@ def main(argv: list[str] | None = None) -> int:
     por_id = {c["id_caso"]: c for c in oraculo["casos"]}
     entradas = _carregar_entradas(raiz_repo, oraculo, set(args.casos) if args.casos else None)
 
+    return executar_rodada(entradas, por_id, args.api, args.tag, raiz_repo, args.saida, args.repeticoes,
+                           limites=execucao.Limites(args.limite_teste_s, args.limite_caso_s))
+
+
+def executar_rodada(entradas: list[Entrada], por_id: dict, api: Path, tag: str, raiz_repo: Path, saida: Path,
+                    repeticoes: int, rodar=execucao.rodar_teste,
+                    limites: execucao.Limites = execucao.Limites()) -> int:
     registros, log, assinaturas = [], [], {}
-    args.saida.mkdir(parents=True, exist_ok=True)
+    saida.mkdir(parents=True, exist_ok=True)
+    print(f"limites: teste {limites.teste_s:g} s, caso {limites.caso_s:g} s (D111)", flush=True)
     with tempfile.TemporaryDirectory(prefix="baseline-") as trabalho:
         for entrada in entradas:
-            for repeticao in range(1, args.repeticoes + 1):
+            for repeticao in range(1, repeticoes + 1):
                 destino = Path(trabalho) / f"{entrada.id_caso}-r{repeticao}"
                 try:
-                    e = executar_caso(entrada, args.api, args.tag, destino)
+                    e = executar_caso(entrada, api, tag, destino, rodar, limites)
                 except execucao.ErroDeExecucao as exc:
-                    e = Execucao(entrada.id_caso, entrada.classe, entrada.metodo, baseline.NAO_REPARAR,
-                                 None, False, exc.codigo, 0.0)
-                    print(f"{entrada.id_caso} r{repeticao}: ERRO {exc.codigo}: {exc}", flush=True)
+                    e = com_erro_de_execucao(entrada, exc)
+                    print(f"{entrada.id_caso} r{repeticao}: ERRO {exc.codigo} ({exc.causa}): {exc}", flush=True)
                 registro, extras = registrar(e, por_id[entrada.id_caso], repeticao, raiz_repo)
                 registros.append(registro)
                 assinaturas.setdefault(entrada.id_caso, set()).add(assinatura(registro, e.reparado))
-                log.append({"id_caso": e.id_caso, "repeticao": repeticao, "aplicadas": e.aplicadas,
-                            "ignoradas": e.ignoradas, "guarda": list(e.guarda_motivos),
-                            "duracao_maven_s": [round(x, 2) for x in e.maven_s],
-                            "duracao_teste_s": [round(x, 2) for x in e.teste_s], **extras})
-                resultados.gravar(args.saida / "resultados-agente1.json", args.tag, registros)
+                log.append({"id_caso": e.id_caso, "repeticao": repeticao, "erro": e.erro, "causa": e.causa,
+                            "aplicadas": e.aplicadas, "ignoradas": e.ignoradas, "guarda": list(e.guarda_motivos),
+                            **e.para_o_log(), **extras})
+                resultados.gravar(saida / "resultados-agente1.json", tag, registros)
                 print(f"{e.id_caso} r{repeticao}: {e.decisao} compilou={registro['compilou']} "
                       f"passou={registro['passou']} equivalente={registro['equivalente_oraculo']} "
-                      f"cenario={registro['cenario_alterado']} erro={registro['erro']}", flush=True)
+                      f"cenario={registro['cenario_alterado']} erro={registro['erro']} estouro={e.estouro}",
+                      flush=True)
     deterministica = {i: len(s) == 1 for i, s in assinaturas.items()}
-    (args.saida / "log-baseline.json").write_text(
-        json.dumps({"deterministica": deterministica, "execucoes": log}, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8")
+    fora = exclusoes(log)
+    (saida / "log-baseline.json").write_text(
+        json.dumps({"limites": limites.para_o_log(), **fora, "deterministica": deterministica, "execucoes": log},
+                   ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("determinística em todos os casos:", all(deterministica.values()))
+    imprimir_exclusoes(fora)
     return 0
 
 

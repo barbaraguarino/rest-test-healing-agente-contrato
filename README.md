@@ -68,7 +68,7 @@ Python 3.13 (nuvem) e 3.14 (IntelliJ) com a biblioteca padrão (a baseline não 
 | `agente_contrato/baseline.py` | as regras da D75: mudança de contrato → edição do teste |
 | `agente_contrato/guarda.py` | recusa reparo que remove teste, acrescenta `@Disabled`, tira asserção ou afrouxa matcher (exceção da D77) |
 | `agente_contrato/comparador.py` | equivalência com a correção esperada (regras 1 a 3 da D95) e troca de cenário |
-| `agente_contrato/execucao.py` | cópia limpa da tag, patch do caso e execução de um único teste pelo Maven |
+| `agente_contrato/execucao.py` | cópia limpa da tag, patch do caso, execução de um único teste pelo Maven e limites de tempo (D111) |
 | `agente_contrato/resultados.py` | validação e gravação atômica do arquivo de resultados (D74) |
 | `agente_contrato/rodar_baseline.py` | junta tudo e roda os casos |
 
@@ -195,6 +195,18 @@ Dois cuidados ao ler estes arquivos:
 | gasto chegou ao `--orcamento-usd` | a rodada para antes da próxima chamada (código 4) |
 
 Valores iniciais a medir: timeout de 120 s por chamada e parada após 3 erros seguidos. A etapa 2 também confirma se a saída estruturada funciona com o pensamento adaptativo e se `output_tokens` inclui o thinking.
+
+### Limites de tempo (D111)
+
+Valem para a baseline e para a v1. Os valores e as medidas que os sustentam estão na D111 do Registro de Decisões; aqui fica só como o código os aplica.
+
+| Limite | Opção (padrão da D111) | Ao estourar |
+|---|---|---|
+| uma chamada do `mvnw` | `--limite-teste-s` | no Maven inicial, antes de o agente agir: roda mais uma vez; dois estouros dão `erro_execucao`, fora das métricas. No Maven final: `timeout`, sem reexecução, com `decisao` `reparar` e `compilou` e `passou` falsos (falha do tratamento) |
+| o caso, da falha recebida ao fim do Maven final, sem a espera do LLM | `--limite-caso-s` | `timeout`, sem reexecução (falha do tratamento) |
+| uma chamada ao LLM (só na v1) | `--limite-llm-s` | erro de rede, pelo caminho da D104 |
+
+Para mudar um valor, acrescente a opção aos argumentos da execução (no IntelliJ, em *Parameters*), por exemplo `--limite-teste-s 300`. O valor usado vai para o topo do log (`limites`). Cada execução registra `estouro` (`maven_inicial`, `teste_final`, `caso` ou nulo), `tentativas_maven_inicial`, `duracao_caso_s` e `espera_llm_s`. O log também lista as execuções fora das métricas (`exclusoes`, com a causa) e a contagem por causa (`exclusoes_por_causa`), e o console mostra a contagem no fim. No estouro, o código encerra o `mvnw` e os processos `java` que ele abriu (grupo de processos próprio, só em Linux e macOS).
 
 ### Ensaio sem API paga (etapa 0)
 

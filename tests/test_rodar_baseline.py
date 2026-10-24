@@ -1,10 +1,17 @@
+import contextlib
+import io
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
 from agente_contrato import baseline as b
+from agente_contrato import execucao as ex
 from agente_contrato import resultados
 from agente_contrato import rodar_baseline as rb
+
+from . import api_falsa as af
+from .fakes import RelogioFalso
 
 ORIGINAL = '''class T {
     void teste() throws Exception {
@@ -114,6 +121,62 @@ class RegistrarTest(unittest.TestCase):
         self.assertNotEqual(rb.assinatura(r1, REPARADO), rb.assinatura(r1, REPARADO + " "))
         r3, _ = rb.registrar(execucao(passou=False), ORACULO, 3, self.raiz)
         self.assertNotEqual(rb.assinatura(r1, REPARADO), rb.assinatura(r3, REPARADO))
+
+
+class LimitesDeTempoTest(unittest.TestCase):
+    """D111 na baseline, com a API de mentira e o Maven simulado (sem processo)."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        pasta = Path(self._tmp.name)
+        self.api = af.criar(pasta)
+        self.entrada = rb.Entrada("A1-901", self.api.patch, af.CLASSE, af.METODO)
+        self.saida = pasta / "saida"
+
+    def rodar(self, duracoes, repeticoes=1, oraculo=None):
+        relogio = RelogioFalso()
+        self.rodar_falso = af.RodarFalso(duracoes=duracoes, relogio=relogio)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            rb.executar_rodada([self.entrada], {"A1-901": oraculo or af.ORACULO_LEGITIMO}, self.api.api, af.TAG,
+                               self.api.raiz_repo, self.saida, repeticoes, self.rodar_falso,
+                               ex.Limites(relogio=relogio))
+        self.console = out.getvalue()
+        registros = json.loads((self.saida / "resultados-agente1.json").read_text(encoding="utf-8"))["execucoes"]
+        for r in registros:
+            self.assertEqual(resultados.problemas(r), [])
+        return registros, json.loads((self.saida / "log-baseline.json").read_text(encoding="utf-8"))
+
+    def test_sem_estouro_o_reparo_passa_e_o_log_tem_os_limites(self):
+        (r,), log = self.rodar([10, 10])
+        self.assertEqual((r["decisao"], r["passou"], r["erro"]), ("reparar", True, None))
+        self.assertEqual(log["limites"], {"teste_s": 120, "caso_s": 180, "llm_s": None})
+        self.assertEqual((log["execucoes"][0]["duracao_caso_s"], log["execucoes"][0]["estouro"]), (10, None))
+
+    def test_estouro_do_teste_final_e_falha_do_tratamento(self):
+        (r,), log = self.rodar([10, 500], oraculo=af.ORACULO_REGRESSAO)
+        self.assertEqual((r["decisao"], r["compilou"], r["passou"], r["erro"]), ("reparar", False, False, "timeout"))
+        self.assertEqual(log["execucoes"][0]["estouro"], "teste_final")
+        self.assertEqual(self.rodar_falso.chamadas, 2)
+
+    def test_estouro_do_maven_inicial_reexecuta_e_depois_exclui(self):
+        (r1, r2), log = self.rodar([500, 10, 10, 500, 500], repeticoes=2)
+        self.assertEqual((r1["erro"], r1["passou"]), (None, True))
+        self.assertEqual(log["execucoes"][0]["tentativas_maven_inicial"], 2)
+        self.assertEqual(r2["erro"], "erro_execucao")
+        self.assertEqual(log["exclusoes"], [{"id_caso": "A1-901", "repeticao": 2, "erro": "erro_execucao",
+                                             "causa": "estouro_maven_inicial"}])
+        self.assertEqual(log["exclusoes_por_causa"], {"estouro_maven_inicial": 1})
+        self.assertIn("exclusões (fora das métricas): 1 (estouro_maven_inicial: 1)", self.console)
+
+    def test_teste_que_ja_passa_e_exclusao_com_causa_propria(self):
+        relogio = RelogioFalso()
+        with contextlib.redirect_stdout(io.StringIO()):
+            rb.executar_rodada([self.entrada], {"A1-901": af.ORACULO_LEGITIMO}, self.api.api, af.TAG,
+                               self.api.raiz_repo, self.saida, 1, af.RodarFalso(ja_passa=True, relogio=relogio),
+                               ex.Limites(relogio=relogio))
+        log = json.loads((self.saida / "log-baseline.json").read_text(encoding="utf-8"))
+        self.assertEqual(log["exclusoes_por_causa"], {"teste_passa_sem_reparo": 1})
 
 
 if __name__ == "__main__":

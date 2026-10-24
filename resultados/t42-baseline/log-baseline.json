@@ -1,0 +1,988 @@
+{
+  "limites": {
+    "teste_s": 120,
+    "caso_s": 180,
+    "llm_s": null
+  },
+  "exclusoes": [],
+  "exclusoes_por_causa": {},
+  "deterministica": {
+    "A1-001": true,
+    "A1-002": true,
+    "A1-003": true,
+    "A1-004": true,
+    "A1-005": true,
+    "A1-006": true,
+    "A1-007": true,
+    "A1-008": true,
+    "A1-009": true,
+    "A1-010": true,
+    "A1-011": true,
+    "A1-012": true
+  },
+  "execucoes": [
+    {
+      "id_caso": "A1-001",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "[].descricao",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "descricao",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 17.5,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        16.03,
+        17.49
+      ],
+      "duracao_teste_s": [
+        7.53,
+        7.27
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-001",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "[].descricao",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "descricao",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.25,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        13.66,
+        12.24
+      ],
+      "duracao_teste_s": [
+        6.2,
+        5.57
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-001",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "[].descricao",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "descricao",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 13.1,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.89,
+        13.1
+      ],
+      "duracao_teste_s": [
+        5.69,
+        6.62
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-002",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 13.3,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        14.47,
+        13.3
+      ],
+      "duracao_teste_s": [
+        6.35,
+        6.66
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-002",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 13.34,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        13.52,
+        13.33
+      ],
+      "duracao_teste_s": [
+        5.75,
+        6.15
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-002",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.9,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.84,
+        11.9
+      ],
+      "duracao_teste_s": [
+        5.58,
+        5.49
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-003",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "[].nome",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "nome",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 13.27,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        14.08,
+        13.27
+      ],
+      "duracao_teste_s": [
+        6.13,
+        6.79
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-003",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "[].nome",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "nome",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.88,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        13.96,
+        12.87
+      ],
+      "duracao_teste_s": [
+        6.24,
+        6.37
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-003",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "[].nome",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "nome",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.85,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        14.0,
+        12.84
+      ],
+      "duracao_teste_s": [
+        6.26,
+        6.11
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-004",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.65,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        13.26,
+        12.64
+      ],
+      "duracao_teste_s": [
+        5.91,
+        5.67
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-004",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.8,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.74,
+        11.8
+      ],
+      "duracao_teste_s": [
+        5.62,
+        5.41
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-004",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.75,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.55,
+        11.75
+      ],
+      "duracao_teste_s": [
+        5.38,
+        5.46
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-005",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.52,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.12,
+        11.51
+      ],
+      "duracao_teste_s": [
+        5.19,
+        5.28
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-005",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.6,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.12,
+        11.59
+      ],
+      "duracao_teste_s": [
+        5.29,
+        5.2
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-005",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.73,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        11.85,
+        11.73
+      ],
+      "duracao_teste_s": [
+        5.24,
+        5.42
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-006",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "modalidadeFrete",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "modalidadeFrete",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.41,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.13,
+        11.41
+      ],
+      "duracao_teste_s": [
+        5.33,
+        5.32
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-006",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "modalidadeFrete",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "modalidadeFrete",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.72,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.22,
+        11.71
+      ],
+      "duracao_teste_s": [
+        5.32,
+        5.41
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-006",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "modalidadeFrete",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "modalidadeFrete",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.73,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.02,
+        11.73
+      ],
+      "duracao_teste_s": [
+        5.37,
+        5.47
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-007",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "[].estoque",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "estoque",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.57,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.69,
+        12.56
+      ],
+      "duracao_teste_s": [
+        5.78,
+        5.95
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-007",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "[].estoque",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "estoque",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.51,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.82,
+        12.5
+      ],
+      "duracao_teste_s": [
+        5.9,
+        5.92
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-007",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "[].estoque",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "estoque",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.47,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        13.11,
+        12.47
+      ],
+      "duracao_teste_s": [
+        6.18,
+        5.96
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-008",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.6,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.47,
+        12.6
+      ],
+      "duracao_teste_s": [
+        5.57,
+        5.84
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-008",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.46,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.63,
+        12.45
+      ],
+      "duracao_teste_s": [
+        5.46,
+        5.97
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-008",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 12.83,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.57,
+        12.82
+      ],
+      "duracao_teste_s": [
+        5.56,
+        6.39
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-009",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "itens[].precoUnitario",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "itens[].precoUnitario",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.45,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        11.81,
+        11.44
+      ],
+      "duracao_teste_s": [
+        5.23,
+        5.2
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-009",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "itens[].precoUnitario",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "itens[].precoUnitario",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.19,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        11.78,
+        11.19
+      ],
+      "duracao_teste_s": [
+        5.17,
+        5.18
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-009",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [
+        [
+          "itens[].precoUnitario",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "itens[].precoUnitario",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.23,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.06,
+        11.23
+      ],
+      "duracao_teste_s": [
+        5.17,
+        5.12
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-010",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.31,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        11.68,
+        11.31
+      ],
+      "duracao_teste_s": [
+        5.11,
+        5.47
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-010",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.43,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        11.82,
+        11.43
+      ],
+      "duracao_teste_s": [
+        5.14,
+        5.48
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-010",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.26,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        11.64,
+        11.25
+      ],
+      "duracao_teste_s": [
+        5.03,
+        5.34
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-011",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.47,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        12.1,
+        11.47
+      ],
+      "duracao_teste_s": [
+        5.31,
+        5.58
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-011",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.61,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        11.91,
+        11.6
+      ],
+      "duracao_teste_s": [
+        5.15,
+        5.54
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-011",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.78,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        11.89,
+        11.78
+      ],
+      "duracao_teste_s": [
+        5.2,
+        5.46
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-012",
+      "repeticao": 1,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.23,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        11.75,
+        11.22
+      ],
+      "duracao_teste_s": [
+        5.03,
+        5.09
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-012",
+      "repeticao": 2,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.45,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        11.84,
+        11.45
+      ],
+      "duracao_teste_s": [
+        5.14,
+        5.2
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    },
+    {
+      "id_caso": "A1-012",
+      "repeticao": 3,
+      "erro": null,
+      "causa": null,
+      "aplicadas": 1,
+      "ignoradas": [],
+      "guarda": [],
+      "estouro": null,
+      "tentativas_maven_inicial": 1,
+      "duracao_caso_s": 11.48,
+      "espera_llm_s": 0.0,
+      "duracao_maven_s": [
+        11.7,
+        11.48
+      ],
+      "duracao_teste_s": [
+        5.12,
+        5.27
+      ],
+      "revisao_manual": false,
+      "motivos": []
+    }
+  ]
+}
