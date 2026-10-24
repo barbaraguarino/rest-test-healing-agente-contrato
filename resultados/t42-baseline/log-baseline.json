@@ -546,7 +546,17 @@
         5.95
       ],
       "revisao_manual": false,
-      "motivos": []
+      "motivos": [],
+      "veredito_revisao_manual": {
+        "equivalente_oraculo": false,
+        "por": "Barbara",
+        "data": "2026-10-24",
+        "motivo": "D113 (T44, desvio declarado depois de ver os resultados): o reparo é equivalente à correção esperada do oráculo congelado (.value(\"0\")), que passa também sem a mudança de tipo, porque value(objeto) do Spring converte o tipo, o que contradiz a D53; não é equivalente à correção que detecta a mudança, .value(is(\"0\"))",
+        "veredito_anterior": {
+          "equivalente_oraculo": true,
+          "por": "comparador automático"
+        }
+      }
     },
     {
       "id_caso": "A1-007",
@@ -578,7 +588,17 @@
         5.92
       ],
       "revisao_manual": false,
-      "motivos": []
+      "motivos": [],
+      "veredito_revisao_manual": {
+        "equivalente_oraculo": false,
+        "por": "Barbara",
+        "data": "2026-10-24",
+        "motivo": "D113 (T44, desvio declarado depois de ver os resultados): o reparo é equivalente à correção esperada do oráculo congelado (.value(\"0\")), que passa também sem a mudança de tipo, porque value(objeto) do Spring converte o tipo, o que contradiz a D53; não é equivalente à correção que detecta a mudança, .value(is(\"0\"))",
+        "veredito_anterior": {
+          "equivalente_oraculo": true,
+          "por": "comparador automático"
+        }
+      }
     },
     {
       "id_caso": "A1-007",
@@ -610,7 +630,17 @@
         5.96
       ],
       "revisao_manual": false,
-      "motivos": []
+      "motivos": [],
+      "veredito_revisao_manual": {
+        "equivalente_oraculo": false,
+        "por": "Barbara",
+        "data": "2026-10-24",
+        "motivo": "D113 (T44, desvio declarado depois de ver os resultados): o reparo é equivalente à correção esperada do oráculo congelado (.value(\"0\")), que passa também sem a mudança de tipo, porque value(objeto) do Spring converte o tipo, o que contradiz a D53; não é equivalente à correção que detecta a mudança, .value(is(\"0\"))",
+        "veredito_anterior": {
+          "equivalente_oraculo": true,
+          "por": "comparador automático"
+        }
+      }
     },
     {
       "id_caso": "A1-008",

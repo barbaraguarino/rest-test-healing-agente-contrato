@@ -1,0 +1,13 @@
+T44: teste da D113 (A1-007), 24/10/2026. Sem LLM: só o Maven (mvnw -o test) no teste afetado,
+em cópias da tag linha-de-base-2 do rest-test-healing-sut (git archive), sem alterar as tags.
+Teste: ProdutoControllerTest#shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing
+
+Critério fixado antes de rodar: a passa (defeito confirmado); b falha; c passa.
+
+a) tag + só casos/A1-007.esperado.patch -> .value("0")
+   exit=0; tests="1" errors="0" skipped="0" failures="0"
+b) tag + só .value(is("0"))
+   exit=1; tests="1" errors="0" skipped="0" failures="1"
+c) tag + casos/A1-007.patch + .value(is("0"))
+   exit=0; tests="1" errors="0" skipped="0" failures="0"
+   b: java.lang.AssertionError: JSON path "$.estoque" Expected: is "0" but: was <0>
