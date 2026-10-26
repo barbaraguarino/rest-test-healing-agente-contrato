@@ -1,57 +1,28 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
-
-### Environment Variables and Secrets ###
+# Chave da API (D59): só o .env.example entra no Git
 .env
 *.env
-http-client.env.json
-http-client.private.env.json
 
-### Media Files and Local Uploads ###
-/test-files/
-/uploads/
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
 
-### Application Logs ###
+# IDEs (PyCharm e IntelliJ usam .idea; VS Code usa .vscode)
+.idea/
+*.iml
+.vscode/
+
+# Logs locais
 *.log
 logs/
 
-### Operating System Files ###
+# Sistema operacional
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db__pycache__/
-*.pyc
+Thumbs.db
