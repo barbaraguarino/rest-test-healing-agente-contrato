@@ -8,6 +8,7 @@ def main() -> None:
     duracao = float(sys.argv[1])
     if "--neto" in sys.argv:
         subprocess.Popen([sys.executable, __file__, str(duracao)])
+        print("pronto", flush=True)
     time.sleep(duracao)
 
 
