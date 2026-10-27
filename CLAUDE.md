@@ -48,9 +48,15 @@ Estas regras foram fechadas antes dos resultados. Se uma mudança de código exi
 - Parâmetros do LLM: D61.
 - Baseline: D75, com a convenção da D114.
 
+## Reprodutibilidade
+- Sementes fixas onde houver sorteio.
+- Sem caminhos absolutos no código.
+- Dependências com versão fixada quando existirem.
+
 ## Licença
 - MIT (D65), com copyright em nome de Barbara Carvalho e João Vitor. O repositório fica privado até a entrega final.
 
 ## Estado do projeto
 - O código da v1 (baseline determinística e pipeline fixo Classifier → Repair) está na tag `rodada-2`; os resultados do piloto só se regeneram com essa tag.
 - A versão agêntica está sendo escrita do zero na `develop` (T23). Não inventar comandos, arquivos ou dependências que ainda não existem; atualizar esta seção quando forem criados.
+- A pasta `.claude/` guarda a configuração do Claude Code: `settings.json` (permissões allow/ask/deny) e o hook `hooks/bloquear-links-de-sessao.sh`, que barra commit, PR e issue com link de sessão ou de chat do claude.ai. O hook precisa do `jq`; sem ele, não funciona.
