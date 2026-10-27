@@ -35,5 +35,21 @@ class TestRodarComLimite(unittest.TestCase):
         self.assertFalse(grupo_existe(pid_do_pai))
 
 
+class TestBordaDoLimite(unittest.TestCase):
+    def test_termina_quase_no_instante_do_limite(self):
+        duracao = 0.3
+        for folga in (-0.05, -0.02, -0.01, 0, 0.01, 0.02, 0.05):
+            with self.subTest(folga=folga):
+                r = rodar_com_limite([sys.executable, str(PROCESSO_FALSO), str(duracao), "--neto"],
+                                     limite_s=duracao + folga)
+                # na borda não dá para saber quem chega primeiro; os dois desfechos valem
+                if r.estourou_tempo:
+                    self.assertIsNone(r.codigo_saida)
+                else:
+                    self.assertEqual(r.codigo_saida, 0)
+                pid_do_pai = int(r.saida.split()[1])
+                self.assertFalse(grupo_existe(pid_do_pai))
+
+
 if __name__ == "__main__":
     unittest.main()
