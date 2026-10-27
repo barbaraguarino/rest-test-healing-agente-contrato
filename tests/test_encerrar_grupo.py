@@ -29,6 +29,13 @@ class TestEncerrarGrupo(unittest.TestCase):
         with self.assertRaises(ProcessLookupError):
             os.killpg(proc.pid, 0)  # sinal 0 só pergunta se o grupo existe
 
+    def test_tolera_grupo_que_ja_terminou(self):
+        proc = subprocess.Popen([sys.executable, str(PROCESSO_FALSO), "0.1"],
+                                start_new_session=True)
+        proc.wait()
+        encerrar_grupo(proc)  # antes da tolerância, isto levantava ProcessLookupError
+        self.assertIsNotNone(proc.returncode)
+
 
 if __name__ == "__main__":
     unittest.main()
