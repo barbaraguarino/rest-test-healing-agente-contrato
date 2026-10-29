@@ -150,3 +150,30 @@ def diferenca(antigo: dict, novo: dict) -> list[Mudanca]:
             elif novos[c].obrigatoria and not velhos[c].obrigatoria:
                 mudancas.append(Mudanca(CAMPO_OBRIGATORIO_NOVO, *chave, c, antes=velhos[c], depois=novos[c]))
     return mudancas
+
+
+def _descrever_tipo(p: Propriedade) -> str:
+    """`integer (int32)` ou `string, valores ['A', 'B']`: tipo, formato e enum, quando houver."""
+    texto = p.tipo + (f" ({p.formato})" if p.formato else "")
+    return texto + (f", valores {list(p.enum)}" if p.enum else "")
+
+
+def descrever_mudanca(m: Mudanca) -> str:
+    """Uma linha da evidência em português, com o mesmo texto da v1 (D100a)."""
+    onde = f"{m.metodo} {m.rota}, {m.lado}"
+    if m.tipo == RENOMEACAO:
+        return f'{onde}: o campo "{m.caminho}" foi renomeado para "{m.novo_caminho}" ({_descrever_tipo(m.depois)})'
+    if m.tipo == REMOCAO:
+        return f'{onde}: o campo "{m.caminho}" foi removido ({_descrever_tipo(m.antes)})'
+    if m.tipo == ALTERACAO_TIPO:
+        return f'{onde}: o campo "{m.caminho}" mudou de {_descrever_tipo(m.antes)} para {_descrever_tipo(m.depois)}'
+    if m.tipo == CAMPO_OBRIGATORIO_NOVO:
+        return f'{onde}: o campo "{m.caminho}" passou a ser obrigatório ({_descrever_tipo(m.depois)})'
+    raise ValueError(f"tipo de mudança desconhecido: {m.tipo}")
+
+
+def descrever_mudancas(mudancas: list[Mudanca]) -> str:
+    """A evidência que o modelo lê: uma linha por mudança, ou o aviso de que não há diferença."""
+    if not mudancas:
+        return "O contrato não registra nenhuma diferença entre o OpenAPI antigo e o novo."
+    return "\n".join(f"- {descrever_mudanca(m)}" for m in mudancas)

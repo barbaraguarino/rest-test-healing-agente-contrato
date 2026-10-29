@@ -3,8 +3,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agente_contrato.contrato import (ALTERACAO_TIPO, CAMPO_OBRIGATORIO_NOVO, REMOCAO, RENOMEACAO, Mudanca, Propriedade, achatar,
-                                      achatar_schema, carregar, diferenca, resolver)
+from agente_contrato.contrato import (ALTERACAO_TIPO, CAMPO_OBRIGATORIO_NOVO, REMOCAO, RENOMEACAO, Mudanca,
+                                      Propriedade, achatar, achatar_schema, carregar, descrever_mudancas,
+                                      diferenca, resolver)
 
 FICHAS = {"components": {"schemas": {
     "Produto": {"type": "object", "properties": {"nome": {"type": "string"}}},
@@ -177,6 +178,32 @@ class TestDiferencaCampoQueContinua(unittest.TestCase):
         antigo = contrato_com_resposta({"sku": TEXTO}, obrigatorias=("sku",))
         novo = contrato_com_resposta({"sku": TEXTO})
         self.assertEqual(diferenca(antigo, novo), [])
+
+
+
+class TestDescreverMudancas(unittest.TestCase):
+    """O texto que o modelo lê é o mesmo da v1 (tag `rodada-2`, D100a)."""
+
+    def test_sem_mudanca_diz_que_nao_ha_diferenca(self):
+        self.assertEqual(descrever_mudancas([]),
+                         "O contrato não registra nenhuma diferença entre o OpenAPI antigo e o novo.")
+
+    def test_uma_linha_por_mudanca_com_onde_o_que_e_o_tipo(self):
+        inteiro = Propriedade("integer", "int32", None, False)
+        status = Propriedade("string", None, ("ATIVO", "INATIVO"), True)
+        mudancas = [
+            Mudanca(RENOMEACAO, *CHAVE, "qtd", "quantidade", inteiro, inteiro),
+            Mudanca(REMOCAO, *CHAVE, "sku", antes=Propriedade("string", None, None, False)),
+            Mudanca(ALTERACAO_TIPO, *CHAVE, "estoque", antes=inteiro, depois=Propriedade("string", None, None, False)),
+            Mudanca(CAMPO_OBRIGATORIO_NOVO, *CHAVE, "status", depois=status),
+        ]
+        self.assertEqual(descrever_mudancas(mudancas).splitlines(), [
+            '- GET /produtos/{id}, resposta: o campo "qtd" foi renomeado para "quantidade" (integer (int32))',
+            '- GET /produtos/{id}, resposta: o campo "sku" foi removido (string)',
+            '- GET /produtos/{id}, resposta: o campo "estoque" mudou de integer (int32) para string',
+            "- GET /produtos/{id}, resposta: o campo \"status\" passou a ser obrigatório "
+            "(string, valores ['ATIVO', 'INATIVO'])",
+        ])
 
 
 
