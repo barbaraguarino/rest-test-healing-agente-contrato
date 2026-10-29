@@ -12,6 +12,7 @@ REQUISICAO = "requisicao"
 RESPOSTA = "resposta"
 METODOS_HTTP = ("get", "post", "put", "patch", "delete")
 
+RENOMEACAO = "renomeacao"
 REMOCAO = "remocao"
 CAMPO_OBRIGATORIO_NOVO = "campo_obrigatorio_novo"
 
@@ -106,6 +107,16 @@ def _debaixo_de(caminho: str, raizes: set[str]) -> bool:
     return any(caminho.startswith(r + ".") or caminho.startswith(r + "[]") for r in raizes)
 
 
+def _pai(caminho: str) -> str:
+    """O objeto que contém o campo: `cliente` em `cliente.cep`; vazio para um campo da raiz."""
+    return caminho.rsplit(".", 1)[0] if "." in caminho else ""
+
+
+def _mesma_forma(a: Propriedade, b: Propriedade) -> bool:
+    """Mesmo tipo e mesmo enum; o formato (int32 ou int64) não conta."""
+    return a.tipo == b.tipo and a.enum == b.enum
+
+
 def diferenca(antigo: dict, novo: dict) -> list[Mudanca]:
     """Lista as mudanças de contrato nas operações que existem nos dois, na ordem (método, rota, lado, caminho)."""
     planilhas_antigas, planilhas_novas = achatar(antigo), achatar(novo)
@@ -115,9 +126,18 @@ def diferenca(antigo: dict, novo: dict) -> list[Mudanca]:
         removidos = {c for c in velhos if c not in novos}
         adicionados = {c for c in novos if c not in velhos}
         # o filho de um campo que sumiu ou apareceu acompanha o pai e não vira mudança à parte
-        for c in sorted(c for c in removidos if not _debaixo_de(c, removidos)):
-            mudancas.append(Mudanca(REMOCAO, *chave, c, antes=velhos[c]))
-        for c in sorted(c for c in adicionados if not _debaixo_de(c, adicionados)):
-            if novos[c].obrigatoria:  # um campo opcional novo não quebra o teste
-                mudancas.append(Mudanca(CAMPO_OBRIGATORIO_NOVO, *chave, c, depois=novos[c]))
+        removidos = {c for c in removidos if not _debaixo_de(c, removidos)}
+        adicionados = {c for c in adicionados if not _debaixo_de(c, adicionados)}
+        for pai in sorted({_pai(c) for c in removidos | adicionados}):
+            saiu = sorted(c for c in removidos if _pai(c) == pai)
+            entrou = sorted(c for c in adicionados if _pai(c) == pai)
+            # renomeação: no mesmo objeto, um sai e um entra com a mesma forma; com mais candidatos, não adivinha
+            if len(saiu) == 1 and len(entrou) == 1 and _mesma_forma(velhos[saiu[0]], novos[entrou[0]]):
+                mudancas.append(Mudanca(RENOMEACAO, *chave, saiu[0], entrou[0], velhos[saiu[0]], novos[entrou[0]]))
+                continue
+            for c in saiu:
+                mudancas.append(Mudanca(REMOCAO, *chave, c, antes=velhos[c]))
+            for c in entrou:
+                if novos[c].obrigatoria:  # um campo opcional novo não quebra o teste
+                    mudancas.append(Mudanca(CAMPO_OBRIGATORIO_NOVO, *chave, c, depois=novos[c]))
     return mudancas

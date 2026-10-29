@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agente_contrato.contrato import (CAMPO_OBRIGATORIO_NOVO, REMOCAO, Mudanca, Propriedade, achatar,
+from agente_contrato.contrato import (CAMPO_OBRIGATORIO_NOVO, REMOCAO, RENOMEACAO, Mudanca, Propriedade, achatar,
                                       achatar_schema, carregar, diferenca, resolver)
 
 FICHAS = {"components": {"schemas": {
@@ -89,6 +89,7 @@ def contrato_com_resposta(propriedades: dict, obrigatorias: tuple = ()) -> dict:
 
 
 TEXTO = {"type": "string"}
+NUMERO = {"type": "number"}
 CHAVE = ("GET", "/produtos/{id}", "resposta")
 
 
@@ -114,6 +115,36 @@ class TestDiferencaRemocaoECampoNovo(unittest.TestCase):
         novo = contrato_com_resposta({"nome": TEXTO, "sku": TEXTO, "nota": TEXTO}, obrigatorias=("sku",))
         self.assertEqual(diferenca(antigo, novo),
                          [Mudanca(CAMPO_OBRIGATORIO_NOVO, *CHAVE, "sku", depois=Propriedade("string", None, None, True))])
+
+
+
+class TestDiferencaRenomeacao(unittest.TestCase):
+    def test_um_sai_e_um_entra_com_a_mesma_forma_e_renomeacao(self):
+        antigo = contrato_com_resposta({"nome": TEXTO, "sku": TEXTO})
+        novo = contrato_com_resposta({"nome": TEXTO, "codigo": TEXTO})
+        texto = Propriedade("string", None, None, False)
+        self.assertEqual(diferenca(antigo, novo), [Mudanca(RENOMEACAO, *CHAVE, "sku", "codigo", texto, texto)])
+
+    def test_formato_diferente_nao_impede_a_renomeacao(self):
+        antigo = contrato_com_resposta({"qtd": {"type": "integer", "format": "int32"}})
+        novo = contrato_com_resposta({"quantidade": {"type": "integer", "format": "int64"}})
+        self.assertEqual([m.tipo for m in diferenca(antigo, novo)], [RENOMEACAO])
+
+    def test_tipo_diferente_nao_e_renomeacao(self):
+        antigo = contrato_com_resposta({"sku": TEXTO})
+        novo = contrato_com_resposta({"codigo": NUMERO}, obrigatorias=("codigo",))
+        self.assertEqual([(m.tipo, m.caminho) for m in diferenca(antigo, novo)],
+                         [(REMOCAO, "sku"), (CAMPO_OBRIGATORIO_NOVO, "codigo")])
+
+    def test_mais_de_um_candidato_nao_adivinha(self):
+        antigo = contrato_com_resposta({"sku": TEXTO, "nome": TEXTO})
+        novo = contrato_com_resposta({"codigo": TEXTO, "titulo": TEXTO})
+        self.assertEqual([m.tipo for m in diferenca(antigo, novo)], [REMOCAO, REMOCAO])  # os novos são opcionais
+
+    def test_renomeacao_so_vale_dentro_do_mesmo_objeto(self):
+        antigo = contrato_com_resposta({"sku": TEXTO, "cliente": {"type": "object", "properties": {}}})
+        novo = contrato_com_resposta({"cliente": {"type": "object", "properties": {"codigo": TEXTO}}})
+        self.assertEqual([(m.tipo, m.caminho) for m in diferenca(antigo, novo)], [(REMOCAO, "sku")])
 
 
 
