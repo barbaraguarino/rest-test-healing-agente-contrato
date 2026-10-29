@@ -3,7 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agente_contrato.contrato import Propriedade, achatar, achatar_schema, carregar, resolver
+from agente_contrato.contrato import (CAMPO_OBRIGATORIO_NOVO, REMOCAO, Mudanca, Propriedade, achatar,
+                                      achatar_schema, carregar, diferenca, resolver)
 
 FICHAS = {"components": {"schemas": {
     "Produto": {"type": "object", "properties": {"nome": {"type": "string"}}},
@@ -78,6 +79,42 @@ class TestAchatarContrato(unittest.TestCase):
         self.assertEqual(planilhas[("GET", "/produtos/{id}", "resposta")],
                          {"nome": Propriedade("string", None, None, False)})  # o 404 não entra
         self.assertEqual(sorted(planilhas[("PUT", "/produtos/{id}", "requisicao")]), ["quantidade", "status"])
+
+
+def contrato_com_resposta(propriedades: dict, obrigatorias: tuple = ()) -> dict:
+    """Contrato mínimo: só o GET /produtos/{id}, com a resposta 200 dada."""
+    schema = {"type": "object", "required": list(obrigatorias), "properties": propriedades}
+    return {"paths": {"/produtos/{id}": {"get": {"responses": {
+        "200": {"content": {"application/json": {"schema": schema}}}}}}}}
+
+
+TEXTO = {"type": "string"}
+CHAVE = ("GET", "/produtos/{id}", "resposta")
+
+
+class TestDiferencaRemocaoECampoNovo(unittest.TestCase):
+    def test_contratos_iguais_nao_tem_mudanca(self):
+        c = contrato_com_resposta({"nome": TEXTO})
+        self.assertEqual(diferenca(c, c), [])
+
+    def test_campo_que_sumiu_e_remocao(self):
+        antigo = contrato_com_resposta({"nome": TEXTO, "sku": TEXTO})
+        novo = contrato_com_resposta({"nome": TEXTO})
+        self.assertEqual(diferenca(antigo, novo),
+                         [Mudanca(REMOCAO, *CHAVE, "sku", antes=Propriedade("string", None, None, False))])
+
+    def test_filho_de_um_campo_removido_acompanha_o_pai(self):
+        endereco = {"type": "object", "properties": {"cep": TEXTO, "rua": TEXTO}}
+        antigo = contrato_com_resposta({"nome": TEXTO, "endereco": endereco})
+        novo = contrato_com_resposta({"nome": TEXTO})
+        self.assertEqual([m.caminho for m in diferenca(antigo, novo)], ["endereco"])
+
+    def test_campo_novo_so_entra_se_for_obrigatorio(self):
+        antigo = contrato_com_resposta({"nome": TEXTO})
+        novo = contrato_com_resposta({"nome": TEXTO, "sku": TEXTO, "nota": TEXTO}, obrigatorias=("sku",))
+        self.assertEqual(diferenca(antigo, novo),
+                         [Mudanca(CAMPO_OBRIGATORIO_NOVO, *CHAVE, "sku", depois=Propriedade("string", None, None, True))])
+
 
 
 if __name__ == "__main__":

@@ -12,6 +12,9 @@ REQUISICAO = "requisicao"
 RESPOSTA = "resposta"
 METODOS_HTTP = ("get", "post", "put", "patch", "delete")
 
+REMOCAO = "remocao"
+CAMPO_OBRIGATORIO_NOVO = "campo_obrigatorio_novo"
+
 
 @dataclass(frozen=True)
 class Propriedade:
@@ -20,6 +23,20 @@ class Propriedade:
     formato: str | None
     enum: tuple[str, ...] | None
     obrigatoria: bool
+
+
+
+@dataclass(frozen=True)
+class Mudanca:
+    """Uma mudança de contrato num campo de uma operação (método, rota e lado)."""
+    tipo: str
+    metodo: str
+    rota: str
+    lado: str
+    caminho: str
+    novo_caminho: str | None = None  # só na renomeação
+    antes: Propriedade | None = None
+    depois: Propriedade | None = None
 
 
 def carregar(arquivo: Path) -> dict:
@@ -82,3 +99,25 @@ def achatar(contrato: dict) -> dict[tuple[str, str, str], dict[str, Propriedade]
                 if status.startswith("2") and schema is not None:
                     planilhas[(metodo.upper(), rota, RESPOSTA)] = achatar_schema(contrato, schema)
     return planilhas
+
+
+def _debaixo_de(caminho: str, raizes: set[str]) -> bool:
+    """Se o campo é filho ou neto de algum dos caminhos; `itens[]` também é filho de `itens`."""
+    return any(caminho.startswith(r + ".") or caminho.startswith(r + "[]") for r in raizes)
+
+
+def diferenca(antigo: dict, novo: dict) -> list[Mudanca]:
+    """Lista as mudanças de contrato nas operações que existem nos dois, na ordem (método, rota, lado, caminho)."""
+    planilhas_antigas, planilhas_novas = achatar(antigo), achatar(novo)
+    mudancas = []
+    for chave in sorted(planilhas_antigas.keys() & planilhas_novas.keys()):
+        velhos, novos = planilhas_antigas[chave], planilhas_novas[chave]
+        removidos = {c for c in velhos if c not in novos}
+        adicionados = {c for c in novos if c not in velhos}
+        # o filho de um campo que sumiu ou apareceu acompanha o pai e não vira mudança à parte
+        for c in sorted(c for c in removidos if not _debaixo_de(c, removidos)):
+            mudancas.append(Mudanca(REMOCAO, *chave, c, antes=velhos[c]))
+        for c in sorted(c for c in adicionados if not _debaixo_de(c, adicionados)):
+            if novos[c].obrigatoria:  # um campo opcional novo não quebra o teste
+                mudancas.append(Mudanca(CAMPO_OBRIGATORIO_NOVO, *chave, c, depois=novos[c]))
+    return mudancas
