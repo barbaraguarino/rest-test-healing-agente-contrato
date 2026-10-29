@@ -9,6 +9,13 @@ from dataclasses import dataclass
 from agente_contrato.relogio import RelogioCaso
 
 
+class ErroDeFerramenta(Exception):
+    """Um pedido que a ferramenta recusa (ex.: caminho fora da D73); a mensagem volta ao modelo como erro.
+
+    Qualquer outra exceção não é culpa do modelo e para o caso (D124).
+    """
+
+
 @dataclass(frozen=True)
 class PedidoFerramenta:
     """O modelo pede uma ferramenta (bloco `tool_use`); `id` liga o pedido à resposta."""
@@ -45,13 +52,16 @@ class ResultadoLaco:
 
 
 def executar_pedido(pedido: PedidoFerramenta, ferramentas: dict) -> ResultadoFerramenta:
-    """Executa um pedido; um nome que não existe volta ao modelo como erro, e o laço segue."""
+    """Executa um pedido; um nome que não existe ou uma recusa da ferramenta volta ao modelo como erro."""
     ferramenta = ferramentas.get(pedido.nome)
     if ferramenta is None:
         disponiveis = ", ".join(sorted(ferramentas))
         return ResultadoFerramenta(
             pedido.id, f"Ferramenta desconhecida: {pedido.nome}. Disponíveis: {disponiveis}", erro=True)
-    return ResultadoFerramenta(pedido.id, ferramenta(pedido.entrada))
+    try:
+        return ResultadoFerramenta(pedido.id, ferramenta(pedido.entrada))
+    except ErroDeFerramenta as exc:
+        return ResultadoFerramenta(pedido.id, str(exc), erro=True)
 
 
 def rodar_laco(modelo, mensagem_inicial: str, ferramentas: dict, max_chamadas: int,
