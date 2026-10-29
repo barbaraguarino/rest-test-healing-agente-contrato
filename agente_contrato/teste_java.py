@@ -3,6 +3,8 @@
 Código determinístico, igual ao da v1: conta as chaves `{` e `}` e pula textos e comentários, onde
 uma chave não abre nem fecha nada. Fora do que a suíte da API cobaia usa, falha em vez de adivinhar.
 """
+import re
+from dataclasses import dataclass
 
 
 class ErroDeAnalise(ValueError):
@@ -30,3 +32,34 @@ def _depois_do_literal(texto: str, i: int) -> int:
             raise ErroDeAnalise("comentário sem fechamento")
         return fim + 2
     return i
+
+
+@dataclass(frozen=True)
+class Metodo:
+    nome: str
+    inicio: int  # posição do '{' do corpo
+    fim: int     # posição logo depois do '}' do corpo
+
+
+def localizar_metodo(texto: str, nome: str) -> Metodo:
+    """O corpo do método `void nome(...)`, que deve aparecer exatamente uma vez no texto."""
+    achados = list(re.finditer(rf"\bvoid\s+{re.escape(nome)}\s*\(", texto))
+    if len(achados) != 1:
+        raise ErroDeAnalise(f"método {nome}: {len(achados)} ocorrências, esperada 1")
+    i = texto.find("{", achados[0].end())
+    if i < 0:
+        raise ErroDeAnalise(f"método {nome} sem corpo")
+    inicio, nivel = i, 0
+    while i < len(texto):
+        proximo = _depois_do_literal(texto, i)
+        if proximo != i:  # uma chave dentro de texto ou comentário não conta
+            i = proximo
+            continue
+        if texto[i] == "{":
+            nivel += 1
+        elif texto[i] == "}":
+            nivel -= 1
+            if nivel == 0:
+                return Metodo(nome, inicio, i + 1)
+        i += 1
+    raise ErroDeAnalise(f"método {nome} sem fechamento")
