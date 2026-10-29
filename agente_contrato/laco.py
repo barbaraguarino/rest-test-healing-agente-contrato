@@ -6,6 +6,8 @@ T23i só traduzir de um para o outro.
 """
 from dataclasses import dataclass
 
+from agente_contrato.relogio import RelogioCaso
+
 
 @dataclass(frozen=True)
 class PedidoFerramenta:
@@ -38,7 +40,7 @@ class ResultadoFerramenta:
 class ResultadoLaco:
     texto_final: str | None  # None quando o laço parou pelo limite, sem o modelo terminar
     chamadas: int
-    motivo: str  # "terminou" ou "limite_de_chamadas"
+    motivo: str  # "terminou", "limite_de_chamadas" ou "limite_do_caso"
     historico: list
 
 
@@ -52,15 +54,21 @@ def executar_pedido(pedido: PedidoFerramenta, ferramentas: dict) -> ResultadoFer
     return ResultadoFerramenta(pedido.id, ferramenta(pedido.entrada))
 
 
-def rodar_laco(modelo, mensagem_inicial: str, ferramentas: dict, max_chamadas: int) -> ResultadoLaco:
+def rodar_laco(modelo, mensagem_inicial: str, ferramentas: dict, max_chamadas: int,
+               relogio: RelogioCaso | None = None) -> ResultadoLaco:
     """Pergunta ao modelo, executa o que ele pedir e repete até ele terminar ou o limite chegar.
 
     `modelo` recebe o histórico e devolve uma RespostaModelo; `ferramentas` liga cada nome a uma
-    função que recebe a entrada do pedido e devolve um texto.
+    função que recebe a entrada do pedido e devolve um texto. `relogio` é o relógio do caso, criado
+    depois do Maven inicial (D118); sem ele, o relógio começa aqui.
     """
+    relogio = relogio or RelogioCaso()
     historico = [mensagem_inicial]
     for chamada in range(1, max_chamadas + 1):
-        resposta = modelo(historico)
+        if relogio.estourou():  # D111(b): só as ferramentas gastaram o tempo, a espera do LLM não conta
+            return ResultadoLaco(None, chamada - 1, "limite_do_caso", historico)
+        with relogio.esperando_llm():
+            resposta = modelo(historico)
         historico.append(resposta)
         if resposta.terminou:
             return ResultadoLaco(resposta.texto, chamada, "terminou", historico)

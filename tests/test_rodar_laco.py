@@ -1,6 +1,8 @@
 import unittest
 
 from agente_contrato.laco import PedidoFerramenta, RespostaModelo, ResultadoFerramenta, rodar_laco
+from agente_contrato.relogio import RelogioCaso
+from tests.relogio_falso import RelogioFalso
 
 
 class ModeloSimulado:
@@ -67,6 +69,42 @@ class TestRodarLaco(unittest.TestCase):
         erro, ok = modelo.recebidos[1][-1]
         self.assertEqual((erro.erro, ok), (True, ResultadoFerramenta("p2", "falhou")))
         self.assertEqual(self.execucoes, 1)
+
+
+class TestLacoComRelogio(unittest.TestCase):
+    """O relógio do caso (D111(b)): o tempo das ferramentas conta, a espera do LLM não."""
+
+    def setUp(self):
+        self.tempo = RelogioFalso()
+        self.relogio = RelogioCaso(180, agora=self.tempo)
+
+    def ferramenta_de_100s(self, entrada: dict) -> str:
+        self.tempo.andar(100)
+        return "falhou"
+
+    def modelo_lento(self, *roteiro: RespostaModelo):
+        """LLM simulado que demora 1000 s em cada resposta."""
+        simulado = ModeloSimulado(*roteiro)
+
+        def responder(historico):
+            self.tempo.andar(1000)
+            return simulado(historico)
+        responder.simulado = simulado
+        return responder
+
+    def test_espera_do_llm_nao_estoura_o_caso(self):
+        modelo = self.modelo_lento(RespostaModelo("rótulo: contrato"))
+        r = rodar_laco(modelo, "o teste falhou", {}, max_chamadas=4, relogio=self.relogio)
+        self.assertEqual(r.motivo, "terminou")
+        self.assertEqual(self.relogio.gasto(), 0)
+
+    def test_estouro_do_caso_para_antes_de_chamar_o_modelo_de_novo(self):
+        modelo = self.modelo_lento(pede_teste("p1"), pede_teste("p2"), RespostaModelo("fim"))
+        r = rodar_laco(modelo, "o teste falhou", {"rodar_teste": self.ferramenta_de_100s},
+                       max_chamadas=6, relogio=self.relogio)
+        # 100 s + 100 s de ferramenta passam dos 180 s: a terceira resposta nunca é pedida
+        self.assertEqual((r.motivo, r.chamadas, r.texto_final), ("limite_do_caso", 2, None))
+        self.assertEqual(len(modelo.simulado.recebidos), 2)
 
 
 if __name__ == "__main__":
