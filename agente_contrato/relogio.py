@@ -36,3 +36,6 @@ class RelogioCaso:
     def estourou(self) -> bool:
         return self.restante() == 0
 
+    def limite_para_teste(self, limite_teste_s: float) -> float:
+        """Limite de um Maven dentro do caso: o menor entre o limite do teste (120 s, D111(a)) e o que resta."""
+        return min(limite_teste_s, self.restante())
