@@ -31,3 +31,24 @@ def resolver(contrato: dict, no: dict, visitados: tuple[str, ...]) -> tuple[dict
     if nome in visitados:
         return {}, visitados
     return contrato["components"]["schemas"][nome], visitados + (nome,)
+
+
+def achatar_schema(contrato: dict, no: dict, prefixo: str = "", obrigatoria: bool = False,
+                   visitados: tuple[str, ...] = ()) -> dict[str, Propriedade]:
+    """Transforma a árvore de um schema em {caminho do campo: Propriedade}, como `cliente.endereco.cep`.
+
+    O item de uma lista ganha `[]` no caminho (`itens[].quantidade`); a raiz, de prefixo vazio, não entra.
+    """
+    schema, visitados = resolver(contrato, no, visitados)
+    tipo = schema.get("type", "object" if "properties" in schema else "desconhecido")
+    campos = {}
+    if prefixo:
+        enum = tuple(schema["enum"]) if "enum" in schema else None
+        campos[prefixo] = Propriedade(tipo, schema.get("format"), enum, obrigatoria)
+    if tipo == "array" and "items" in schema:
+        campos.update(achatar_schema(contrato, schema["items"], prefixo + "[]", False, visitados))
+    obrigatorias = set(schema.get("required", []))
+    for nome, filho in schema.get("properties", {}).items():
+        caminho = f"{prefixo}.{nome}" if prefixo else nome
+        campos.update(achatar_schema(contrato, filho, caminho, nome in obrigatorias, visitados))
+    return campos
