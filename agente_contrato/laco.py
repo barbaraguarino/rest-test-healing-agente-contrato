@@ -32,3 +32,29 @@ class ResultadoFerramenta:
     id_pedido: str
     conteudo: str
     erro: bool = False
+
+
+@dataclass(frozen=True)
+class ResultadoLaco:
+    texto_final: str | None  # None quando o laço parou pelo limite, sem o modelo terminar
+    chamadas: int
+    motivo: str  # "terminou" ou "limite_de_chamadas"
+    historico: list
+
+
+def rodar_laco(modelo, mensagem_inicial: str, ferramentas: dict, max_chamadas: int) -> ResultadoLaco:
+    """Pergunta ao modelo, executa o que ele pedir e repete até ele terminar ou o limite chegar.
+
+    `modelo` recebe o histórico e devolve uma RespostaModelo; `ferramentas` liga cada nome a uma
+    função que recebe a entrada do pedido e devolve um texto.
+    """
+    historico = [mensagem_inicial]
+    for chamada in range(1, max_chamadas + 1):
+        resposta = modelo(historico)
+        historico.append(resposta)
+        if resposta.terminou:
+            return ResultadoLaco(resposta.texto, chamada, "terminou", historico)
+        resultados = tuple(ResultadoFerramenta(p.id, ferramentas[p.nome](p.entrada))
+                           for p in resposta.pedidos)
+        historico.append(resultados)
+    return ResultadoLaco(None, max_chamadas, "limite_de_chamadas", historico)
