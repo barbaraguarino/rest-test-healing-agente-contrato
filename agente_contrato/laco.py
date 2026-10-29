@@ -42,6 +42,16 @@ class ResultadoLaco:
     historico: list
 
 
+def executar_pedido(pedido: PedidoFerramenta, ferramentas: dict) -> ResultadoFerramenta:
+    """Executa um pedido; um nome que não existe volta ao modelo como erro, e o laço segue."""
+    ferramenta = ferramentas.get(pedido.nome)
+    if ferramenta is None:
+        disponiveis = ", ".join(sorted(ferramentas))
+        return ResultadoFerramenta(
+            pedido.id, f"Ferramenta desconhecida: {pedido.nome}. Disponíveis: {disponiveis}", erro=True)
+    return ResultadoFerramenta(pedido.id, ferramenta(pedido.entrada))
+
+
 def rodar_laco(modelo, mensagem_inicial: str, ferramentas: dict, max_chamadas: int) -> ResultadoLaco:
     """Pergunta ao modelo, executa o que ele pedir e repete até ele terminar ou o limite chegar.
 
@@ -54,7 +64,6 @@ def rodar_laco(modelo, mensagem_inicial: str, ferramentas: dict, max_chamadas: i
         historico.append(resposta)
         if resposta.terminou:
             return ResultadoLaco(resposta.texto, chamada, "terminou", historico)
-        resultados = tuple(ResultadoFerramenta(p.id, ferramentas[p.nome](p.entrada))
-                           for p in resposta.pedidos)
+        resultados = tuple(executar_pedido(p, ferramentas) for p in resposta.pedidos)
         historico.append(resultados)
     return ResultadoLaco(None, max_chamadas, "limite_de_chamadas", historico)
