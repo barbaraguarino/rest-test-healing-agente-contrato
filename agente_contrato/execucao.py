@@ -51,11 +51,15 @@ def rodar_com_limite(comando: list[str], limite_s: float, cwd: Path | None = Non
 
 
 class ErroDeExecucao(Exception):
-    """Falha da infraestrutura de execução; `codigo` é o valor do campo `erro` da D74."""
+    """Falha da infraestrutura de execução; `codigo` é o valor do campo `erro` da D74.
 
-    def __init__(self, mensagem: str, codigo: str = "erro_execucao"):
+    `causa` vai para a lista de exclusões do resultado (D111e): `estouro_maven_inicial`,
+    `infraestrutura` ou, nos estouros, `teste_final`.
+    """
+
+    def __init__(self, mensagem: str, codigo: str = "erro_execucao", causa: str = "infraestrutura"):
         super().__init__(mensagem)
-        self.codigo = codigo
+        self.codigo, self.causa = codigo, causa
 
 
 def _git(*args: str, cwd: Path | None = None) -> str:
@@ -134,3 +138,32 @@ def rodar_teste(raiz: Path, classe: str, metodo: str, limite_s: float = LIMITE_T
     passou = (r.codigo_saida == 0 and relatorio.falhas == 0
               and relatorio.erros == 0 and relatorio.ignorados == 0)
     return ResultadoTeste(True, passou, duracao, relatorio.tempo_s)
+
+
+def rodar_teste_inicial(rodar, raiz: Path, classe: str, metodo: str,
+                        limite_s: float = LIMITE_TESTE_S) -> tuple[ResultadoTeste, int]:
+    """Maven inicial, antes de o agente agir (D111e). Devolve o resultado e o número de tentativas.
+
+    Um estouro roda o Maven mais uma vez, sem o `target/` da execução interrompida; dois estouros
+    viram `erro_execucao`, fora das métricas. Os outros erros não se repetem: o Maven é determinístico.
+    """
+    for tentativa in (1, 2):
+        try:
+            return rodar(raiz, classe, metodo, limite_s), tentativa
+        except ErroDeExecucao as exc:
+            if exc.codigo != "timeout":
+                raise
+            shutil.rmtree(raiz / "target", ignore_errors=True)
+    raise ErroDeExecucao(f"o Maven inicial de {classe}.{metodo} passou de {limite_s:g}s nas 2 tentativas",
+                         causa="estouro_maven_inicial")
+
+
+def rodar_teste_final(rodar, raiz: Path, classe: str, metodo: str,
+                      limite_s: float = LIMITE_TESTE_S) -> ResultadoTeste:
+    """Maven final, depois do reparo: o estouro é `timeout`, sem reexecução, falha do tratamento (D111d, D118)."""
+    try:
+        return rodar(raiz, classe, metodo, limite_s)
+    except ErroDeExecucao as exc:
+        if exc.codigo != "timeout":
+            raise
+        raise ErroDeExecucao(str(exc), "timeout", "teste_final") from None
