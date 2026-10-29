@@ -7,8 +7,9 @@ import json
 from pathlib import Path, PurePosixPath
 
 from agente_contrato.contrato import carregar, descrever_mudancas, diferenca
-from agente_contrato.execucao import _git
+from agente_contrato.execucao import LIMITE_TESTE_S, ErroDeExecucao, _git, ler_falha
 from agente_contrato.laco import ErroDeFerramenta
+from agente_contrato.relogio import RelogioCaso
 
 LIMITE_LEITURA = 30_000  # caracteres; o maior arquivo permitido da API cobaia tem cerca de 26 mil
 CONTRATO = "docs/openapi.json"
@@ -55,3 +56,26 @@ def ver_diferenca(raiz: Path) -> str:
     """
     antigo = json.loads(_git("show", f"HEAD:{CONTRATO}", cwd=raiz))
     return descrever_mudancas(diferenca(antigo, carregar(raiz / CONTRATO)))
+
+
+def rodar_teste(rodar, raiz: Path, classe: str, metodo: str, relogio: RelogioCaso) -> str:
+    """Roda sempre o teste afetado (D112), com o menor entre 120 s e o que resta do caso (D111a, D118).
+
+    `rodar` é o `execucao.rodar_teste`, injetável nos testes. O estouro de tempo volta ao modelo como
+    erro e o laço segue; uma falha de infraestrutura (ErroDeExecucao) não é culpa dele e para o caso (D124).
+    """
+    limite_s = relogio.limite_para_teste(LIMITE_TESTE_S)
+    try:
+        resultado = rodar(raiz, classe, metodo, limite_s)
+    except ErroDeExecucao as exc:
+        if exc.codigo != "timeout":
+            raise
+        raise ErroDeFerramenta(f"O teste passou de {limite_s:g} s e foi interrompido.") from None
+    if not resultado.compilou:
+        return "O teste não compilou."
+    if resultado.passou:
+        return "O teste passou."
+    falha = ler_falha(raiz / "target" / "surefire-reports")
+    if falha is None:  # ex.: o teste foi ignorado (@Disabled)
+        return "O teste não passou, e o relatório não traz mensagem de falha."
+    return f"O teste falhou.\n{falha.tipo} {falha.excecao}: {falha.mensagem}"
