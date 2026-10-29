@@ -1,5 +1,8 @@
 import os
+import signal
+import subprocess
 import sys
+import threading
 import time
 import unittest
 from pathlib import Path
@@ -33,6 +36,16 @@ class TestRodarComLimite(unittest.TestCase):
         self.assertIsNone(r.codigo_saida)
         pid_do_pai = int(r.saida.split()[1])  # a linha "pronto <pid>" que o falso imprime
         self.assertFalse(grupo_existe(pid_do_pai))
+
+
+class TestInterrupcao(unittest.TestCase):
+    def test_ctrl_c_nao_deixa_ninguem_vivo(self):
+        # um Ctrl+C de verdade, enviado a este próprio processo meio segundo depois
+        threading.Timer(0.5, os.kill, (os.getpid(), signal.SIGINT)).start()
+        with self.assertRaises(KeyboardInterrupt):
+            rodar_com_limite([sys.executable, str(PROCESSO_FALSO), "30", "--neto"], limite_s=10)
+        vivos = subprocess.run(["pgrep", "-f", f"{PROCESSO_FALSO} 30"], capture_output=True, text=True)
+        self.assertEqual(vivos.stdout, "")
 
 
 class TestBordaDoLimite(unittest.TestCase):
