@@ -66,3 +66,9 @@ def preparar_copia(api_origem: Path, tag: str, destino: Path) -> Path:
     if _git("describe", "--tags", "--exact-match", cwd=destino).strip() != tag:
         raise ErroDeExecucao(f"a cópia não está na tag {tag}")
     return destino
+
+
+def aplicar_patch(raiz: Path, patch: Path) -> None:
+    """Aplica o patch do caso na cópia; se ele não encaixa, não muda nada."""
+    _git("apply", "--check", str(patch), cwd=raiz)
+    _git("apply", str(patch), cwd=raiz)
