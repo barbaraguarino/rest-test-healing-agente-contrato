@@ -40,3 +40,29 @@ def rodar_com_limite(comando: list[str], limite_s: float, cwd: Path | None = Non
         saida, _ = proc.communicate()
         return ResultadoProcesso(None, saida, True)
     return ResultadoProcesso(proc.returncode, saida, False)
+
+
+class ErroDeExecucao(Exception):
+    """Falha da infraestrutura de execução; `codigo` é o valor do campo `erro` da D74."""
+
+    def __init__(self, mensagem: str, codigo: str = "erro_execucao"):
+        super().__init__(mensagem)
+        self.codigo = codigo
+
+
+def _git(*args: str, cwd: Path | None = None) -> str:
+    proc = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise ErroDeExecucao(f"git {' '.join(args)}: {proc.stderr.strip()}")
+    return proc.stdout
+
+
+def preparar_copia(api_origem: Path, tag: str, destino: Path) -> Path:
+    """Clona a API cobaia em `destino` (que não pode existir) e fixa a tag, sem alterações."""
+    if destino.exists():
+        raise ErroDeExecucao(f"{destino} já existe")
+    _git("clone", "-q", str(api_origem), str(destino))
+    _git("checkout", "-q", tag, cwd=destino)
+    if _git("describe", "--tags", "--exact-match", cwd=destino).strip() != tag:
+        raise ErroDeExecucao(f"a cópia não está na tag {tag}")
+    return destino
