@@ -10,6 +10,7 @@ from agente_contrato.contrato import carregar, descrever_mudancas, diferenca
 from agente_contrato.execucao import LIMITE_TESTE_S, ErroDeExecucao, _git, ler_falha
 from agente_contrato.laco import ErroDeFerramenta
 from agente_contrato.relogio import RelogioCaso
+from agente_contrato.teste_java import ErroDeAnalise, localizar_metodo
 
 LIMITE_LEITURA = 30_000  # caracteres; o maior arquivo permitido da API cobaia tem cerca de 26 mil
 CONTRATO = "docs/openapi.json"
@@ -79,3 +80,21 @@ def rodar_teste(rodar, raiz: Path, classe: str, metodo: str, relogio: RelogioCas
     if falha is None:  # ex.: o teste foi ignorado (@Disabled)
         return "O teste não passou, e o relatório não traz mensagem de falha."
     return f"O teste falhou.\n{falha.tipo} {falha.excecao}: {falha.mensagem}"
+
+
+def salvar_reparo(raiz: Path, arquivo: str, metodo: str, metodo_reparado: str) -> str:
+    """Troca só o corpo do método afetado pelo corpo do método que o modelo escreveu (D116, D101).
+
+    Anotações e assinatura ficam as do original, então o modelo não muda o `@Sql` nem o nome do teste.
+    Um método que não se acha no texto do modelo volta a ele como erro; no original, é defeito nosso.
+    """
+    try:
+        novo = localizar_metodo(metodo_reparado, metodo)
+    except ErroDeAnalise as exc:
+        raise ErroDeFerramenta(f"O reparo não foi salvo: {exc}. Mande o método {metodo} inteiro.") from None
+    caminho = raiz / arquivo
+    original = caminho.read_bytes().decode("utf-8")  # bytes, para manter as quebras de linha do arquivo
+    antigo = localizar_metodo(original, metodo)
+    reparado = original[:antigo.inicio] + metodo_reparado[novo.inicio:novo.fim] + original[antigo.fim:]
+    caminho.write_bytes(reparado.encode("utf-8"))
+    return f"Reparo salvo no método {metodo}. Use rodar_teste para conferir."
