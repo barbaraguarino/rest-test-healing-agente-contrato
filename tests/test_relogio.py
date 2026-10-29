@@ -1,19 +1,7 @@
 import unittest
 
 from agente_contrato.relogio import RelogioCaso
-
-
-class RelogioFalso:
-    """Substitui o time.monotonic: o tempo só anda quando o teste manda."""
-
-    def __init__(self):
-        self.t = 1000.0
-
-    def __call__(self) -> float:
-        return self.t
-
-    def andar(self, segundos: float) -> None:
-        self.t += segundos
+from tests.relogio_falso import RelogioFalso
 
 
 class TestRelogioCaso(unittest.TestCase):
