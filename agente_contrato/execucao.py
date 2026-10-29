@@ -1,4 +1,4 @@
-"""Roda processos externos (o Maven) com limite de tempo (T23b, D111, D118)."""
+"""Roda o teste afetado na API cobaia: cópia da tag, patch, Maven com limite de tempo e Surefire (T23b, D111, D118)."""
 import os
 import shutil
 import signal
