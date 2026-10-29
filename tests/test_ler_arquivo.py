@@ -54,6 +54,21 @@ class TestLerArquivo(unittest.TestCase):
         self.assertTrue(texto.startswith("x" * LIMITE_LEITURA))
         self.assertIn("cortado", texto[LIMITE_LEITURA:])
 
+    def test_pasta_devolve_a_lista_de_arquivos_prontos_para_pedir(self):
+        (self.raiz / "src" / "main" / "java" / "dto").mkdir()
+        (self.raiz / "src" / "main" / "java" / "dto" / "ProdutoResponse.java").write_text("", encoding="utf-8")
+        self.assertEqual(ler_arquivo(self.raiz, "src/main").splitlines(), [
+            "Arquivos em src/main:",
+            "- src/main/java/Produto.java",
+            "- src/main/java/dto/ProdutoResponse.java",
+        ])
+
+    def test_lista_de_src_nao_mostra_o_atalho_para_fora(self):
+        self.assertNotIn("atalho", ler_arquivo(self.raiz, "src"))
+
+    def test_pasta_fora_da_d73_continua_recusada(self):
+        self.assertIn("não permitida", self.recusa("docs"))
+
 
 if __name__ == "__main__":
     unittest.main()

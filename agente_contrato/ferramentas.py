@@ -13,7 +13,10 @@ PERMITIDOS = "`src/`, `docs/openapi.json` e `docs/regras-de-negocio.md`"
 
 
 def ler_arquivo(raiz: Path, caminho: str) -> str:
-    """Lê um arquivo da cópia da API, com o caminho relativo à raiz, se a D73 permitir."""
+    """Lê um arquivo da cópia da API, com o caminho relativo à raiz, se a D73 permitir.
+
+    Numa pasta, devolve a lista dos arquivos dela e das subpastas, com os caminhos prontos para pedir.
+    """
     relativo = PurePosixPath(caminho)
     dentro_da_d73 = relativo.parts[:1] == ("src",) or str(relativo) in ARQUIVOS_DE_DOCS
     if relativo.is_absolute() or ".." in relativo.parts or not dentro_da_d73:
@@ -21,9 +24,20 @@ def ler_arquivo(raiz: Path, caminho: str) -> str:
     arquivo = (raiz / relativo).resolve()
     if not arquivo.is_relative_to(raiz.resolve()):  # um link que aponta para fora da cópia
         raise ErroDeFerramenta(f"Leitura não permitida: {caminho}. Só {PERMITIDOS}.")
+    if arquivo.is_dir():
+        return _listar(raiz.resolve(), arquivo, str(relativo))
     if not arquivo.is_file():
         raise ErroDeFerramenta(f"Arquivo não encontrado: {caminho}")
     texto = arquivo.read_text(encoding="utf-8")
     if len(texto) > LIMITE_LEITURA:
         return texto[:LIMITE_LEITURA] + f"\n[arquivo cortado: {LIMITE_LEITURA} de {len(texto)} caracteres]"
     return texto
+
+
+def _listar(raiz: Path, pasta: Path, nome: str) -> str:
+    """Os arquivos da pasta, em ordem; um atalho que aponta para fora da cópia não aparece."""
+    arquivos = sorted(a.relative_to(raiz).as_posix() for a in pasta.rglob("*")
+                      if a.is_file() and a.resolve().is_relative_to(raiz))
+    if not arquivos:
+        return f"A pasta {nome} não tem arquivos."
+    return "\n".join([f"Arquivos em {nome}:"] + [f"- {a}" for a in arquivos])
