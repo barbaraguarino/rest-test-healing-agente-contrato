@@ -43,6 +43,10 @@ def rodar_com_limite(comando: list[str], limite_s: float, cwd: Path | None = Non
         encerrar_grupo(proc)
         saida, _ = proc.communicate()
         return ResultadoProcesso(None, saida, True)
+    except BaseException:  # Ctrl+C no PyCharm: não deixar o Maven rodando
+        encerrar_grupo(proc)
+        proc.communicate()  # fecha o pipe da saída
+        raise
     return ResultadoProcesso(proc.returncode, saida, False)
 
 
