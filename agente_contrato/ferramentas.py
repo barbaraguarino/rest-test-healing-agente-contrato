@@ -3,12 +3,16 @@
 O LLM decide qual ferramenta pedir e o que preencher; este código decide o que é permitido e o texto
 da resposta. Uma recusa vira ErroDeFerramenta e volta ao modelo como erro (D124).
 """
+import json
 from pathlib import Path, PurePosixPath
 
+from agente_contrato.contrato import carregar, descrever_mudancas, diferenca
+from agente_contrato.execucao import _git
 from agente_contrato.laco import ErroDeFerramenta
 
 LIMITE_LEITURA = 30_000  # caracteres; o maior arquivo permitido da API cobaia tem cerca de 26 mil
-ARQUIVOS_DE_DOCS = ("docs/openapi.json", "docs/regras-de-negocio.md")  # D73
+CONTRATO = "docs/openapi.json"
+ARQUIVOS_DE_DOCS = (CONTRATO, "docs/regras-de-negocio.md")  # D73
 PERMITIDOS = "`src/`, `docs/openapi.json` e `docs/regras-de-negocio.md`"
 
 
@@ -41,3 +45,13 @@ def _listar(raiz: Path, pasta: Path, nome: str) -> str:
     if not arquivos:
         return f"A pasta {nome} não tem arquivos."
     return "\n".join([f"Arquivos em {nome}:"] + [f"- {a}" for a in arquivos])
+
+
+def ver_diferenca(raiz: Path) -> str:
+    """A evidência do Agente 1 (D62, D122): o contrato da tag comparado com o contrato depois do patch.
+
+    A cópia é um clone na tag e o patch só muda os arquivos, então o antigo é o do HEAD. Uma falha
+    do git não é culpa do modelo: vira ErroDeExecucao e para o caso (D124).
+    """
+    antigo = json.loads(_git("show", f"HEAD:{CONTRATO}", cwd=raiz))
+    return descrever_mudancas(diferenca(antigo, carregar(raiz / CONTRATO)))
