@@ -98,3 +98,51 @@ def salvar_reparo(raiz: Path, arquivo: str, metodo: str, metodo_reparado: str) -
     reparado = original[:antigo.inicio] + metodo_reparado[novo.inicio:novo.fim] + original[antigo.fim:]
     caminho.write_bytes(reparado.encode("utf-8"))
     return f"Reparo salvo no método {metodo}. Use rodar_teste para conferir."
+
+
+def _texto(nome: str, descricao: str) -> dict:
+    return {nome: {"type": "string", "description": descricao}}
+
+
+# O que o modelo vê de cada ferramenta (formato `tools` da API do Claude). As descrições são parte do
+# prompt: em português e versionadas (D70), sem nada do desenho do experimento (D73).
+DEFINICOES = [
+    {"name": "ler_arquivo",
+     "description": f"Lê um arquivo da API, com o caminho relativo à raiz. Só {PERMITIDOS}. "
+                    "Numa pasta, lista os arquivos dela.",
+     "input_schema": {"type": "object", "required": ["caminho"],
+                      "properties": _texto("caminho", "ex.: src/main/java ou docs/openapi.json")}},
+    {"name": "ver_diferenca",
+     "description": "Mostra o que mudou no contrato OpenAPI desde a versão em que o teste foi escrito.",
+     "input_schema": {"type": "object", "properties": {}}},
+    {"name": "rodar_teste",
+     "description": "Roda o teste afetado e diz se passou, se não compilou ou por que falhou.",
+     "input_schema": {"type": "object", "properties": {}}},
+    {"name": "salvar_reparo",
+     "description": "Salva o método de teste afetado reparado. Mande o método inteiro; só o corpo é "
+                    "aplicado, e as anotações e a assinatura ficam as do original.",
+     "input_schema": {"type": "object", "required": ["metodo_reparado"],
+                      "properties": _texto("metodo_reparado", "o método de teste inteiro, em Java")}},
+]
+
+
+def _campo(entrada: dict, nome: str) -> str:
+    """Um campo obrigatório do pedido; a API já confere o esquema, mas um pedido sem ele volta como erro."""
+    valor = entrada.get(nome)
+    if not isinstance(valor, str):
+        raise ErroDeFerramenta(f"Falta o campo {nome}, em texto.")
+    return valor
+
+
+def montar(raiz: Path, arquivo: str, classe: str, metodo: str, relogio: RelogioCaso, rodar) -> dict:
+    """Liga cada nome das DEFINICOES à sua função, com os dados do caso já preenchidos pelo código.
+
+    O modelo só manda a `entrada` de cada pedido; quem usa qual ferramenta (Classifier ou Repair) é a T23f.
+    """
+    return {
+        "ler_arquivo": lambda entrada: ler_arquivo(raiz, _campo(entrada, "caminho")),
+        "ver_diferenca": lambda entrada: ver_diferenca(raiz),
+        "rodar_teste": lambda entrada: rodar_teste(rodar, raiz, classe, metodo, relogio),
+        "salvar_reparo": lambda entrada: salvar_reparo(raiz, arquivo, metodo,
+                                                       _campo(entrada, "metodo_reparado")),
+    }
