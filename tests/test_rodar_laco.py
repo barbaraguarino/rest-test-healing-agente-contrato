@@ -1,6 +1,7 @@
 import unittest
 
-from agente_contrato.laco import PedidoFerramenta, RespostaModelo, ResultadoFerramenta, rodar_laco
+from agente_contrato.laco import (ErroDeFerramenta, PedidoFerramenta, RespostaModelo, ResultadoFerramenta,
+                                  rodar_laco)
 from agente_contrato.relogio import RelogioCaso
 from tests.relogio_falso import RelogioFalso
 
@@ -69,6 +70,23 @@ class TestRodarLaco(unittest.TestCase):
         erro, ok = modelo.recebidos[1][-1]
         self.assertEqual((erro.erro, ok), (True, ResultadoFerramenta("p2", "falhou")))
         self.assertEqual(self.execucoes, 1)
+
+    def test_erro_de_ferramenta_volta_ao_modelo_e_o_laco_segue(self):
+        def recusa(entrada: dict) -> str:
+            raise ErroDeFerramenta("caminho fora das pastas permitidas")
+        modelo = ModeloSimulado(pede_teste("p1"), RespostaModelo("fim"))
+        r = rodar_laco(modelo, "o teste falhou", {"rodar_teste": recusa}, max_chamadas=4)
+        self.assertEqual(r.motivo, "terminou")
+        self.assertEqual(modelo.recebidos[1][-1],
+                         (ResultadoFerramenta("p1", "caminho fora das pastas permitidas", erro=True),))
+
+    def test_outro_erro_nao_e_do_modelo_e_para_o_caso(self):
+        def quebra(entrada: dict) -> str:
+            raise RuntimeError("o Maven executou 2 testes")
+        modelo = ModeloSimulado(pede_teste("p1"), RespostaModelo("fim"))
+        with self.assertRaises(RuntimeError):
+            rodar_laco(modelo, "o teste falhou", {"rodar_teste": quebra}, max_chamadas=4)
+
 
 
 class TestLacoComRelogio(unittest.TestCase):

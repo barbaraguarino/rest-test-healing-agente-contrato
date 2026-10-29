@@ -107,6 +107,37 @@ def ler_relatorios(pasta: Path) -> RelatorioSurefire:
     return RelatorioSurefire(soma["tests"], soma["failures"], soma["errors"], soma["skipped"], tempo)
 
 
+LIMITE_MENSAGEM = 1500  # D100(b), igual à v1; a mensagem do Surefire costuma ter menos de 200
+_MARCA_CORTE = " [...]"
+
+
+@dataclass(frozen=True)
+class Falha:
+    tipo: str      # "failure" (asserção falhou) ou "error" (exceção inesperada)
+    excecao: str   # classe da exceção, ex.: java.lang.AssertionError
+    mensagem: str  # cortada em LIMITE_MENSAGEM, sem stack trace
+
+
+def _cortar(texto: str, limite: int) -> str:
+    texto = texto.strip()
+    if len(texto) <= limite:
+        return texto
+    return texto[:limite - len(_MARCA_CORTE)].rstrip() + _MARCA_CORTE
+
+
+def ler_falha(pasta: Path, limite: int = LIMITE_MENSAGEM) -> Falha | None:
+    """A primeira falha ou erro dos `TEST-*.xml`, sem stack trace (D100b); None se nada falhou ou não compilou."""
+    for arquivo in sorted(pasta.glob("TEST-*.xml")):
+        for caso in ET.parse(arquivo).getroot().iter("testcase"):
+            for elemento in caso:
+                if elemento.tag in ("failure", "error"):
+                    # sem `message` (ex.: NullPointerException sem texto), a 1ª linha do corpo é `Classe: mensagem`
+                    linhas = (elemento.text or "").strip().splitlines()
+                    mensagem = elemento.get("message") or (linhas[0] if linhas else "")
+                    return Falha(elemento.tag, elemento.get("type", ""), _cortar(mensagem, limite))
+    return None
+
+
 @dataclass(frozen=True)
 class ResultadoTeste:
     compilou: bool
