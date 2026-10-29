@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agente_contrato.execucao import ErroDeExecucao, preparar_copia
+from agente_contrato.execucao import ErroDeExecucao, aplicar_patch, preparar_copia
 
 
 def git(*args: str, cwd: Path) -> str:
@@ -47,6 +47,41 @@ class TestPrepararCopia(unittest.TestCase):
         with self.assertRaises(ErroDeExecucao) as ctx:
             preparar_copia(self.origem, "nao-existe", self.raiz / "copia")
         self.assertEqual(ctx.exception.codigo, "erro_execucao")
+
+
+PATCH_QUE_ENCAIXA = """\
+--- a/Api.java
++++ b/Api.java
+@@ -1 +1 @@
+-versao 1
++versao 1 com patch
+"""
+
+PATCH_QUE_NAO_ENCAIXA = PATCH_QUE_ENCAIXA.replace("-versao 1", "-versao 9")
+
+
+class TestAplicarPatch(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.raiz = Path(self._tmp.name)
+        self.copia = preparar_copia(repositorio_com_tag(self.raiz), "base", self.raiz / "copia")
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def escrever_patch(self, texto: str) -> Path:
+        patch = self.raiz / "caso.patch"
+        patch.write_text(texto)
+        return patch
+
+    def test_patch_que_encaixa_muda_o_arquivo(self):
+        aplicar_patch(self.copia, self.escrever_patch(PATCH_QUE_ENCAIXA))
+        self.assertEqual((self.copia / "Api.java").read_text(), "versao 1 com patch\n")
+
+    def test_patch_que_nao_encaixa_e_erro_e_nao_muda_nada(self):
+        with self.assertRaises(ErroDeExecucao):
+            aplicar_patch(self.copia, self.escrever_patch(PATCH_QUE_NAO_ENCAIXA))
+        self.assertEqual((self.copia / "Api.java").read_text(), "versao 1\n")
 
 
 if __name__ == "__main__":
