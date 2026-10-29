@@ -14,6 +14,7 @@ METODOS_HTTP = ("get", "post", "put", "patch", "delete")
 
 RENOMEACAO = "renomeacao"
 REMOCAO = "remocao"
+ALTERACAO_TIPO = "alteracao_tipo"
 CAMPO_OBRIGATORIO_NOVO = "campo_obrigatorio_novo"
 
 
@@ -118,7 +119,10 @@ def _mesma_forma(a: Propriedade, b: Propriedade) -> bool:
 
 
 def diferenca(antigo: dict, novo: dict) -> list[Mudanca]:
-    """Lista as mudanças de contrato nas operações que existem nos dois, na ordem (método, rota, lado, caminho)."""
+    """Lista as mudanças de contrato nas operações que existem nos dois, em ordem de (método, rota, lado).
+
+    Em cada operação vêm primeiro os campos que saíram ou entraram, por objeto, e depois os que continuam.
+    """
     planilhas_antigas, planilhas_novas = achatar(antigo), achatar(novo)
     mudancas = []
     for chave in sorted(planilhas_antigas.keys() & planilhas_novas.keys()):
@@ -140,4 +144,9 @@ def diferenca(antigo: dict, novo: dict) -> list[Mudanca]:
             for c in entrou:
                 if novos[c].obrigatoria:  # um campo opcional novo não quebra o teste
                     mudancas.append(Mudanca(CAMPO_OBRIGATORIO_NOVO, *chave, c, depois=novos[c]))
+        for c in sorted(velhos.keys() & novos.keys()):
+            if not _mesma_forma(velhos[c], novos[c]):
+                mudancas.append(Mudanca(ALTERACAO_TIPO, *chave, c, antes=velhos[c], depois=novos[c]))
+            elif novos[c].obrigatoria and not velhos[c].obrigatoria:
+                mudancas.append(Mudanca(CAMPO_OBRIGATORIO_NOVO, *chave, c, antes=velhos[c], depois=novos[c]))
     return mudancas

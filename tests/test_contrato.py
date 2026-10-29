@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agente_contrato.contrato import (CAMPO_OBRIGATORIO_NOVO, REMOCAO, RENOMEACAO, Mudanca, Propriedade, achatar,
+from agente_contrato.contrato import (ALTERACAO_TIPO, CAMPO_OBRIGATORIO_NOVO, REMOCAO, RENOMEACAO, Mudanca, Propriedade, achatar,
                                       achatar_schema, carregar, diferenca, resolver)
 
 FICHAS = {"components": {"schemas": {
@@ -145,6 +145,38 @@ class TestDiferencaRenomeacao(unittest.TestCase):
         antigo = contrato_com_resposta({"sku": TEXTO, "cliente": {"type": "object", "properties": {}}})
         novo = contrato_com_resposta({"cliente": {"type": "object", "properties": {"codigo": TEXTO}}})
         self.assertEqual([(m.tipo, m.caminho) for m in diferenca(antigo, novo)], [(REMOCAO, "sku")])
+
+
+
+class TestDiferencaCampoQueContinua(unittest.TestCase):
+    def test_tipo_que_muda_e_alteracao_de_tipo(self):
+        antigo = contrato_com_resposta({"estoque": {"type": "integer"}})
+        novo = contrato_com_resposta({"estoque": TEXTO})
+        self.assertEqual(diferenca(antigo, novo), [Mudanca(
+            ALTERACAO_TIPO, *CHAVE, "estoque", antes=Propriedade("integer", None, None, False),
+            depois=Propriedade("string", None, None, False))])
+
+    def test_enum_que_muda_tambem_e_alteracao_de_tipo(self):
+        antigo = contrato_com_resposta({"status": {"type": "string", "enum": ["ATIVO"]}})
+        novo = contrato_com_resposta({"status": {"type": "string", "enum": ["ATIVO", "PAUSADO"]}})
+        self.assertEqual([m.tipo for m in diferenca(antigo, novo)], [ALTERACAO_TIPO])
+
+    def test_so_o_formato_mudar_nao_e_mudanca(self):
+        antigo = contrato_com_resposta({"id": {"type": "integer", "format": "int32"}})
+        novo = contrato_com_resposta({"id": {"type": "integer", "format": "int64"}})
+        self.assertEqual(diferenca(antigo, novo), [])
+
+    def test_opcional_que_vira_obrigatorio_e_campo_obrigatorio_novo(self):
+        antigo = contrato_com_resposta({"sku": TEXTO})
+        novo = contrato_com_resposta({"sku": TEXTO}, obrigatorias=("sku",))
+        self.assertEqual(diferenca(antigo, novo), [Mudanca(
+            CAMPO_OBRIGATORIO_NOVO, *CHAVE, "sku", antes=Propriedade("string", None, None, False),
+            depois=Propriedade("string", None, None, True))])
+
+    def test_obrigatorio_que_vira_opcional_nao_e_mudanca(self):
+        antigo = contrato_com_resposta({"sku": TEXTO}, obrigatorias=("sku",))
+        novo = contrato_com_resposta({"sku": TEXTO})
+        self.assertEqual(diferenca(antigo, novo), [])
 
 
 
