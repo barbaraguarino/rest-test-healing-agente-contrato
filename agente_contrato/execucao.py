@@ -2,6 +2,7 @@
 import os
 import signal
 import subprocess
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -72,3 +73,24 @@ def aplicar_patch(raiz: Path, patch: Path) -> None:
     """Aplica o patch do caso na cópia; se ele não encaixa, não muda nada."""
     _git("apply", "--check", str(patch), cwd=raiz)
     _git("apply", str(patch), cwd=raiz)
+
+
+@dataclass(frozen=True)
+class RelatorioSurefire:
+    executados: int
+    falhas: int
+    erros: int
+    ignorados: int
+    tempo_s: float
+
+
+def ler_relatorios(pasta: Path) -> RelatorioSurefire:
+    """Soma os `TEST-*.xml` do Surefire; pasta vazia ou ausente (não compilou) dá tudo zero."""
+    soma = dict.fromkeys(("tests", "failures", "errors", "skipped"), 0)
+    tempo = 0.0
+    for arquivo in sorted(pasta.glob("TEST-*.xml")):
+        raiz = ET.parse(arquivo).getroot()
+        for campo in soma:
+            soma[campo] += int(raiz.get(campo, 0))
+        tempo += float(raiz.get("time", 0))
+    return RelatorioSurefire(soma["tests"], soma["failures"], soma["errors"], soma["skipped"], tempo)
