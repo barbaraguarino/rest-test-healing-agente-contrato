@@ -8,6 +8,10 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+REQUISICAO = "requisicao"
+RESPOSTA = "resposta"
+METODOS_HTTP = ("get", "post", "put", "patch", "delete")
+
 
 @dataclass(frozen=True)
 class Propriedade:
@@ -52,3 +56,29 @@ def achatar_schema(contrato: dict, no: dict, prefixo: str = "", obrigatoria: boo
         caminho = f"{prefixo}.{nome}" if prefixo else nome
         campos.update(achatar_schema(contrato, filho, caminho, nome in obrigatorias, visitados))
     return campos
+
+
+def _schema_do_conteudo(conteudo: dict) -> dict | None:
+    """O schema do primeiro tipo de mídia que tiver um (na API cobaia, `application/json`)."""
+    for midia in conteudo.values():
+        if "schema" in midia:
+            return midia["schema"]
+    return None
+
+
+def achatar(contrato: dict) -> dict[tuple[str, str, str], dict[str, Propriedade]]:
+    """Mapeia (método, rota, lado) para a planilha de campos; o lado é a requisição ou a resposta 2xx."""
+    planilhas = {}
+    for rota, operacoes in contrato.get("paths", {}).items():
+        for metodo in METODOS_HTTP:
+            operacao = operacoes.get(metodo)
+            if operacao is None:
+                continue
+            corpo = _schema_do_conteudo(operacao.get("requestBody", {}).get("content", {}))
+            if corpo is not None:
+                planilhas[(metodo.upper(), rota, REQUISICAO)] = achatar_schema(contrato, corpo)
+            for status, resposta in operacao.get("responses", {}).items():
+                schema = _schema_do_conteudo(resposta.get("content", {}))
+                if status.startswith("2") and schema is not None:
+                    planilhas[(metodo.upper(), rota, RESPOSTA)] = achatar_schema(contrato, schema)
+    return planilhas

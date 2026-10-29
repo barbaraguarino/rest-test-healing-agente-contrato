@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agente_contrato.contrato import Propriedade, achatar_schema, carregar, resolver
+from agente_contrato.contrato import Propriedade, achatar, achatar_schema, carregar, resolver
 
 FICHAS = {"components": {"schemas": {
     "Produto": {"type": "object", "properties": {"nome": {"type": "string"}}},
@@ -59,6 +59,25 @@ class TestAchatarSchema(unittest.TestCase):
         campos = achatar_schema(FICHAS, {"$ref": "#/components/schemas/No"})
         self.assertEqual(list(campos), ["filho"])
         self.assertEqual(campos["filho"].tipo, "desconhecido")  # a ficha circular volta vazia
+
+
+class TestAchatarContrato(unittest.TestCase):
+    CONTRATO = {"paths": {"/produtos/{id}": {
+        "parameters": [{"name": "id", "in": "path"}],  # não é um método HTTP: fica de fora
+        "get": {"responses": {
+            "200": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/Produto"}}}},
+            "404": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/Item"}}}}}},
+        "put": {"requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/Item"}}}},
+                "responses": {"204": {"description": "sem corpo"}}},
+    }}, **FICHAS}
+
+    def test_cada_operacao_tem_a_planilha_da_requisicao_e_da_resposta_2xx(self):
+        planilhas = achatar(self.CONTRATO)
+        self.assertEqual(sorted(planilhas), [("GET", "/produtos/{id}", "resposta"),
+                                             ("PUT", "/produtos/{id}", "requisicao")])
+        self.assertEqual(planilhas[("GET", "/produtos/{id}", "resposta")],
+                         {"nome": Propriedade("string", None, None, False)})  # o 404 não entra
+        self.assertEqual(sorted(planilhas[("PUT", "/produtos/{id}", "requisicao")]), ["quantidade", "status"])
 
 
 if __name__ == "__main__":
