@@ -1,11 +1,14 @@
 """Roda processos externos (o Maven) com limite de tempo (T23b, D111, D118)."""
 import os
+import shutil
 import signal
 import subprocess
+import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
 
+LIMITE_TESTE_S = 120  # D111(a): uma chamada do mvnw
 ESPERA_DO_SIGTERM_S = 5
 
 
@@ -94,3 +97,36 @@ def ler_relatorios(pasta: Path) -> RelatorioSurefire:
             soma[campo] += int(raiz.get(campo, 0))
         tempo += float(raiz.get("time", 0))
     return RelatorioSurefire(soma["tests"], soma["failures"], soma["errors"], soma["skipped"], tempo)
+
+
+@dataclass(frozen=True)
+class ResultadoTeste:
+    compilou: bool
+    passou: bool
+    duracao_maven_s: float  # relógio de parede da chamada ao Maven, compilação incluída
+    duracao_teste_s: float  # tempo do teste, segundo o Surefire; 0 se não compilou
+
+
+def comando_maven(raiz: Path, classe: str, metodo: str) -> list[str]:
+    """Um único método de teste; `Classe*#metodo` inclui as classes @Nested."""
+    return [str(raiz / "mvnw"), "-B", f"-Dtest={classe}*#{metodo}", "test"]
+
+
+def rodar_teste(raiz: Path, classe: str, metodo: str, limite_s: float = LIMITE_TESTE_S,
+                comando: list[str] | None = None) -> ResultadoTeste:
+    """Roda o teste afetado na cópia; só vale se o Surefire executou exatamente um teste."""
+    pasta = raiz / "target" / "surefire-reports"
+    shutil.rmtree(pasta, ignore_errors=True)  # nunca ler relatório de uma execução anterior
+    inicio = time.monotonic()
+    r = rodar_com_limite(comando or comando_maven(raiz, classe, metodo), limite_s, cwd=raiz)
+    duracao = time.monotonic() - inicio
+    if r.estourou_tempo:
+        raise ErroDeExecucao(f"{classe}.{metodo} passou de {limite_s:g}s", "timeout")
+    if "COMPILATION ERROR" in r.saida:
+        return ResultadoTeste(False, False, duracao, 0.0)
+    relatorio = ler_relatorios(pasta)
+    if relatorio.executados != 1:
+        raise ErroDeExecucao(f"{relatorio.executados} testes executados para {classe}.{metodo}, esperado 1")
+    passou = (r.codigo_saida == 0 and relatorio.falhas == 0
+              and relatorio.erros == 0 and relatorio.ignorados == 0)
+    return ResultadoTeste(True, passou, duracao, relatorio.tempo_s)
