@@ -53,3 +53,34 @@ def traduzir(agente: ResultadoAgente) -> Fim:
     if motivo == "repair_sem_reparo":  # D130: como o metodo_reparado que não se encaixa na D102
         return Fim(NAO_REPARAR, "saida_invalida")
     raise ValueError(f"motivo de fim desconhecido: {motivo}")
+
+
+CAMPOS = ("id_caso", "agente", "tratamento", "versao_agente", "categoria", "rotulo_oraculo",
+          "decisao", "compilou", "passou", "equivalente_oraculo", "assercoes_enfraquecidas",
+          "cenario_alterado", "repeticao", "tempo_s", "tokens", "custo_usd", "erro")  # D74, nesta ordem
+
+
+def registrar(fim: Fim, oraculo_do_caso: dict, repeticao: int, compilou: bool | None, passou: bool,
+              tempo_s: float, tokens: int = 0, custo_usd: float = 0.0,
+              equivalente_oraculo: bool | None = None, cenario_alterado: bool | None = None) -> dict:
+    """O registro da D74 de uma execução. Chamada só depois do caso: é o único lugar que lê o oráculo.
+
+    `compilou` e `passou` vêm do Maven final (T23j); `equivalente_oraculo` e `cenario_alterado`, do
+    comparador (T50), e ficam nulos até lá: num caso legítimo reparado, o validador da T20a recusa o
+    arquivo até a revisão manual preencher o veredito (D110). `tokens` e `custo_usd` vêm da T23i.
+    """
+    registro = {"id_caso": oraculo_do_caso["id_caso"], "agente": "agente1", "tratamento": "agentes",
+                "versao_agente": "agentica", "categoria": oraculo_do_caso["categoria"],
+                "rotulo_oraculo": oraculo_do_caso["rotulo_oraculo"], "decisao": fim.decisao,
+                "compilou": None, "passou": False, "equivalente_oraculo": None,
+                "assercoes_enfraquecidas": None, "cenario_alterado": None, "repeticao": repeticao,
+                "tempo_s": round(tempo_s, 4), "tokens": tokens, "custo_usd": custo_usd, "erro": fim.erro}
+    if fim.decisao == NAO_REPARAR:  # o arquivo não mudou: o teste continua falhando (D102)
+        return registro
+    if fim.erro == "timeout":  # reparo salvo sem conferência a tempo (D118, D130)
+        compilou, passou = False, False
+    registro.update(compilou=compilou, passou=passou, equivalente_oraculo=equivalente_oraculo,
+                    assercoes_enfraquecidas=False,  # o guarda aceitou o reparo (D129)
+                    cenario_alterado=cenario_alterado)
+    return registro
+
