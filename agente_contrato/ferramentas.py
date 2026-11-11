@@ -4,10 +4,12 @@ O LLM decide qual ferramenta pedir e o que preencher; este código decide o que 
 da resposta. Uma recusa vira ErroDeFerramenta e volta ao modelo como erro (D124).
 """
 import json
+from collections.abc import Callable
 from pathlib import Path, PurePosixPath
 
-from agente_contrato.contrato import carregar, descrever_mudancas, diferenca
+from agente_contrato.contrato import carregar, descrever_mudancas, diferenca, rotas_do_contrato
 from agente_contrato.execucao import LIMITE_TESTE_S, ErroDeExecucao, _git, ler_falha
+from agente_contrato.guarda import Veredito, avaliar
 from agente_contrato.laco import ErroDeFerramenta
 from agente_contrato.relogio import RelogioCaso
 from agente_contrato.teste_java import ErroDeAnalise, localizar_metodo
@@ -49,14 +51,19 @@ def _listar(raiz: Path, pasta: Path, nome: str) -> str:
     return "\n".join([f"Arquivos em {nome}:"] + [f"- {a}" for a in arquivos])
 
 
-def ver_diferenca(raiz: Path) -> str:
-    """A evidência do Agente 1 (D62, D122): o contrato da tag comparado com o contrato depois do patch.
+def _contratos(raiz: Path) -> tuple[dict, dict]:
+    """O contrato da tag e o contrato depois do patch.
 
     A cópia é um clone na tag e o patch só muda os arquivos, então o antigo é o do HEAD. Uma falha
     do git não é culpa do modelo: vira ErroDeExecucao e para o caso (D124).
     """
     antigo = json.loads(_git("show", f"HEAD:{CONTRATO}", cwd=raiz))
-    return descrever_mudancas(diferenca(antigo, carregar(raiz / CONTRATO)))
+    return antigo, carregar(raiz / CONTRATO)
+
+
+def ver_diferenca(raiz: Path) -> str:
+    """A evidência do Agente 1 (D62, D122): o contrato da tag comparado com o contrato depois do patch."""
+    return descrever_mudancas(diferenca(*_contratos(raiz)))
 
 
 def rodar_teste(rodar, raiz: Path, classe: str, metodo: str, relogio: RelogioCaso) -> str:
@@ -82,11 +89,14 @@ def rodar_teste(rodar, raiz: Path, classe: str, metodo: str, relogio: RelogioCas
     return f"O teste falhou.\n{falha.tipo} {falha.excecao}: {falha.mensagem}"
 
 
-def salvar_reparo(raiz: Path, arquivo: str, metodo: str, metodo_reparado: str) -> str:
+def salvar_reparo(raiz: Path, arquivo: str, metodo: str, metodo_reparado: str,
+                  conferir: Callable[[str], Veredito]) -> str:
     """Troca só o corpo do método afetado pelo corpo do método que o modelo escreveu (D116, D101).
 
     Anotações e assinatura ficam as do original, então o modelo não muda o `@Sql` nem o nome do teste.
     Um método que não se acha no texto do modelo volta a ele como erro; no original, é defeito nosso.
+    Antes de gravar, `conferir` passa o arquivo reparado pelo guarda (D129): um reparo recusado não é
+    gravado e volta ao modelo como erro, com os motivos.
     """
     try:
         novo = localizar_metodo(metodo_reparado, metodo)
@@ -96,6 +106,10 @@ def salvar_reparo(raiz: Path, arquivo: str, metodo: str, metodo_reparado: str) -
     original = caminho.read_bytes().decode("utf-8")  # bytes, para manter as quebras de linha do arquivo
     antigo = localizar_metodo(original, metodo)
     reparado = original[:antigo.inicio] + metodo_reparado[novo.inicio:novo.fim] + original[antigo.fim:]
+    veredito = conferir(reparado)
+    if not veredito.aceito:
+        raise ErroDeFerramenta("O reparo não foi salvo: o teste ficaria mais fraco ("
+                               + "; ".join(veredito.motivos) + "). O arquivo continua como estava.")
     caminho.write_bytes(reparado.encode("utf-8"))
     return f"Reparo salvo no método {metodo}. Use rodar_teste para conferir."
 
@@ -134,15 +148,34 @@ def _campo(entrada: dict, nome: str) -> str:
     return valor
 
 
+def guarda_do_caso(raiz: Path, arquivo: str, metodo: str) -> Callable[[str], Veredito]:
+    """O guarda (T23g) preso ao arquivo original, lido agora, antes de qualquer reparo (D129).
+
+    Cada reparo é comparado com esse original, não com o reparo anterior, então reparos em sequência
+    não enfraquecem o teste aos poucos. A diferença do contrato só é calculada no primeiro reparo.
+    """
+    original = (raiz / arquivo).read_bytes().decode("utf-8")
+    contexto = {}
+
+    def conferir(reparado: str) -> Veredito:
+        if not contexto:
+            antigo, novo = _contratos(raiz)
+            contexto.update(mudancas=diferenca(antigo, novo), rotas=rotas_do_contrato(novo))
+        return avaliar(original, reparado, metodo, contexto["mudancas"], contexto["rotas"])
+    return conferir
+
+
 def montar(raiz: Path, arquivo: str, classe: str, metodo: str, relogio: RelogioCaso, rodar) -> dict:
     """Liga cada nome das DEFINICOES à sua função, com os dados do caso já preenchidos pelo código.
 
     O modelo só manda a `entrada` de cada pedido; quem usa qual ferramenta (Classifier ou Repair) é a T23f.
+    Chamada antes de qualquer reparo, porque o guarda lê o arquivo original nesse momento.
     """
+    conferir = guarda_do_caso(raiz, arquivo, metodo)
     return {
         "ler_arquivo": lambda entrada: ler_arquivo(raiz, _campo(entrada, "caminho")),
         "ver_diferenca": lambda entrada: ver_diferenca(raiz),
         "rodar_teste": lambda entrada: rodar_teste(rodar, raiz, classe, metodo, relogio),
         "salvar_reparo": lambda entrada: salvar_reparo(raiz, arquivo, metodo,
-                                                       _campo(entrada, "metodo_reparado")),
+                                                       _campo(entrada, "metodo_reparado"), conferir),
     }
