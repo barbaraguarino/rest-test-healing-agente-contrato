@@ -1,6 +1,6 @@
 import unittest
 
-from agente_contrato.teste_java import ErroDeAnalise, _depois_do_literal, localizar_metodo
+from agente_contrato.teste_java import ErroDeAnalise, _depois_do_literal, localizar_metodo, texto_do_metodo
 
 CLASSE = '''class ProdutoTest {
     @Test
@@ -82,6 +82,18 @@ class TestLocalizarMetodo(unittest.TestCase):
     def test_metodo_sem_fechamento(self):
         with self.assertRaisesRegex(ErroDeAnalise, "sem fechamento"):
             localizar_metodo("void lista() { if (x) {", "lista")
+
+
+class TestTextoDoMetodo(unittest.TestCase):
+    def test_leva_as_anotacoes_a_assinatura_e_o_corpo(self):
+        texto = texto_do_metodo(CLASSE, "lista")
+        self.assertTrue(texto.startswith("    @Test\n    @Sql(\"/produtos.sql\")\n    void lista()"))
+        self.assertTrue(texto.endswith("contar('}'); }\n    }"))
+        self.assertNotIn("outro", texto)
+
+    def test_nao_sobe_alem_das_anotacoes(self):
+        texto = texto_do_metodo(CLASSE, "outro")
+        self.assertEqual(texto, "    @Test\n    void outro() {\n    }")
 
 
 if __name__ == "__main__":

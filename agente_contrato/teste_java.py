@@ -63,3 +63,24 @@ def localizar_metodo(texto: str, nome: str) -> Metodo:
                 return Metodo(nome, inicio, i + 1)
         i += 1
     raise ErroDeAnalise(f"método {nome} sem fechamento")
+
+
+def _inicio_da_linha(texto: str, i: int) -> int:
+    return texto.rfind("\n", 0, i) + 1
+
+
+def texto_do_metodo(texto: str, nome: str) -> str:
+    """O método inteiro, igual ao da v1: anotações (`@Test`, `@Sql`...), assinatura e corpo.
+
+    É o que o Classifier e o Repair recebem da classe de teste (D117b); sobe da assinatura enquanto
+    a linha de cima começa com `@`.
+    """
+    corpo = localizar_metodo(texto, nome)  # garante uma única ocorrência
+    assinatura = re.search(rf"\bvoid\s+{re.escape(nome)}\s*\(", texto)
+    inicio = _inicio_da_linha(texto, assinatura.start())
+    while inicio > 0:
+        anterior = _inicio_da_linha(texto, inicio - 1)
+        if not texto[anterior:inicio].lstrip().startswith("@"):
+            break
+        inicio = anterior
+    return texto[inicio:corpo.fim]
