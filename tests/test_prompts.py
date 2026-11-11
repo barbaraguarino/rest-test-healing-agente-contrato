@@ -1,10 +1,11 @@
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
 from agente_contrato.agentes import (FERRAMENTAS_CLASSIFIER, FERRAMENTAS_REPAIR, LIMITE_CLASSIFIER,
                                      LIMITE_REPAIR, LIMITE_TOTAL)
-from agente_contrato.prompts import carregar
+from agente_contrato.prompts import SUFIXO_ALTERADO, carregar, commit_dos_prompts
 
 
 class TestCarregar(unittest.TestCase):
@@ -44,3 +45,46 @@ class TestPromptsVersionados(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestCommitDosPrompts(unittest.TestCase):  # D105, iguais aos da v1 (tag rodada-2)
+    def _repo(self) -> Path:
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        raiz = Path(tmp.name)
+        for cmd in (["init", "-q"], ["config", "user.email", "t@t"], ["config", "user.name", "t"]):
+            subprocess.run(["git", *cmd], cwd=raiz, check=True)
+        (raiz / "prompts").mkdir()
+        return raiz
+
+    def _commit(self, raiz: Path) -> str:
+        subprocess.run(["git", "add", "-A"], cwd=raiz, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", "x"], cwd=raiz, check=True)
+        return subprocess.run(["git", "rev-parse", "HEAD"], cwd=raiz, check=True,
+                              capture_output=True, text=True).stdout.strip()
+
+    def test_prompt_commitado_devolve_o_hash(self):
+        raiz = self._repo()
+        (raiz / "prompts" / "a.md").write_text("texto", encoding="utf-8")
+        hash_ = self._commit(raiz)
+        self.assertEqual(commit_dos_prompts(raiz / "prompts"), hash_)
+
+    def test_alteracao_nao_commitada_marca_o_hash(self):
+        raiz = self._repo()
+        (raiz / "prompts" / "a.md").write_text("texto", encoding="utf-8")
+        hash_ = self._commit(raiz)
+        (raiz / "prompts" / "a.md").write_text("outro texto", encoding="utf-8")
+        self.assertEqual(commit_dos_prompts(raiz / "prompts"), hash_ + SUFIXO_ALTERADO)
+
+    def test_commit_fora_da_pasta_de_prompts_nao_muda_o_hash(self):
+        raiz = self._repo()
+        (raiz / "prompts" / "a.md").write_text("texto", encoding="utf-8")
+        hash_ = self._commit(raiz)
+        (raiz / "outro.txt").write_text("x", encoding="utf-8")
+        self._commit(raiz)
+        self.assertEqual(commit_dos_prompts(raiz / "prompts"), hash_)
+
+    def test_arquivo_novo_na_pasta_sem_commit(self):
+        raiz = self._repo()
+        (raiz / "prompts" / "a.md").write_text("texto", encoding="utf-8")
+        self.assertEqual(commit_dos_prompts(raiz / "prompts"), "sem-commit" + SUFIXO_ALTERADO)

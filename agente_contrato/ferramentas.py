@@ -18,6 +18,9 @@ LIMITE_LEITURA = 30_000  # caracteres; o maior arquivo permitido da API cobaia t
 CONTRATO = "docs/openapi.json"
 ARQUIVOS_DE_DOCS = (CONTRATO, "docs/regras-de-negocio.md")  # D73
 PERMITIDOS = "`src/`, `docs/openapi.json` e `docs/regras-de-negocio.md`"
+# Começo da resposta de erro do salvar_reparo quando o guarda recusa; o registro procura este texto
+# no histórico para dar o código `guarda` (D129, T23h).
+RECUSA_DO_GUARDA = "O reparo não foi salvo: o teste ficaria mais fraco"
 
 
 def ler_arquivo(raiz: Path, caminho: str) -> str:
@@ -108,8 +111,8 @@ def salvar_reparo(raiz: Path, arquivo: str, metodo: str, metodo_reparado: str,
     reparado = original[:antigo.inicio] + metodo_reparado[novo.inicio:novo.fim] + original[antigo.fim:]
     veredito = conferir(reparado)
     if not veredito.aceito:
-        raise ErroDeFerramenta("O reparo não foi salvo: o teste ficaria mais fraco ("
-                               + "; ".join(veredito.motivos) + "). O arquivo continua como estava.")
+        raise ErroDeFerramenta(f"{RECUSA_DO_GUARDA} (" + "; ".join(veredito.motivos)
+                               + "). O arquivo continua como estava.")
     caminho.write_bytes(reparado.encode("utf-8"))
     return f"Reparo salvo no método {metodo}. Use rodar_teste para conferir."
 
