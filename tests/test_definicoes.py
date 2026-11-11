@@ -8,6 +8,7 @@ from agente_contrato.ferramentas import DEFINICOES, montar
 from agente_contrato.laco import PedidoFerramenta, executar_pedido
 from agente_contrato.relogio import RelogioCaso
 from tests.relogio_falso import RelogioFalso
+from tests.test_preparar_copia import git
 
 ARQUIVO = "src/test/java/loja/ProdutoTest.java"
 
@@ -19,6 +20,11 @@ class TestDefinicoes(unittest.TestCase):
         self.raiz = Path(self._tmp.name)
         (self.raiz / ARQUIVO).parent.mkdir(parents=True)
         (self.raiz / ARQUIVO).write_text("class ProdutoTest {\n    void lista() { antigo(); }\n}\n")
+        (self.raiz / "docs").mkdir()
+        (self.raiz / "docs" / "openapi.json").write_text('{"paths": {}}')
+        git("init", "-q", cwd=self.raiz)  # o guarda do salvar_reparo lê o contrato da tag no HEAD
+        git("add", ".", cwd=self.raiz)
+        git("commit", "-q", "-m", "tag", cwd=self.raiz)
         self.maven = []  # (classe, metodo, limite) de cada chamada ao Maven falso
 
         def rodar(raiz, classe, metodo, limite_s):
