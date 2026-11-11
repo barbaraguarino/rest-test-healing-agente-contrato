@@ -4,6 +4,7 @@ Código determinístico, sem LLM: compara o arquivo de teste original com o repa
 é aceito e, se não for, por quê. Heurística textual sobre o método afetado, com o alcance da suíte da
 API cobaia: as asserções são `.andExpect(...)` do MockMvc e `assertThat(...)`.
 """
+import re
 from dataclasses import dataclass
 
 from agente_contrato import contrato as c
@@ -13,6 +14,10 @@ from agente_contrato import teste_java as tj
 # aumenta o uso de algum deles, a asserção ficou mais fraca.
 _FRACOS = ("anything()", "notNullValue()", ".exists()", "isNotEmpty()", "any(",
            "is2xxSuccessful()", "is3xxRedirection()", "is4xxClientError()", "is5xxServerError()")
+
+# Um argumento de `.value(...)` que começa com uma chamada, como `is(3)` ou `Matchers.closeTo(...)`.
+_MATCHER = re.compile(r"[A-Za-z_][\w.]*\s*\(")
+
 
 @dataclass(frozen=True)
 class Veredito:
@@ -37,6 +42,38 @@ def _sobre_campo_removido(texto: str, metodo: tj.Metodo, mudancas: list[c.Mudanc
                    and tj.expressao_atinge(a.expressao, m.caminho) for m in removidas):
                 total += 1
     return total
+
+
+def _argumentos_de_value(trecho: str) -> list[str]:
+    """O que está entre os parênteses de cada `.value(...)`, pulando textos e comentários."""
+    argumentos, i = [], 0
+    while i < len(trecho):
+        proximo = tj._depois_do_literal(trecho, i)
+        if proximo != i:
+            i = proximo
+            continue
+        if not trecho.startswith(".value(", i):
+            i += 1
+            continue
+        inicio = j = i + len(".value(")
+        nivel = 1
+        while j < len(trecho) and nivel:
+            proximo = tj._depois_do_literal(trecho, j)
+            if proximo != j:
+                j = proximo
+                continue
+            nivel += {"(": 1, ")": -1}.get(trecho[j], 0)
+            j += 1
+        argumentos.append(trecho[inicio:j - 1].strip())
+        i = j
+    return argumentos
+
+
+def _matchers_e_literais(trecho: str) -> tuple[int, int]:
+    """Quantos `.value(...)` usam matcher (`is(3)`) e quantos usam literal (`3`, `"x"`)."""
+    argumentos = _argumentos_de_value(trecho)
+    matchers = sum(1 for a in argumentos if _MATCHER.match(a))
+    return matchers, len(argumentos) - matchers
 
 
 def avaliar(antes: str, depois: str, nome_metodo: str, mudancas: list[c.Mudanca],
@@ -71,4 +108,9 @@ def avaliar(antes: str, depois: str, nome_metodo: str, mudancas: list[c.Mudanca]
         motivos.append(f"menos asserções ({_asserções(t_depois)}) que o permitido ({minimo})")
     if sum(t_depois.count(f) for f in _FRACOS) > sum(t_antes.count(f) for f in _FRACOS):
         motivos.append("matcher afrouxado")
+    # D115 (pela D53): um literal em `.value(...)` converte o valor lido e esconde a mudança de tipo.
+    matchers_antes, literais_antes = _matchers_e_literais(t_antes)
+    matchers_depois, literais_depois = _matchers_e_literais(t_depois)
+    if matchers_depois < matchers_antes and literais_depois > literais_antes:
+        motivos.append("matcher trocado por literal em .value(...)")
     return Veredito(not motivos, tuple(motivos))
