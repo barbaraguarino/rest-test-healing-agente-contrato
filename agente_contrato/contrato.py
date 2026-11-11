@@ -152,6 +152,14 @@ def diferenca(antigo: dict, novo: dict) -> list[Mudanca]:
     return mudancas
 
 
+def rotas_do_contrato(contrato: dict) -> dict[str, set[str]]:
+    """Rotas do contrato por método HTTP, igual à v1; o guarda (T23g) usa para achar a rota de cada chamada do teste."""
+    rotas: dict[str, set[str]] = {}
+    for metodo, rota, _ in achatar(contrato):
+        rotas.setdefault(metodo, set()).add(rota)
+    return rotas
+
+
 def _descrever_tipo(p: Propriedade) -> str:
     """`integer (int32)` ou `string, valores ['A', 'B']`: tipo, formato e enum, quando houver."""
     texto = p.tipo + (f" ({p.formato})" if p.formato else "")

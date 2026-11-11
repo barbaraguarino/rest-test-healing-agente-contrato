@@ -5,7 +5,7 @@ from pathlib import Path
 
 from agente_contrato.contrato import (ALTERACAO_TIPO, CAMPO_OBRIGATORIO_NOVO, REMOCAO, RENOMEACAO, Mudanca,
                                       Propriedade, achatar, achatar_schema, carregar, descrever_mudancas,
-                                      diferenca, resolver)
+                                      diferenca, resolver, rotas_do_contrato)
 
 FICHAS = {"components": {"schemas": {
     "Produto": {"type": "object", "properties": {"nome": {"type": "string"}}},
@@ -205,6 +205,14 @@ class TestDescreverMudancas(unittest.TestCase):
             "(string, valores ['ATIVO', 'INATIVO'])",
         ])
 
+
+
+class TestRotasDoContrato(unittest.TestCase):
+    def test_rotas_por_metodo_http(self):
+        contrato = contrato_com_resposta({"sku": TEXTO})
+        contrato["paths"]["/produtos"] = {"post": {"requestBody": {"content": {"application/json": {
+            "schema": {"type": "object", "properties": {"sku": TEXTO}}}}}}}
+        self.assertEqual(rotas_do_contrato(contrato), {"GET": {"/produtos/{id}"}, "POST": {"/produtos"}})
 
 
 if __name__ == "__main__":
