@@ -104,3 +104,27 @@ def gravar_resultados(caminho: Path, versao_api: str, registros: list[dict]) -> 
         f.flush()
         os.fsync(f.fileno())
     os.replace(f.name, caminho)
+
+
+def recusas_do_guarda(agente: ResultadoAgente) -> list[str]:
+    """As mensagens de cada recusa do guarda no salvar_reparo, em ordem (D129)."""
+    return [r.conteudo for r in respostas_do_salvar(agente.repair)
+            if r.erro and r.conteudo.startswith(RECUSA_DO_GUARDA)]
+
+
+def entrada_do_log(id_caso: str, repeticao: int, agente: ResultadoAgente, fim: Fim,
+                   commit_do_prompt: str, commit_do_codigo: str) -> dict:
+    """O que explica o registro (o porquê), para a análise e a revisão manual; as métricas não usam.
+
+    Não traz nada do oráculo. `commit_do_prompt` e `commit_do_codigo` vêm de `prompts.commit_dos_prompts`
+    (D105): com `+alterado`, a execução não diz com que prompt ou código rodou.
+    """
+    classifier, repair = agente.classifier, agente.repair
+    return {"id_caso": id_caso, "repeticao": repeticao, "motivo": agente.motivo,
+            "decisao": fim.decisao, "erro": fim.erro,
+            "rotulo_classifier": classifier.rotulo, "justificativa": classifier.justificativa,
+            "detalhe": classifier.detalhe,  # por que a saída do Classifier foi inválida
+            "chamadas_classifier": classifier.laco.chamadas,
+            "chamadas_repair": repair.laco.chamadas if repair else 0,
+            "recusas_do_guarda": recusas_do_guarda(agente),
+            "commit_do_prompt": commit_do_prompt, "commit_do_codigo": commit_do_codigo}
