@@ -57,6 +57,10 @@ def avaliar(antes: str, depois: str, nome_metodo: str, mudancas: list[c.Mudanca]
     except tj.ErroDeAnalise:
         motivos.append("método afetado não encontrado depois do reparo")
         return Veredito(False, tuple(motivos))
+    # D116: só o corpo do método afetado pode mudar; anotações, assinatura e o resto do arquivo, não.
+    if (antes[:m_antes.inicio] != depois[:m_depois.inicio]
+            or antes[m_antes.fim:] != depois[m_depois.fim:]):
+        motivos.append("alteração fora do corpo do método afetado")
     t_antes, t_depois = antes[m_antes.inicio:m_antes.fim], depois[m_depois.inicio:m_depois.fim]
     # D77: a exceção vale só para as asserções que saíram de fato; se a do campo removido continua
     # no teste, não há folga para apagar outra.

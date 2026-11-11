@@ -74,5 +74,33 @@ class GuardaTest(unittest.TestCase):
         self.assertIn("matcher afrouxado", v.motivos)
 
 
+class ForaDoMetodoTest(unittest.TestCase):  # D116
+    MOTIVO = "alteração fora do corpo do método afetado"
+
+    def test_sql_trocado_e_recusado(self):
+        v = avaliar(ORIGINAL.replace('@Sql("/a.sql")', '@Sql("/b.sql")'))
+        self.assertFalse(v.aceito)
+        self.assertEqual(v.motivos, (self.MOTIVO,))
+
+    def test_sql_acrescentado_e_recusado(self):
+        v = avaliar(ORIGINAL.replace("    @Test\n    void outro()", '    @Test\n    @Sql("/b.sql")\n    void outro()'))
+        self.assertIn(self.MOTIVO, v.motivos)
+
+    def test_assinatura_trocada_e_recusada(self):
+        v = avaliar(ORIGINAL.replace("void teste() throws Exception", "void teste() throws Throwable"))
+        self.assertIn(self.MOTIVO, v.motivos)
+
+    def test_outro_metodo_alterado_e_recusado(self):
+        v = avaliar(ORIGINAL.replace("void outro() throws Exception {\n", "void outro() throws Exception {\n        x();\n"))
+        self.assertIn(self.MOTIVO, v.motivos)
+
+    def test_import_acrescentado_e_recusado(self):
+        v = avaliar("import static x.Y.*;\n" + ORIGINAL)
+        self.assertIn(self.MOTIVO, v.motivos)
+
+    def test_mudanca_so_no_corpo_e_aceita(self):
+        self.assertTrue(avaliar(ORIGINAL.replace("/produtos/1", "/produtos/2")).aceito)
+
+
 if __name__ == "__main__":
     unittest.main()
