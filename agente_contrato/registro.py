@@ -3,7 +3,11 @@
 Tudo aqui é código determinístico: o LLM já terminou. Este módulo só traduz o que aconteceu no laço
 para `decisao` e `erro`, monta o registro e grava o log de cada execução.
 """
+import json
+import os
+import tempfile
 from dataclasses import dataclass
+from pathlib import Path
 
 from agente_contrato.agentes import ResultadoAgente, ResultadoRepair
 from agente_contrato.ferramentas import RECUSA_DO_GUARDA
@@ -84,3 +88,19 @@ def registrar(fim: Fim, oraculo_do_caso: dict, repeticao: int, compilou: bool | 
                     cenario_alterado=cenario_alterado)
     return registro
 
+
+def gravar_resultados(caminho: Path, versao_api: str, registros: list[dict]) -> None:
+    """Regrava o arquivo de resultados inteiro por um temporário, como na v1: uma queda no meio da
+    gravação não corrompe os registros já gravados."""
+    chaves = [tuple(r[c] for c in ("id_caso", "repeticao")) for r in registros]
+    if len(set(chaves)) != len(chaves):
+        raise ValueError("execução (id_caso, repeticao) repetida")
+    conteudo = {"versao_api": versao_api, "execucoes": [{c: r[c] for c in CAMPOS} for r in registros]}
+    caminho.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=caminho.parent, prefix=caminho.name,
+                                     suffix=".tmp", delete=False) as f:
+        json.dump(conteudo, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(f.name, caminho)
