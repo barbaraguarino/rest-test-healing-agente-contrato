@@ -3,6 +3,7 @@
 Tudo aqui é código determinístico: o LLM já terminou. Este módulo só traduz o que aconteceu no laço
 para `decisao` e `erro`, monta o registro e grava o log de cada execução.
 """
+import difflib
 import json
 import os
 import tempfile
@@ -147,3 +148,19 @@ def caminho_do_agente(agente: ResultadoAgente) -> list[dict]:
                                             for p in resposta.pedidos]})
     return caminho
 
+
+def gravar_execucao(pasta: Path, entrada: dict, caminho: list[dict], antes: str, depois: str) -> None:
+    """Os arquivos de uma execução, numa pasta só dela: o método antes e depois, a diferença entre os
+    dois, o caminho do agente e a entrada do log (T23h, para a T52).
+
+    `antes` e `depois` são o método afetado inteiro (`teste_java.texto_do_metodo`) no começo e no fim
+    do caso; sem reparo, são iguais e o diff fica vazio.
+    """
+    pasta.mkdir(parents=True, exist_ok=True)
+    (pasta / "antes.java").write_text(antes, encoding="utf-8")
+    (pasta / "depois.java").write_text(depois, encoding="utf-8")
+    diff = difflib.unified_diff(antes.splitlines(keepends=True), depois.splitlines(keepends=True),
+                                fromfile="antes.java", tofile="depois.java")
+    (pasta / "reparo.diff").write_text("".join(diff), encoding="utf-8")
+    for nome, dados in (("caminho.json", caminho), ("log.json", entrada)):
+        (pasta / nome).write_text(json.dumps(dados, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
