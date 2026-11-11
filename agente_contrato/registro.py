@@ -128,3 +128,22 @@ def entrada_do_log(id_caso: str, repeticao: int, agente: ResultadoAgente, fim: F
             "chamadas_repair": repair.laco.chamadas if repair else 0,
             "recusas_do_guarda": recusas_do_guarda(agente),
             "commit_do_prompt": commit_do_prompt, "commit_do_codigo": commit_do_codigo}
+
+
+def caminho_do_agente(agente: ResultadoAgente) -> list[dict]:
+    """O caminho do agente: as ferramentas pedidas em cada volta do laço, com o resultado de cada uma.
+
+    Uma volta é uma resposta do modelo; na última, ele termina sem pedir ferramenta (`terminou`). Quem
+    escolheu as ferramentas foi o LLM; este código só lê o histórico. Serve ao relatório visual (T52).
+    """
+    caminho = []
+    lacos = [("classifier", agente.classifier.laco)] + ([("repair", agente.repair.laco)] if agente.repair else [])
+    for etapa, laco in lacos:
+        respostas = [item for item in laco.historico if isinstance(item, RespostaModelo)]
+        resultados = {r.id_pedido: r for item in laco.historico if isinstance(item, tuple) for r in item}
+        for volta, resposta in enumerate(respostas, start=1):
+            caminho.append({"etapa": etapa, "volta": volta, "terminou": resposta.terminou,
+                            "ferramentas": [{"nome": p.nome, "erro": resultados[p.id].erro}
+                                            for p in resposta.pedidos]})
+    return caminho
+
