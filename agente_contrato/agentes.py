@@ -49,7 +49,7 @@ def mensagem_classifier(arquivo: str, classe: str, metodo: str, falha: Falha | N
 
 def mensagem_repair(arquivo: str, classe: str, metodo: str, falha: Falha | None, texto_do_metodo: str,
                     diferenca: str, rotulo: str, justificativa: str) -> str:
-    """A primeira mensagem do Repair: o diagnóstico (D62), a diferença no prompt (D125, texto da D122) e o teste."""
+    """A primeira mensagem do Repair: o diagnóstico (D62, D128), a diferença no prompt (D125, texto da D122) e o teste."""
     partes = [
         f"## Diagnóstico\nRótulo: {rotulo}\nJustificativa: {justificativa}",
         f"## Diferenças entre o contrato OpenAPI antigo e o novo\n{diferenca}",
