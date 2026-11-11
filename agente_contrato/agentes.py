@@ -145,3 +145,36 @@ def rodar_repair(criar_modelo, mensagem: str, ferramentas: dict, relogio: Relogi
     if laco.motivo == "limite_de_chamadas":
         return ResultadoRepair("repair_limite_de_chamadas", laco)
     return ResultadoRepair("repair_sem_reparo", laco)
+
+
+@dataclass(frozen=True)
+class ResultadoAgente:
+    motivo: str  # o do Repair, "nao_reparar" (problema_real) ou o do Classifier que não deu rótulo
+    classifier: ResultadoClassifier
+    repair: ResultadoRepair | None  # None quando o Repair não rodou
+
+    @property
+    def chamadas(self) -> int:
+        return self.classifier.laco.chamadas + (self.repair.laco.chamadas if self.repair else 0)
+
+
+def rodar_agente(criar_modelo, ferramentas: dict, relogio: RelogioCaso, arquivo: str, classe: str,
+                 metodo: str, falha: Falha | None, texto_do_metodo: str) -> ResultadoAgente:
+    """O Agente 1 inteiro (D62): o Classifier e, se o rótulo for `legitima`, o Repair.
+
+    Quem decide se o Repair roda é este código, não um LLM: sem rótulo, o caso para com o motivo do
+    Classifier; com `problema_real`, o Repair não roda e o teste fica como está.
+    """
+    mensagem = mensagem_classifier(arquivo, classe, metodo, falha, texto_do_metodo)
+    classifier = rodar_classifier(criar_modelo, mensagem, ferramentas, relogio)
+    if classifier.rotulo is None:
+        return ResultadoAgente(classifier.motivo, classifier, None)
+    if classifier.rotulo == PROBLEMA_REAL:
+        return ResultadoAgente("nao_reparar", classifier, None)
+    # D125: a diferença vai no prompt do Repair; é o código que a calcula, com o mesmo texto da ferramenta
+    diferenca = ferramentas["ver_diferenca"]({})
+    mensagem = mensagem_repair(arquivo, classe, metodo, falha, texto_do_metodo, diferenca,
+                               classifier.rotulo, classifier.justificativa)
+    restantes = min(LIMITE_REPAIR, LIMITE_TOTAL - classifier.laco.chamadas)  # D62: até 10 no caso
+    repair = rodar_repair(criar_modelo, mensagem, ferramentas, relogio, restantes)
+    return ResultadoAgente(repair.motivo, classifier, repair)

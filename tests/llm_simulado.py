@@ -43,3 +43,15 @@ class FerramentasFalsas:
                 raise resposta
             return resposta() if callable(resposta) else resposta
         return executar
+
+
+class FabricaDupla:
+    """Faz o papel do `criar_modelo` no agente inteiro: o primeiro modelo criado é o Classifier, o segundo o Repair."""
+
+    def __init__(self, roteiro_classifier: list[RespostaModelo], roteiro_repair: list[RespostaModelo]):
+        self.modelos = [ModeloSimulado(*roteiro_classifier), ModeloSimulado(*roteiro_repair)]
+        self.sistemas = []  # o prompt de sistema de cada modelo criado, em ordem
+
+    def __call__(self, sistema: str, definicoes: list[dict]) -> ModeloSimulado:
+        self.sistemas.append(sistema)
+        return self.modelos[len(self.sistemas) - 1]
