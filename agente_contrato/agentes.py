@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 from agente_contrato.execucao import Falha
 from agente_contrato.ferramentas import DEFINICOES
-from agente_contrato.laco import ResultadoLaco, rodar_laco
+from agente_contrato.laco import RespostaModelo, ResultadoLaco, rodar_laco
 from agente_contrato.prompts import carregar
 from agente_contrato.relogio import RelogioCaso
 
@@ -111,3 +111,37 @@ def rodar_classifier(criar_modelo, mensagem: str, ferramentas: dict, relogio: Re
     except SaidaInvalida as exc:
         return ResultadoClassifier(None, None, "saida_invalida", str(exc), laco)
     return ResultadoClassifier(rotulo, justificativa, "rotulo", None, laco)
+
+
+def _salvou(historico: list) -> bool:
+    """Se algum pedido de salvar_reparo deu certo (sem `erro`), olhando o histórico da conversa."""
+    pedidos_de_salvar = {p.id for item in historico if isinstance(item, RespostaModelo)
+                         for p in item.pedidos if p.nome == "salvar_reparo"}
+    return any(r.id_pedido in pedidos_de_salvar and not r.erro
+               for item in historico if isinstance(item, tuple) for r in item)
+
+
+@dataclass(frozen=True)
+class ResultadoRepair:
+    motivo: str          # "reparo", "repair_sem_reparo", "repair_limite_de_chamadas" ou "limite_do_caso"
+    laco: ResultadoLaco  # chamadas e histórico, para o registro (T23h)
+
+
+def rodar_repair(criar_modelo, mensagem: str, ferramentas: dict, relogio: RelogioCaso,
+                 max_chamadas: int = LIMITE_REPAIR) -> ResultadoRepair:
+    """Roda o Repair no laço, com ler_arquivo, rodar_teste e salvar_reparo e até 6 chamadas (D62, D125).
+
+    O reparo é o que ficou salvo no arquivo; se o teste passa, quem diz é o Maven final (T23j). Por
+    isso o Repair que salvou conta como `reparo` mesmo se bateu o limite de chamadas. O tempo do caso
+    esgotado é sempre `limite_do_caso`, que vira `timeout` no registro (D111d, T23h).
+    """
+    definicoes, suas = _so_as(FERRAMENTAS_REPAIR, ferramentas)
+    modelo = criar_modelo(carregar("repair"), definicoes)
+    laco = rodar_laco(modelo, mensagem, suas, max_chamadas, relogio)
+    if laco.motivo == "limite_do_caso":
+        return ResultadoRepair("limite_do_caso", laco)
+    if _salvou(laco.historico):
+        return ResultadoRepair("reparo", laco)
+    if laco.motivo == "limite_de_chamadas":
+        return ResultadoRepair("repair_limite_de_chamadas", laco)
+    return ResultadoRepair("repair_sem_reparo", laco)
