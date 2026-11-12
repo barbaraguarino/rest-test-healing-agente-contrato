@@ -9,10 +9,12 @@ import anthropic
 import httpx2
 
 from agente_contrato import cliente_claude as cc
+from agente_contrato.agentes import SCHEMA_CLASSIFIER, rodar_agente
 from agente_contrato.laco import rodar_laco
 from agente_contrato.prompts import carregar
 from agente_contrato.registro_llm import LogDeChamadas, PromptAcimaDoLimite
 from agente_contrato.relogio import RelogioCaso
+from tests.llm_simulado import FerramentasFalsas
 from tests.relogio_falso import RelogioFalso
 
 PEDIDO_HTTP = httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
@@ -204,6 +206,25 @@ class TestFabrica(Base):
         fabrica(carregar("classifier"), [])(["primeira"])
         fabrica(carregar("repair"), [])(["segunda"])
         self.assertEqual(sdk.recebidos[1]["messages"], [{"role": "user", "content": "segunda"}])
+
+
+class TestAgenteInteiro(Base):
+    """O `rodar_agente` da T23f com a FabricaClaude no lugar do simulado, sem mudar o laço nem os agentes."""
+
+    def test_classifier_e_repair_com_o_cliente_real(self):
+        rotulo = '{"rotulo": "legitima", "justificativa": "O campo nome virou titulo."}'
+        salva = mensagem([bloco("tool_use", id="toolu_r1", name="salvar_reparo",
+                                input={"metodo_reparado": "void lista() {}"})], "tool_use")
+        sdk = SdkFalso(mensagem([bloco("text", text=rotulo)]), salva, mensagem([bloco("text", text="Reparei.")]))
+        ferramentas = FerramentasFalsas(ver_diferenca="- o campo nome foi renomeado para titulo")
+        agente = rodar_agente(cc.FabricaClaude(sdk, self.log, "A1-001", 1, "abc123"), ferramentas.dicionario(),
+                              RelogioCaso(agora=RelogioFalso()), "src/test/java/loja/ProdutoTest.java",
+                              "ProdutoTest", "lista", None, "@Test\nvoid lista() {}")
+        self.assertEqual((agente.motivo, agente.classifier.rotulo, agente.chamadas), ("reparo", "legitima", 3))
+        self.assertEqual([l["etapa"] for l in self.linhas()], ["classifier", "repair", "repair"])
+        self.assertEqual(sdk.recebidos[0]["output_config"]["format"]["schema"], SCHEMA_CLASSIFIER)  # D131
+        self.assertNotIn("format", sdk.recebidos[1]["output_config"])
+        self.assertEqual(ferramentas.rodadas, ["ver_diferenca", "salvar_reparo"])
 
 
 if __name__ == "__main__":

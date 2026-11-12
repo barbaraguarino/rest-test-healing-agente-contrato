@@ -10,9 +10,10 @@ class FabricaSimulada:
         self.modelo = ModeloSimulado(*roteiro)
         self.sistema = None
         self.definicoes = None
+        self.formato = None
 
-    def __call__(self, sistema: str, definicoes: list[dict]) -> ModeloSimulado:
-        self.sistema, self.definicoes = sistema, definicoes
+    def __call__(self, sistema: str, definicoes: list[dict], formato: dict | None = None) -> ModeloSimulado:
+        self.sistema, self.definicoes, self.formato = sistema, definicoes, formato
         return self.modelo
 
 
@@ -51,7 +52,9 @@ class FabricaDupla:
     def __init__(self, roteiro_classifier: list[RespostaModelo], roteiro_repair: list[RespostaModelo]):
         self.modelos = [ModeloSimulado(*roteiro_classifier), ModeloSimulado(*roteiro_repair)]
         self.sistemas = []  # o prompt de sistema de cada modelo criado, em ordem
+        self.formatos = []  # o formato (D131) de cada modelo criado, em ordem
 
-    def __call__(self, sistema: str, definicoes: list[dict]) -> ModeloSimulado:
+    def __call__(self, sistema: str, definicoes: list[dict], formato: dict | None = None) -> ModeloSimulado:
         self.sistemas.append(sistema)
+        self.formatos.append(formato)
         return self.modelos[len(self.sistemas) - 1]

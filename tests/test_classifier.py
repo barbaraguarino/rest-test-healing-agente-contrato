@@ -1,6 +1,6 @@
 import unittest
 
-from agente_contrato.agentes import SaidaInvalida, ler_rotulo, rodar_classifier
+from agente_contrato.agentes import SCHEMA_CLASSIFIER, SaidaInvalida, ler_rotulo, rodar_classifier
 from agente_contrato.laco import ErroDeFerramenta, RespostaModelo
 from agente_contrato.prompts import carregar
 from agente_contrato.relogio import RelogioCaso
@@ -44,6 +44,11 @@ class TestRodarClassifier(unittest.TestCase):
         fabrica, _ = self.rodar(RespostaModelo(ROTULO_LEGITIMA))
         self.assertEqual(fabrica.sistema, carregar("classifier"))
         self.assertEqual([d["name"] for d in fabrica.definicoes], ["ler_arquivo", "ver_diferenca", "rodar_teste"])
+
+    def test_manda_o_schema_do_rotulo(self):  # D131
+        fabrica, _ = self.rodar(RespostaModelo(ROTULO_LEGITIMA))
+        self.assertEqual(fabrica.formato, SCHEMA_CLASSIFIER)
+        self.assertEqual(fabrica.formato["properties"]["rotulo"]["enum"], ["legitima", "problema_real"])
 
     def test_investiga_e_entrega_o_rotulo(self):
         _, r = self.rodar(pede("p1", "ver_diferenca"), pede("p2", "ler_arquivo", caminho="src/main"),

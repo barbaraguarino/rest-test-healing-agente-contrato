@@ -25,6 +25,17 @@ LEGITIMA = "legitima"
 PROBLEMA_REAL = "problema_real"
 ROTULOS = (LEGITIMA, PROBLEMA_REAL)
 
+# D131: o schema da resposta final do Classifier, o mesmo da v1 (D101), enviado pelo output_config.format
+SCHEMA_CLASSIFIER = {
+    "type": "object",
+    "properties": {
+        "rotulo": {"type": "string", "enum": list(ROTULOS)},
+        "justificativa": {"type": "string"},
+    },
+    "required": ["rotulo", "justificativa"],
+    "additionalProperties": False,
+}
+
 
 def _sobre_a_falha(falha: Falha | None) -> str:
     if falha is None:  # sem relatório do Surefire: o teste nem compilou (texto igual ao da v1)
@@ -95,12 +106,13 @@ class ResultadoClassifier:
 def rodar_classifier(criar_modelo, mensagem: str, ferramentas: dict, relogio: RelogioCaso) -> ResultadoClassifier:
     """Roda o Classifier no laço, com só as ferramentas de leitura e até 4 chamadas (D62).
 
-    `criar_modelo(sistema, definicoes)` devolve o modelo que o `rodar_laco` chama: na T23i, o Claude
-    de verdade; nos testes, um LLM simulado. `ferramentas` é o dicionário inteiro do `montar`; o
+    `criar_modelo(sistema, definicoes, formato)` devolve o modelo que o `rodar_laco` chama: o Claude de
+    verdade (`cliente_claude.FabricaClaude`) ou, nos testes, um LLM simulado. Só o Classifier manda o
+    `formato`, o schema do rótulo (D131); o `ler_rotulo` continua como defesa (D102). `ferramentas` é o dicionário inteiro do `montar`; o
     Classifier só recebe as dele, e um pedido de outra volta ao modelo como ferramenta desconhecida.
     """
     definicoes, suas = _so_as(FERRAMENTAS_CLASSIFIER, ferramentas)
-    modelo = criar_modelo(carregar("classifier"), definicoes)
+    modelo = criar_modelo(carregar("classifier"), definicoes, formato=SCHEMA_CLASSIFIER)
     laco = rodar_laco(modelo, mensagem, suas, LIMITE_CLASSIFIER, relogio)
     if laco.motivo == "limite_de_chamadas":
         return ResultadoClassifier(None, None, "classifier_limite_de_chamadas", None, laco)
