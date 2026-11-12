@@ -5,6 +5,11 @@ ferramenta. Este módulo traduz de um formato para o outro, faz a chamada com os
 traduz o `stop_reason` e os erros HTTP (D102, D104, D108, D117c) e grava uma linha de log por
 chamada (D106, D107). Nenhum teste automatizado chama a API paga: os testes trocam o SDK por um falso.
 """
+import time
+from pathlib import Path
+
+import anthropic
+
 from agente_contrato.laco import PedidoFerramenta, RespostaModelo
 
 MODELO ="claude-haiku-5-5"  # D56
@@ -18,6 +23,9 @@ SAIDA_INVALIDA = "saida_invalida"
 CORTADA = "max_tokens"
 _PARADAS_ESPERADAS = {"end_turn", "tool_use"}
 
+NOME_DA_CHAVE = "ANTHROPIC_API_KEY"
+_ERROS_DE_CLIENTE_QUE_SE_REPETEM = (408, 409)
+
 
 class RespostaInvalida(Exception):
     """O modelo parou de um jeito que encerra o caso; `codigo` é o `erro` da D74 e `motivo` vai para o log.
@@ -29,6 +37,80 @@ class RespostaInvalida(Exception):
     def __init__(self, codigo: str, motivo: str):
         super().__init__(motivo)
         self.codigo, self.motivo = codigo, motivo
+
+
+class ErroDeRede(Exception):
+    """O SDK desistiu por erro transitório (conexão, timeout, 408, 409, 429 com retry-after, 5xx).
+
+    O caso é reexecutado uma vez; se falhar de novo, o registro leva `erro_llm` (D104). Igual à v1.
+    """
+
+    def __init__(self, motivo: str, latencia_s: float):
+        super().__init__(motivo)
+        self.motivo, self.latencia_s = motivo, latencia_s
+
+
+class ErroFatal(Exception):
+    """Erro que repetir não resolve (400, 401, 402, 403, 429 sem retry-after e os outros 4xx).
+
+    A execução inteira para (D104, D108). O 400 inclui o limite de gasto do workspace. Igual à v1.
+    """
+
+    def __init__(self, motivo: str, latencia_s: float):
+        super().__init__(motivo)
+        self.motivo, self.latencia_s = motivo, latencia_s
+
+
+class ChaveAusente(Exception):
+    pass
+
+
+def e_fatal(status_code: int, tem_retry_after: bool) -> bool:
+    """Se um erro HTTP que sobrou depois das tentativas do SDK para a execução (D104, D108). Igual à v1."""
+    if status_code >= 500 or status_code in _ERROS_DE_CLIENTE_QUE_SE_REPETEM:
+        return False
+    if status_code == 429:
+        return not tem_retry_after  # sem retry-after, é o teto do tier
+    return True
+
+
+def chamar_traduzindo(funcao, **parametros_da_chamada):
+    """Chama o SDK e devolve (resultado, latência em s); um erro vira ErroDeRede ou ErroFatal. Igual à v1."""
+    inicio = time.monotonic()
+    try:
+        return funcao(**parametros_da_chamada), time.monotonic() - inicio
+    except anthropic.APIConnectionError as e:  # inclui APITimeoutError
+        raise ErroDeRede(type(e).__name__, time.monotonic() - inicio) from None
+    except anthropic.APIStatusError as e:
+        latencia = time.monotonic() - inicio
+        motivo = f"HTTP {e.status_code} {type(e).__name__}: {e.message}"
+        if e_fatal(e.status_code, e.response.headers.get("retry-after") is not None):
+            raise ErroFatal(motivo, latencia) from None
+        raise ErroDeRede(motivo, latencia) from None
+
+
+def ler_chave(caminho: Path) -> str:
+    """Lê a chave de um `.env` local, o único lugar de onde o código a obtém. Igual à v1.
+
+    As mensagens de erro dizem o que falta, nunca o conteúdo do arquivo.
+    """
+    if not caminho.is_file():
+        raise ChaveAusente(f"{caminho} não existe: copie .env.example para .env e preencha a chave")
+    for linha in caminho.read_text(encoding="utf-8").splitlines():
+        nome, separador, valor = linha.strip().partition("=")
+        if separador and nome.strip() == NOME_DA_CHAVE:
+            valor = valor.strip().strip("\"'")
+            if valor:
+                return valor
+    raise ChaveAusente(f"{NOME_DA_CHAVE} ausente ou vazia em {caminho}")
+
+
+def criar_sdk(api_key: str, timeout_s: float = TIMEOUT_S) -> anthropic.Anthropic:
+    """O cliente do SDK com o timeout explícito e as 2 repetições da D104; só constrói, não chama a rede.
+
+    `api_key` explícita: o SDK não cai na variável de ambiente por conta própria.
+    """
+    return anthropic.Anthropic(api_key=api_key, timeout=timeout_s, max_retries=MAX_RETRIES_SDK)
 
 
 def parametros(sistema: str, definicoes: list[dict], mensagens: list[dict], formato: dict | None = None) -> dict:
