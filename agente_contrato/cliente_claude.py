@@ -13,6 +13,23 @@ EFFORT = "medium"            # D61: o padrão do modelo, escrito para ficar regi
 TIMEOUT_S = 120              # D104, D111(c): timeout explícito de cada chamada
 MAX_RETRIES_SDK = 2          # D104: o padrão do SDK; as repetições internas não vão para o log
 
+# D102, D117c: o código de erro (campo `erro` da D74) de cada stop_reason que encerra o caso
+SAIDA_INVALIDA = "saida_invalida"
+CORTADA = "max_tokens"
+_PARADAS_ESPERADAS = {"end_turn", "tool_use"}
+
+
+class RespostaInvalida(Exception):
+    """O modelo parou de um jeito que encerra o caso; `codigo` é o `erro` da D74 e `motivo` vai para o log.
+
+    O laço não conhece `stop_reason`, então a exceção atravessa o `rodar_laco` sem mudá-lo, e quem
+    chama o agente (o runner, T23j) registra o código.
+    """
+
+    def __init__(self, codigo: str, motivo: str):
+        super().__init__(motivo)
+        self.codigo, self.motivo = codigo, motivo
+
 
 def parametros(sistema: str, definicoes: list[dict], mensagens: list[dict], formato: dict | None = None) -> dict:
     """Os argumentos de `messages.create`, iguais para os dois agentes (D61).
@@ -37,6 +54,24 @@ def para_resposta(blocos: list) -> RespostaModelo:
     texto = "".join(b.text for b in blocos if b.type == "text")
     pedidos = tuple(PedidoFerramenta(b.id, b.name, b.input) for b in blocos if b.type == "tool_use")
     return RespostaModelo(texto, pedidos)
+
+
+def ler_resposta(stop_reason: str | None, blocos: list) -> RespostaModelo:
+    """Confere o `stop_reason` e só então traduz os blocos (D102, D117c).
+
+    `end_turn` e `tool_use` seguem para o laço. `max_tokens` é `max_tokens`; `refusal`,
+    `model_context_window_exceeded` e qualquer outro motivo são `saida_invalida`. Também é
+    `saida_invalida` o motivo que não combina com os blocos: `tool_use` sem pedido (o laço acharia
+    que o modelo terminou) ou `end_turn` com pedido (o laço executaria um pedido que a API não fez).
+    """
+    if stop_reason == "max_tokens":
+        raise RespostaInvalida(CORTADA, "resposta cortada no max_tokens")
+    if stop_reason not in _PARADAS_ESPERADAS:
+        raise RespostaInvalida(SAIDA_INVALIDA, f"stop_reason {stop_reason}")
+    resposta = para_resposta(blocos)
+    if resposta.terminou != (stop_reason == "end_turn"):
+        raise RespostaInvalida(SAIDA_INVALIDA, f"stop_reason {stop_reason} com {len(resposta.pedidos)} pedido(s)")
+    return resposta
 
 
 def mensagens(historico: list, brutos: list) -> list[dict]:

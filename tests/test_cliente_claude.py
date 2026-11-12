@@ -2,7 +2,7 @@
 import unittest
 from types import SimpleNamespace
 
-from agente_contrato.cliente_claude import mensagens, para_resposta, parametros
+from agente_contrato.cliente_claude import RespostaInvalida, ler_resposta, mensagens, para_resposta, parametros
 from agente_contrato.laco import PedidoFerramenta, RespostaModelo, ResultadoFerramenta
 
 
@@ -86,6 +86,33 @@ class TestMensagens(unittest.TestCase):
         enviadas = mensagens(historico, [dois])
         self.assertEqual(len(enviadas), 3)
         self.assertEqual([r["tool_use_id"] for r in enviadas[2]["content"]], ["a", "b"])
+
+
+class TestLerResposta(unittest.TestCase):
+    def codigo_de(self, stop_reason: str | None, blocos: list) -> str:
+        with self.assertRaises(RespostaInvalida) as erro:
+            ler_resposta(stop_reason, blocos)
+        return erro.exception.codigo
+
+    def test_end_turn_e_tool_use_seguem(self):
+        self.assertTrue(ler_resposta("end_turn", [TEXTO]).terminou)
+        self.assertFalse(ler_resposta("tool_use", [PENSAMENTO, TEXTO, PEDIDO]).terminou)
+
+    def test_max_tokens(self):  # D102: código próprio
+        self.assertEqual(self.codigo_de("max_tokens", [TEXTO]), "max_tokens")
+
+    def test_recusa_e_contexto_estourado(self):  # D102
+        self.assertEqual(self.codigo_de("refusal", []), "saida_invalida")
+        self.assertEqual(self.codigo_de("model_context_window_exceeded", [TEXTO]), "saida_invalida")
+
+    def test_stop_reason_inesperado(self):  # D117c
+        for inesperado in ("stop_sequence", "pause_turn", "um_motivo_novo", None):
+            with self.subTest(inesperado=inesperado):
+                self.assertEqual(self.codigo_de(inesperado, [TEXTO]), "saida_invalida")
+
+    def test_motivo_que_nao_combina_com_os_blocos(self):
+        self.assertEqual(self.codigo_de("tool_use", [TEXTO]), "saida_invalida")
+        self.assertEqual(self.codigo_de("end_turn", [TEXTO, PEDIDO]), "saida_invalida")
 
 
 if __name__ == "__main__":
