@@ -5,12 +5,15 @@ ferramenta. Este módulo traduz de um formato para o outro, faz a chamada com os
 traduz o `stop_reason` e os erros HTTP (D102, D104, D108, D117c) e grava uma linha de log por
 chamada (D106, D107). Nenhum teste automatizado chama a API paga: os testes trocam o SDK por um falso.
 """
+import json
 import time
 from pathlib import Path
 
 import anthropic
 
 from agente_contrato.laco import PedidoFerramenta, RespostaModelo
+from agente_contrato.prompts import carregar
+from agente_contrato.registro_llm import LogDeChamadas, PromptAcimaDoLimite, custo_usd, uso_da_resposta
 
 MODELO ="claude-haiku-5-5"  # D56
 MAX_TOKENS = 16_000          # D61: teto por resposta; o raciocínio conta nele
@@ -175,3 +178,87 @@ def mensagens(historico: list, brutos: list) -> list[dict]:
                 {"type": "tool_result", "tool_use_id": r.id_pedido, "content": r.conteudo, "is_error": r.erro}
                 for r in item]})
     return saida
+
+
+def _para_o_log(blocos: list) -> str:
+    """O `content` da resposta como texto JSON para o campo `resposta_bruta`.
+
+    Texto e pedidos entram inteiros; do pensamento só entra o tipo, porque a assinatura é opaca e
+    não ajuda a ler o log.
+    """
+    def bloco(b) -> dict:
+        if b.type == "text":
+            return {"type": "text", "text": b.text}
+        if b.type == "tool_use":
+            return {"type": "tool_use", "id": b.id, "name": b.name, "input": b.input}
+        return {"type": b.type}
+    return json.dumps([bloco(b) for b in blocos], ensure_ascii=False)
+
+
+class ModeloClaude:
+    """O modelo que o `rodar_laco` chama, no lugar do LLM simulado: recebe o histórico e devolve uma
+    RespostaModelo (T23i). O laço não muda.
+
+    Cada chamada grava uma linha no log antes de qualquer outra coisa, inclusive quando dá erro
+    (D106). Os erros saem como exceções que atravessam o laço: ErroDeRede e ErroFatal (D104, D108),
+    RespostaInvalida (D102, D117c) e PromptAcimaDoLimite (D106).
+    """
+
+    def __init__(self, sdk, sistema: str, definicoes: list[dict], etapa: str, log: LogDeChamadas,
+                 id_caso: str, repeticao: int, commit_do_prompt: str, formato: dict | None = None):
+        self._sdk, self._sistema, self._definicoes, self._formato = sdk, sistema, definicoes, formato
+        self._log, self._etapa = log, etapa
+        self._id_caso, self._repeticao, self._commit = id_caso, repeticao, commit_do_prompt
+        self._brutos = []  # o `content` de cada resposta, reenviado sem mudança (ver `mensagens`)
+
+    def __call__(self, historico: list) -> RespostaModelo:
+        enviados = parametros(self._sistema, self._definicoes, mensagens(historico, self._brutos), self._formato)
+        try:
+            msg, latencia = chamar_traduzindo(self._sdk.messages.create, **enviados)
+        except (ErroDeRede, ErroFatal) as e:  # sem resposta: sem tokens e sem custo
+            self._registrar(erro=e.motivo, latencia_s=e.latencia_s, custo_usd=0.0)
+            raise
+        uso = uso_da_resposta(msg.usage)
+        campos = dict(modelo_retornado=msg.model, stop_reason=msg.stop_reason, input_tokens=uso.input_tokens,
+                      output_tokens=uso.output_tokens, thinking_tokens=uso.thinking_tokens,
+                      request_id=getattr(msg, "_request_id", None), latencia_s=round(latencia, 3),
+                      resposta_bruta=_para_o_log(msg.content))
+        try:
+            custo = custo_usd(uso)
+        except PromptAcimaDoLimite as e:  # a chamada já foi paga: grava a linha e só então para (D106)
+            self._registrar(**campos, custo_usd=None, erro=str(e))
+            raise
+        try:
+            resposta = ler_resposta(msg.stop_reason, msg.content)
+        except RespostaInvalida as e:
+            self._registrar(**campos, custo_usd=custo, erro=e.motivo)
+            raise
+        self._registrar(**campos, custo_usd=custo, erro=None)
+        self._brutos.append(msg.content)
+        return resposta
+
+    def _registrar(self, **campos) -> None:
+        vazios = dict(modelo_retornado=None, stop_reason=None, input_tokens=None, output_tokens=None,
+                      thinking_tokens=None, request_id=None, resposta_bruta=None)
+        self._log.registrar(**{**vazios, **campos}, id_caso=self._id_caso, repeticao=self._repeticao,
+                            etapa=self._etapa, commit_do_prompt=self._commit)
+
+
+class FabricaClaude:
+    """Faz o papel do `criar_modelo(sistema, definicoes, formato)` com o Claude de verdade, numa execução.
+
+    O runner (T23j) cria uma fábrica por execução (caso e repetição); a etapa do log sai do prompt de
+    sistema que o agente mandou.
+    """
+
+    def __init__(self, sdk, log: LogDeChamadas, id_caso: str, repeticao: int, commit_do_prompt: str):
+        self._sdk, self._log = sdk, log
+        self._id_caso, self._repeticao, self._commit = id_caso, repeticao, commit_do_prompt
+        self._etapas = {carregar(etapa): etapa for etapa in ("classifier", "repair")}
+
+    def __call__(self, sistema: str, definicoes: list[dict], formato: dict | None = None) -> ModeloClaude:
+        etapa = self._etapas.get(sistema)
+        if etapa is None:
+            raise ValueError("prompt de sistema que não é nem o do Classifier nem o do Repair")
+        return ModeloClaude(self._sdk, sistema, definicoes, etapa, self._log, self._id_caso, self._repeticao,
+                            self._commit, formato)
