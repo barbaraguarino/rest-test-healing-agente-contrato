@@ -28,6 +28,10 @@ class TestRodarRepair(unittest.TestCase):
         self.assertEqual(fabrica.sistema, carregar("repair"))
         self.assertEqual([d["name"] for d in fabrica.definicoes], ["ler_arquivo", "rodar_teste", "salvar_reparo"])
 
+    def test_nao_manda_formato(self):  # D131: o reparo sai pelo salvar_reparo
+        fabrica, _ = self.rodar(RespostaModelo("nada a fazer"))
+        self.assertIsNone(fabrica.formato)
+
     def test_salva_confere_e_termina(self):
         self.ferramentas.respostas["rodar_teste"] = "O teste passou."
         _, r = self.rodar(salva("p1"), pede("p2", "rodar_teste"), RespostaModelo("Renomeei nome para titulo."))
