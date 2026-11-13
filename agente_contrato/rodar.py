@@ -206,3 +206,125 @@ def com_trava(criar_modelo, orcamento: Orcamento):
             return modelo(historico)
         return chamar
     return criar
+
+
+# ---------------------------------------------------------------- log e registro
+
+def _entrada(caso: Caso, repeticao: int, e: Execucao, commits: tuple[str, str]) -> dict:
+    """A entrada do log da execução; sem o resultado do agente (exceção no meio), os campos ficam nulos."""
+    if e.agente is not None:
+        entrada = entrada_do_log(caso.id_caso, repeticao, e.agente, e.fim, *commits)
+    else:
+        entrada = {"id_caso": caso.id_caso, "repeticao": repeticao, "motivo": None, "decisao": e.fim.decisao,
+                   "erro": e.fim.erro, "rotulo_classifier": None, "justificativa": None, "detalhe": None,
+                   "chamadas_classifier": None, "chamadas_repair": None, "recusas_do_guarda": [],
+                   "commit_do_prompt": commits[0], "commit_do_codigo": commits[1]}
+    entrada.update(detalhe=entrada["detalhe"] or e.detalhe, causa=e.causa, tentativas=e.tentativas,
+                   tentativas_maven_inicial=e.tentativas_maven_inicial, compilou=e.compilou, passou=e.passou,
+                   tempo_s=round(e.tempo_s, 4))
+    return entrada
+
+
+def exclusoes(entradas: list[dict]) -> dict:
+    """Execuções fora das métricas (`erro_execucao` e `erro_llm`), com a causa e a contagem (D111e)."""
+    lista = [{k: x[k] for k in ("id_caso", "repeticao", "erro", "causa")} for x in entradas
+             if x["erro"] in ("erro_execucao", "erro_llm")]
+    return {"exclusoes": lista, "exclusoes_por_causa": dict(Counter(x["causa"] for x in lista))}
+
+
+def _gravar_log(pasta: Path, sessao: dict, entradas: list[dict]) -> None:
+    dados = {**sessao, **exclusoes(entradas), "execucoes": entradas}
+    (pasta / ARQUIVO_LOG).write_text(json.dumps(dados, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+# ---------------------------------------------------------------- rodada
+
+def aquecer(caso: Caso, api: Path, tag: str, trabalho: Path, rodar=execucao.rodar_teste) -> dict:
+    """D111f: uma execução do Maven na tag limpa, sem patch, antes do primeiro caso. Fora das métricas.
+
+    Um erro aqui não para a rodada: o Maven inicial de cada caso tem as próprias travas.
+    """
+    dados = {"teste": f"{caso.classe}.{caso.metodo}", "passou": None, "duracao_maven_s": None, "erro": None}
+    try:
+        copia = execucao.preparar_copia(api, tag, trabalho)
+        r = rodar(copia, caso.classe, caso.metodo, execucao.LIMITE_TESTE_S)
+        dados.update(passou=r.passou, duracao_maven_s=round(r.duracao_maven_s, 2))
+    except execucao.ErroDeExecucao as exc:
+        dados["erro"] = f"{exc.codigo} ({exc.causa}): {exc}"
+    finally:
+        shutil.rmtree(trabalho, ignore_errors=True)
+    return dados
+
+
+# D82: em cada caso, a baseline e depois os agentes. A baseline nova é a T51, ainda não feita: o lugar
+# dela fica aqui, e o runner só avisa que ela está pendente.
+ORDEM_DOS_TRATAMENTOS = ("baseline", "agentes")
+TRATAMENTOS_PRONTOS = {"agentes"}
+
+
+def executar_rodada(casos: list[Caso], oraculo_por_id: dict, api: Path, tag: str, pasta: Path, repeticoes: int,
+                    criar_fabrica, commits: tuple[str, str], rodar=execucao.rodar_teste,
+                    aquecer_antes: bool = True, limite_caso_s: float = LIMITE_CASO_S,
+                    agora=time.monotonic) -> int:
+    """Roda caso a caso, na ordem da D82, e grava, depois de cada execução, os resultados e o log.
+
+    Devolve o código de saída. `criar_fabrica(id_caso, repeticao)` devolve o `criar_modelo` de uma
+    execução: o Claude com a trava de orçamento, ou o LLM simulado do ensaio. `commits`: os de
+    `prompts/` e de `agente_contrato/` (D105).
+    """
+    pasta.mkdir(parents=True, exist_ok=True)
+    chamadas = pasta / ARQUIVO_CHAMADAS
+    registros, entradas, seguidos = [], [], 0
+    sessao = {"inicio_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "tag": tag,
+              "limites": {"teste_s": execucao.LIMITE_TESTE_S, "caso_s": limite_caso_s,
+                          "llm_s": cliente_claude.TIMEOUT_S},
+              "commit_do_prompt": commits[0], "commit_do_codigo": commits[1], "repeticoes": repeticoes,
+              "aquecimento": None}
+    print(f"limites: teste {execucao.LIMITE_TESTE_S} s, caso {limite_caso_s:g} s, chamada ao LLM "
+          f"{cliente_claude.TIMEOUT_S} s (D111) | prompts {commits[0]} | código {commits[1]}", flush=True)
+    with tempfile.TemporaryDirectory(prefix="agentica-") as trabalho:
+        if aquecer_antes and casos:
+            sessao["aquecimento"] = a = aquecer(casos[0], api, tag, Path(trabalho) / "aquecimento", rodar)
+            print(f"aquecimento do Maven (D111f, fora das métricas): {a['teste']} passou={a['passou']} "
+                  f"maven={a['duracao_maven_s']} s erro={a['erro']}", flush=True)
+        _gravar_log(pasta, sessao, entradas)
+        for caso in casos:
+            for tratamento in ORDEM_DOS_TRATAMENTOS:
+                if tratamento not in TRATAMENTOS_PRONTOS:
+                    print(f"{caso.id_caso}: {tratamento} pendente (T51)", flush=True)
+                    continue
+                for repeticao in range(1, repeticoes + 1):
+                    try:
+                        e = com_reexecucao(caso, repeticao, api, tag, Path(trabalho), criar_fabrica, rodar,
+                                           limite_caso_s, agora)
+                    except ErroFatal as exc:
+                        print(f"PARADA: erro que repetir não resolve (D104, D108): {exc.motivo}", file=sys.stderr)
+                        return SAIDA_ERRO_FATAL
+                    except OrcamentoEsgotado as exc:
+                        print(f"PARADA: {exc} (D105)", file=sys.stderr)
+                        return SAIDA_ORCAMENTO
+                    except PromptAcimaDoLimite as exc:
+                        print(f"PARADA: {exc} (D106)", file=sys.stderr)
+                        return SAIDA_PROMPT_GRANDE
+                    custo, tokens = gasto_do_log(chamadas, caso.id_caso, repeticao)
+                    registro = registrar(e.fim, oraculo_por_id[caso.id_caso], repeticao, e.compilou, e.passou,
+                                         e.tempo_s, tokens, round(custo, 8))
+                    entrada = _entrada(caso, repeticao, e, commits)
+                    registros.append(registro)
+                    entradas.append(entrada)
+                    gravar_resultados(pasta / ARQUIVO_RESULTADOS, tag, registros)
+                    gravar_execucao(pasta / "execucoes" / f"{caso.id_caso}-r{repeticao}", entrada,
+                                    caminho_do_agente(e.agente) if e.agente else [], e.antes, e.depois)
+                    _gravar_log(pasta, sessao, entradas)
+                    print(f"{caso.id_caso} r{repeticao}: decisao={registro['decisao']} "
+                          f"compilou={registro['compilou']} passou={registro['passou']} erro={registro['erro']} "
+                          f"tokens={tokens} custo=US$ {custo:.6f} (rodada: US$ {gasto_do_log(chamadas)[0]:.6f})",
+                          flush=True)
+                    seguidos = seguidos + 1 if e.fim.erro == "erro_llm" else 0
+                    if seguidos >= MAX_ERROS_LLM_SEGUIDOS:
+                        print(f"PARADA: {seguidos} erro_llm seguidos (D104)", file=sys.stderr)
+                        return SAIDA_ERROS_SEGUIDOS
+    fora = exclusoes(entradas)
+    contagem = ", ".join(f"{c}: {n}" for c, n in fora["exclusoes_por_causa"].items()) or "nenhuma"
+    print(f"exclusões (fora das métricas): {len(fora['exclusoes'])} ({contagem})", flush=True)
+    return SAIDA_OK
