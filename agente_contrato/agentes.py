@@ -108,8 +108,9 @@ def rodar_classifier(criar_modelo, mensagem: str, ferramentas: dict, relogio: Re
 
     `criar_modelo(sistema, definicoes, formato)` devolve o modelo que o `rodar_laco` chama: o Claude de
     verdade (`cliente_claude.FabricaClaude`) ou, nos testes, um LLM simulado. Só o Classifier manda o
-    `formato`, o schema do rótulo (D131); o `ler_rotulo` continua como defesa (D102). `ferramentas` é o dicionário inteiro do `montar`; o
-    Classifier só recebe as dele, e um pedido de outra volta ao modelo como ferramenta desconhecida.
+    `formato`, o schema do rótulo (D131); o `ler_rotulo` continua como defesa (D102). `ferramentas` é o
+    dicionário inteiro do `montar`; o Classifier só recebe as dele, e um pedido de outra volta ao modelo
+    como ferramenta desconhecida.
     """
     definicoes, suas = _so_as(FERRAMENTAS_CLASSIFIER, ferramentas)
     modelo = criar_modelo(carregar("classifier"), definicoes, formato=SCHEMA_CLASSIFIER)

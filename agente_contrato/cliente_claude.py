@@ -15,7 +15,7 @@ from agente_contrato.laco import PedidoFerramenta, RespostaModelo
 from agente_contrato.prompts import carregar
 from agente_contrato.registro_llm import LogDeChamadas, PromptAcimaDoLimite, custo_usd, uso_da_resposta
 
-MODELO ="claude-haiku-5-5"  # D56
+MODELO = "claude-haiku-5-5"  # D56
 MAX_TOKENS = 16_000          # D61: teto por resposta; o raciocínio conta nele
 EFFORT = "medium"            # D61: o padrão do modelo, escrito para ficar registrado
 TIMEOUT_S = 120              # D104, D111(c): timeout explícito de cada chamada
