@@ -328,3 +328,70 @@ def executar_rodada(casos: list[Caso], oraculo_por_id: dict, api: Path, tag: str
     contagem = ", ".join(f"{c}: {n}" for c, n in fora["exclusoes_por_causa"].items()) or "nenhuma"
     print(f"exclusões (fora das métricas): {len(fora['exclusoes'])} ({contagem})", flush=True)
     return SAIDA_OK
+
+
+# ---------------------------------------------------------------- linha de comando
+
+def commits_atuais() -> tuple[str, str]:
+    """Os commits de `prompts/` e de `agente_contrato/`, com `+alterado` se há mudança pendente (D105)."""
+    return prompts.commit_dos_prompts(), prompts.commit_dos_prompts(Path(__file__).resolve().parent)
+
+
+def _argumentos(argv: list[str] | None) -> argparse.Namespace:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--api", required=True, type=Path, help="clone da API cobaia (rest-test-healing-sut)")
+    ap.add_argument("--saida", required=True, type=Path, help="pasta de saída, nova ou vazia")
+    ap.add_argument("--orcamento-usd", required=True, type=float,
+                    help="a rodada para quando o gasto do chamadas.jsonl da pasta chegar a este valor (D105)")
+    ap.add_argument("--repeticoes", type=int, default=REPETICOES, help="repetições por caso (D92: 3)")
+    ap.add_argument("--casos", nargs="*", help="ids dos casos (padrão: todos os do oráculo)")
+    ap.add_argument("--tag", default=TAG)
+    ap.add_argument("--env", type=Path, help="arquivo .env com a chave (padrão: .env na raiz do repositório)")
+    ap.add_argument("--sim", action="store_true", help="não pedir a confirmação antes de gastar")
+    return ap.parse_args(argv)
+
+
+def main(argv: list[str] | None = None, sdk=None, rodar=execucao.rodar_teste) -> int:
+    """Roda a versão agêntica com o Claude de verdade. `sdk` e `rodar` são injetáveis só nos testes."""
+    args = _argumentos(argv)
+    oraculo = json.loads((RAIZ_REPO / "casos" / "oraculo-agente1.json").read_text(encoding="utf-8"))
+    if oraculo["versao_api"] != args.tag:
+        print(f"o oráculo é da tag {oraculo['versao_api']}, não de {args.tag}", file=sys.stderr)
+        return 2
+    if not (args.api / ".git").exists():
+        print(f"a API cobaia não foi encontrada em {args.api.resolve()}; o caminho de --api é relativo à "
+              f"pasta de trabalho ({Path.cwd()})", file=sys.stderr)
+        return 2
+    if (args.saida / ARQUIVO_RESULTADOS).exists() or (args.saida / ARQUIVO_CHAMADAS).exists():
+        print(f"{args.saida} já tem uma rodada; escolha outra --saida", file=sys.stderr)
+        return 2
+    commits = commits_atuais()
+    if any(c.endswith(prompts.SUFIXO_ALTERADO) for c in commits):  # D105: o log diria com que código rodou
+        print(f"há mudança não gravada nos prompts ou no código ({commits[0]}, {commits[1]}); grave antes de "
+              f"gastar", file=sys.stderr)
+        return SAIDA_NAO_CONGELADO
+    casos = carregar_casos(oraculo, ids=set(args.casos) if args.casos else None)
+    if sdk is None:
+        sdk = cliente_claude.criar_sdk(cliente_claude.ler_chave(args.env or RAIZ_REPO / ".env"))
+    log = LogDeChamadas(args.saida / ARQUIVO_CHAMADAS)
+    orcamento = Orcamento(args.orcamento_usd, log.caminho)
+    print(f"casos {', '.join(c.id_caso for c in casos)} | {args.repeticoes} repetição(ões) | modelo "
+          f"{cliente_claude.MODELO} | trava de US$ {args.orcamento_usd:.2f}")
+    if not args.sim:
+        print(f"ATENÇÃO: vai chamar a API PAGA (trava de US$ {args.orcamento_usd:.2f}).")
+        if input("Digite SIM para continuar: ").strip() != "SIM":
+            print("cancelado, nada foi gasto")
+            return 1
+
+    def criar_fabrica(id_caso: str, repeticao: int):  # uma FabricaClaude por execução (T23i)
+        return com_trava(cliente_claude.FabricaClaude(sdk, log, id_caso, repeticao, commits[0]), orcamento)
+
+    codigo = executar_rodada(casos, {c["id_caso"]: c for c in oraculo["casos"]}, args.api, args.tag, args.saida,
+                             args.repeticoes, criar_fabrica, commits, rodar)
+    gasto, tokens = gasto_do_log(log.caminho)
+    print(f"gasto da rodada: US$ {gasto:.6f} | tokens: {tokens}")
+    return codigo
+
+
+if __name__ == "__main__":
+    sys.exit(main())
