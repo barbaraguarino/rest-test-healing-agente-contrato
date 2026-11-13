@@ -254,5 +254,27 @@ class TestExecutarCaso(Base):
                 self.caso_unico(FabricaComExcecao(Modelo([], erro)))
 
 
+class TestReexecucao(Base):
+    def executar(self, *fabricas):
+        fila = list(fabricas)
+        with redirect_stdout(io.StringIO()):
+            return runner.com_reexecucao(self.caso, 1, self.api, "base", self.raiz, lambda i, r: fila.pop(0),
+                                         MavenFalso())
+
+    def test_erro_de_rede_reexecuta_uma_vez(self):  # D104
+        e = self.executar(FabricaComExcecao(Modelo([], ErroDeRede("timeout", 120))), legitima_reparada())
+        self.assertEqual((e.tentativas, e.fim.erro, e.passou), (2, None, True))
+
+    def test_dois_erros_de_rede_sao_erro_llm(self):  # D104
+        e = self.executar(*(FabricaComExcecao(Modelo([], ErroDeRede("timeout", 120))) for _ in range(2)))
+        self.assertEqual((e.fim.decisao, e.fim.erro, e.causa, e.tentativas), ("nao_reparar", "erro_llm", "erro_llm", 2))
+
+    def test_infraestrutura_e_erro_execucao(self):  # D111e, D124
+        with redirect_stdout(io.StringIO()):
+            e = runner.com_reexecucao(self.caso, 1, self.api, "base", self.raiz, lambda i, r: legitima_reparada(),
+                                      MavenFalso("infra"))
+        self.assertEqual((e.fim.erro, e.causa), ("erro_execucao", "infraestrutura"))
+
+
 if __name__ == "__main__":
     unittest.main()

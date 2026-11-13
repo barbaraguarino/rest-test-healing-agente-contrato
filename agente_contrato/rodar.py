@@ -164,3 +164,28 @@ def _maven_final(rodar, copia: Path, caso: Caso, relogio: RelogioCaso, fim: Fim)
             raise
         return False, False, Fim(REPARAR, "timeout")
     return r.compilou, r.passou, fim
+
+
+def com_reexecucao(caso: Caso, repeticao: int, api: Path, tag: str, trabalho: Path, criar_fabrica,
+                   rodar=execucao.rodar_teste, limite_caso_s: float = LIMITE_CASO_S,
+                   agora=time.monotonic) -> Execucao:
+    """D104: um erro de rede reexecuta o caso uma vez, do zero; se falhar de novo, `erro_llm`.
+
+    Uma falha de infraestrutura vira `erro_execucao`, fora das métricas (D111e); o Maven inicial já
+    tem a sua reexecução. `criar_fabrica(id_caso, repeticao)` devolve o `criar_modelo` da execução.
+    """
+    motivo = None
+    for tentativa in (1, 2):
+        try:
+            e = executar_caso(caso, api, tag, trabalho / f"{caso.id_caso}-r{repeticao}-t{tentativa}",
+                              criar_fabrica(caso.id_caso, repeticao), rodar, limite_caso_s, agora)
+            e.tentativas = tentativa
+            return e
+        except ErroDeRede as exc:
+            print(f"{caso.id_caso} r{repeticao}: erro de rede na tentativa {tentativa}: {exc.motivo}", flush=True)
+            motivo = exc.motivo
+        except execucao.ErroDeExecucao as exc:
+            print(f"{caso.id_caso} r{repeticao}: ERRO {exc.codigo} ({exc.causa}): {exc}", flush=True)
+            return Execucao(Fim(NAO_REPARAR, "erro_execucao"), detalhe=str(exc), causa=exc.causa,
+                            tentativas=tentativa)
+    return Execucao(Fim(NAO_REPARAR, "erro_llm"), detalhe=motivo, causa="erro_llm", tentativas=2)
