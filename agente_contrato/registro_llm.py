@@ -101,3 +101,34 @@ def gasto_do_log(caminho: Path, id_caso: str | None = None, repeticao: int | Non
         gasto += Decimal(str(c["custo_usd"] or 0))
         tokens += (c["input_tokens"] or 0) + (c["output_tokens"] or 0)
     return float(gasto), tokens
+
+
+class OrcamentoEsgotado(Exception):
+    """O gasto da rodada chegou ao limite (`--orcamento-usd`, D105). Igual à v1."""
+
+    def __init__(self, gasto: float, limite: float):
+        super().__init__(f"gasto de US$ {gasto:.6f} chegou ao limite de US$ {limite:g}")
+        self.gasto, self.limite = gasto, limite
+
+
+class Orcamento:
+    """A trava de orçamento da v1 (D105): conferida antes de cada chamada, nunca depois.
+
+    Diferente da v1, não soma o gasto na memória: lê o `chamadas.jsonl` da rodada, que já tem cada
+    chamada paga gravada na hora (D106). Assim a trava vale para a rodada inteira, inclusive quando
+    o comando roda de novo na mesma pasta. O gasto pode passar do limite por, no máximo, uma chamada
+    (cerca de US$ 0,009 no pior caso, com 16 mil tokens de saída).
+    """
+
+    def __init__(self, limite_usd: float, log: Path):
+        if limite_usd <= 0:
+            raise ValueError("o limite de orçamento deve ser positivo")
+        self.limite_usd, self.log = limite_usd, log
+
+    def gasto_usd(self) -> float:
+        return gasto_do_log(self.log)[0]
+
+    def verificar(self) -> None:
+        gasto = self.gasto_usd()
+        if gasto >= self.limite_usd:
+            raise OrcamentoEsgotado(gasto, self.limite_usd)

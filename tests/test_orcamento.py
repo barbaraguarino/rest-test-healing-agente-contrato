@@ -42,5 +42,35 @@ class TestGastoDoLog(unittest.TestCase):
         self.assertEqual(tokens, 14000)
 
 
+class TestOrcamento(unittest.TestCase):
+    def setUp(self):
+        self.pasta = tempfile.TemporaryDirectory()
+        self.log = Path(self.pasta.name) / "chamadas.jsonl"
+
+    def tearDown(self):
+        self.pasta.cleanup()
+
+    def test_limite_precisa_ser_positivo(self):
+        with self.assertRaises(ValueError):
+            r.Orcamento(0, self.log)
+
+    def test_abaixo_do_limite_deixa_chamar(self):
+        self.log.write_text(linha("A1-001", 1, 0.04, 1, 1), encoding="utf-8")
+        r.Orcamento(0.05, self.log).verificar()
+
+    def test_no_limite_para(self):  # conferido antes de gastar: chegar ao limite já para
+        self.log.write_text(linha("A1-001", 1, 0.03, 1, 1) + linha("A1-002", 1, 0.02, 1, 1), encoding="utf-8")
+        with self.assertRaises(r.OrcamentoEsgotado) as ctx:
+            r.Orcamento(0.05, self.log).verificar()
+        self.assertAlmostEqual(ctx.exception.gasto, 0.05, places=10)
+
+    def test_le_o_log_a_cada_conferencia(self):  # a chamada gravada agora conta na próxima conferência
+        orcamento = r.Orcamento(0.05, self.log)
+        orcamento.verificar()
+        self.log.write_text(linha("A1-001", 1, 0.06, 1, 1), encoding="utf-8")
+        with self.assertRaises(r.OrcamentoEsgotado):
+            orcamento.verificar()
+
+
 if __name__ == "__main__":
     unittest.main()
