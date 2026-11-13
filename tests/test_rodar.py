@@ -168,5 +168,91 @@ class TestCarregarCasos(unittest.TestCase):
         self.assertEqual([c.id_caso for c in runner.carregar_casos(oraculo, Path("/r"), {"A1-002"})], ["A1-002"])
 
 
+class TestExecutarCaso(Base):
+    def test_legitima_reparada_roda_o_maven_final(self):
+        maven = MavenFalso()
+        e = self.caso_unico(legitima_reparada(), maven)
+        self.assertEqual((e.fim.decisao, e.fim.erro, e.compilou, e.passou), ("reparar", None, True, True))
+        self.assertEqual(len(maven.limites), 2)  # inicial e final
+        self.assertIn('"$.sku"', e.antes)
+        self.assertIn('"$.codigo"', e.depois)
+
+    def test_problema_real_nao_roda_o_maven_final(self):
+        maven = MavenFalso()
+        e = self.caso_unico(FabricaDupla([rotulo("problema_real")], []), maven)
+        self.assertEqual((e.fim.decisao, e.fim.erro, e.compilou, e.passou), ("nao_reparar", None, None, False))
+        self.assertEqual(len(maven.limites), 1)
+        self.assertEqual(e.antes, e.depois)
+
+    def test_a_copia_e_apagada(self):
+        self.caso_unico(legitima_reparada())
+        self.assertFalse((self.raiz / "copia").exists())
+
+    def test_teste_que_passa_sem_reparo_e_erro_de_infraestrutura(self):
+        with self.assertRaises(ErroDeExecucao) as ctx:
+            self.caso_unico(legitima_reparada(), MavenFalso("passa"))
+        self.assertEqual(ctx.exception.causa, "teste_passa_sem_reparo")
+
+    def test_dois_estouros_do_maven_inicial(self):  # D111e
+        with self.assertRaises(ErroDeExecucao) as ctx:
+            self.caso_unico(legitima_reparada(), MavenFalso("estouro", "estouro"))
+        self.assertEqual(ctx.exception.causa, "estouro_maven_inicial")
+
+    def test_um_estouro_do_maven_inicial_roda_de_novo(self):  # D111e
+        e = self.caso_unico(legitima_reparada(), MavenFalso("estouro"))
+        self.assertEqual((e.tentativas_maven_inicial, e.passou), (2, True))
+
+    def test_estouro_do_maven_final_e_timeout(self):  # D111d, D118
+        e = self.caso_unico(legitima_reparada(), MavenFalso("normal", "estouro"))
+        self.assertEqual((e.fim.decisao, e.fim.erro, e.compilou, e.passou), ("reparar", "timeout", False, False))
+
+    def test_maven_final_com_o_que_resta_do_caso(self):  # D111, D123
+        relogio = RelogioFalso()
+        maven = MavenFalso(relogio=relogio, passo_s=70)
+        self.caso_unico(reparada_e_conferida(), maven, agora=relogio)
+        # inicial: 120 (o relógio do caso ainda não começou); rodar_teste do Repair: 120; final: 180 - 70
+        self.assertEqual(maven.limites, [120, 120, 110])
+
+    def test_tempo_do_caso_acaba_depois_do_reparo_salvo(self):  # D111d, D130: timeout, sem Maven final
+        relogio = RelogioFalso()
+        maven = MavenFalso(relogio=relogio, passo_s=50)
+        e = self.caso_unico(reparada_e_conferida(), maven, agora=relogio, limite_caso_s=40)
+        self.assertEqual((e.fim.decisao, e.fim.erro, e.compilou, e.passou), ("reparar", "timeout", None, False))
+        self.assertEqual(len(maven.limites), 2)
+
+    def test_sem_tempo_o_maven_final_nao_roda(self):  # D111d: limite zero é timeout, sem chamar o Maven
+        relogio = RelogioFalso()
+        caso_esgotado = runner.RelogioCaso(10, relogio)
+        relogio.andar(11)
+        maven = MavenFalso()
+        fim = runner._maven_final(maven, self.raiz, self.caso, caso_esgotado, runner.Fim("reparar", None))
+        self.assertEqual(fim, (False, False, runner.Fim("reparar", "timeout")))
+        self.assertEqual(maven.limites, [])
+
+    def test_resposta_invalida_no_classifier(self):  # D132
+        e = self.caso_unico(FabricaComExcecao(Modelo([], RespostaInvalida("max_tokens", "cortada"))))
+        self.assertEqual((e.fim.decisao, e.fim.erro, e.compilou, e.detalhe), ("nao_reparar", "max_tokens", None,
+                                                                             "cortada"))
+        self.assertIsNone(e.agente)
+
+    def test_resposta_invalida_depois_do_reparo_aceito(self):  # D132: vale o reparo, e o Maven final roda
+        fabrica = FabricaComExcecao(Modelo([rotulo("legitima")], RespostaInvalida("x", "")),
+                                    Modelo([pede("r1", "salvar_reparo", metodo_reparado=REPARADO)],
+                                           RespostaInvalida("saida_invalida", "refusal")))
+        e = self.caso_unico(fabrica)
+        self.assertEqual((e.fim.decisao, e.fim.erro, e.compilou, e.passou), ("reparar", "saida_invalida", True, True))
+
+    def test_guarda_recusa_o_arquivo_final(self):  # D129: defeito do código, erro_execucao
+        recusa = mock.patch.object(runner, "guarda_do_caso", return_value=lambda final: Veredito(False, ("x",)))
+        with recusa, self.assertRaises(ErroDeExecucao) as ctx:
+            self.caso_unico(legitima_reparada())
+        self.assertEqual(ctx.exception.causa, "guarda_final")
+
+    def test_erros_do_llm_atravessam(self):
+        for erro in (ErroDeRede("conexão", 1.0), ErroFatal("HTTP 401", 0.1)):
+            with self.subTest(erro=type(erro).__name__), self.assertRaises(type(erro)):
+                self.caso_unico(FabricaComExcecao(Modelo([], erro)))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -75,3 +75,92 @@ def arquivo_de_teste(raiz: Path, classe: str) -> str:
     if len(achados) != 1:
         raise execucao.ErroDeExecucao(f"{classe}.java: {len(achados)} arquivos, esperado 1")
     return achados[0].relative_to(raiz).as_posix()
+
+
+# ---------------------------------------------------------------- um caso: os 7 passos
+
+@dataclass
+class Execucao:
+    """O que aconteceu numa execução (caso e repetição), antes de ler o oráculo."""
+    fim: Fim
+    compilou: bool | None = None
+    passou: bool = False
+    tempo_s: float = 0.0
+    agente: ResultadoAgente | None = None  # None quando uma exceção interrompeu o agente
+    antes: str = ""                        # o método afetado no começo do caso (para a T52)
+    depois: str = ""                       # o método afetado no fim do caso
+    detalhe: str | None = None             # por que o caso terminou em erro, para o log
+    causa: str | None = None               # causa da exclusão (D111e): só em erro_execucao e erro_llm
+    tentativas_maven_inicial: int = 0
+    tentativas: int = 1                    # 2 quando houve reexecução por erro de rede (D104)
+
+
+def _metodo(texto: str, metodo: str) -> str:
+    try:
+        return texto_do_metodo(texto, metodo)
+    except ValueError:  # o método sumiu do arquivo: o log guarda o vazio, e a análise vê
+        return ""
+
+
+def executar_caso(caso: Caso, api: Path, tag: str, trabalho: Path, criar_modelo,
+                  rodar=execucao.rodar_teste, limite_caso_s: float = LIMITE_CASO_S,
+                  agora=time.monotonic) -> Execucao:
+    """Os 7 passos de um caso: cópia, patch, Maven inicial, laço, guarda final, Maven final e o fim.
+
+    Uma falha de infraestrutura sai como ErroDeExecucao; ErroDeRede, ErroFatal, PromptAcimaDoLimite e
+    OrcamentoEsgotado atravessam para quem chama decidir (D104, D105, D106, D108). A cópia é apagada
+    no fim, aconteça o que acontecer.
+    """
+    copia = execucao.preparar_copia(api, tag, trabalho)                          # 1
+    try:
+        execucao.aplicar_patch(copia, caso.patch)                                # 2
+        arquivo = arquivo_de_teste(copia, caso.classe)
+        original = (copia / arquivo).read_bytes().decode("utf-8")
+        inicial, tentativas = execucao.rodar_teste_inicial(rodar, copia, caso.classe, caso.metodo)  # 3
+        if inicial.passou:
+            raise execucao.ErroDeExecucao(f"{caso.id_caso}: o teste afetado passa sem reparo",
+                                          causa="teste_passa_sem_reparo")
+        falha = execucao.ler_falha(copia / "target" / "surefire-reports")
+        relogio = RelogioCaso(limite_caso_s, agora)  # D118: começa quando o agente recebe a falha
+        inicio = agora()
+        conferir = guarda_do_caso(copia, arquivo, caso.metodo)  # lê o original agora, antes do agente
+        ferramentas = montar(copia, arquivo, caso.classe, caso.metodo, relogio, rodar)
+        e = Execucao(Fim(NAO_REPARAR, None), antes=_metodo(original, caso.metodo),
+                     tentativas_maven_inicial=tentativas)
+        try:                                                                     # 4
+            e.agente = rodar_agente(criar_modelo, ferramentas, relogio, arquivo, caso.classe, caso.metodo,
+                                    falha, e.antes)
+            e.fim = traduzir(e.agente)
+        except RespostaInvalida as exc:  # D132: o caso termina; vale o reparo aceito, se já havia um
+            mudou = (copia / arquivo).read_bytes().decode("utf-8") != original
+            e.fim, e.detalhe = Fim(REPARAR if mudou else NAO_REPARAR, exc.codigo), exc.motivo
+        final = (copia / arquivo).read_bytes().decode("utf-8")
+        e.depois = _metodo(final, caso.metodo)
+        if final != original:
+            if e.fim.decisao != REPARAR:
+                raise execucao.ErroDeExecucao(f"{caso.id_caso}: o arquivo mudou, mas a decisão é {e.fim.decisao}",
+                                              causa="inconsistencia")
+            veredito = conferir(final)                                           # 5: conferência (D129)
+            if not veredito.aceito:
+                raise execucao.ErroDeExecucao(f"{caso.id_caso}: o guarda recusou o arquivo final: "
+                                              + "; ".join(veredito.motivos), causa="guarda_final")
+        if e.fim.decisao == REPARAR and e.fim.erro != "timeout":                  # 6: Maven final
+            e.compilou, e.passou, e.fim = _maven_final(rodar, copia, caso, relogio, e.fim)
+        e.tempo_s = agora() - inicio  # da falha ao artefato final, com a espera do LLM, como na v1
+        return e                                                                 # 7: quem chama grava
+    finally:
+        shutil.rmtree(copia, ignore_errors=True)
+
+
+def _maven_final(rodar, copia: Path, caso: Caso, relogio: RelogioCaso, fim: Fim) -> tuple[bool | None, bool, Fim]:
+    """O Maven final com o menor entre 120 s e o que resta do caso (D111, D123); o estouro é `timeout` (D118)."""
+    limite_s = relogio.limite_para_teste(execucao.LIMITE_TESTE_S)
+    if limite_s <= 0:  # o caso já acabou: não há tempo para conferir o reparo
+        return False, False, Fim(REPARAR, "timeout")
+    try:
+        r = execucao.rodar_teste_final(rodar, copia, caso.classe, caso.metodo, limite_s)
+    except execucao.ErroDeExecucao as exc:
+        if exc.codigo != "timeout":
+            raise
+        return False, False, Fim(REPARAR, "timeout")
+    return r.compilou, r.passou, fim
