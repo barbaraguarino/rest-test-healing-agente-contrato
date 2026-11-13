@@ -1,0 +1,6 @@
+T23j, D131: uma chamada real do Classifier no A1-001, 13/11/2026, autorizada pela Barbara ("Pode gastar"), trava de US$ 0,05.
+Código c441e5d da branch feature/T23j-runner; script avulso, fora do repositório, com o ModeloClaude, a FabricaClaude, o com_trava e as 3 ferramentas do Classifier, mais o output_config.format com agentes.SCHEMA_CLASSIFIER.
+
+Maven inicial: passou=False (esperado False)
+ACEITA: texto='' pedidos=[('ver_diferenca', {}), ('ler_arquivo', {'caminho': 'src/main/java/br/edu/resttesthealingsut/produto'})]
+{'modelo_retornado': 'claude-haiku-5-5', 'stop_reason': 'tool_use', 'input_tokens': 2459, 'output_tokens': 144, 'thinking_tokens': 42, 'custo_usd': 0.0003179, 'latencia_s': 3.337, 'erro': None}
