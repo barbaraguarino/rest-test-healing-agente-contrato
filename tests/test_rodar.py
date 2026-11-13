@@ -276,5 +276,27 @@ class TestReexecucao(Base):
         self.assertEqual((e.fim.erro, e.causa), ("erro_execucao", "infraestrutura"))
 
 
+class TestTrava(unittest.TestCase):
+    def test_confere_antes_de_cada_chamada(self):  # D105
+        with tempfile.TemporaryDirectory() as d:
+            log = Path(d) / "chamadas.jsonl"
+            chamadas = []
+            criar = runner.com_trava(lambda s, defs, formato=None: (lambda h: chamadas.append(h) or "ok"),
+                                     Orcamento(0.01, log))
+            modelo = criar("sistema", [])
+            self.assertEqual(modelo(["oi"]), "ok")
+            log.write_text(json.dumps({"id_caso": "A", "repeticao": 1, "custo_usd": 0.02, "input_tokens": 1,
+                                       "output_tokens": 1}) + "\n", encoding="utf-8")
+            with self.assertRaises(OrcamentoEsgotado):
+                modelo(["de novo"])
+            self.assertEqual(len(chamadas), 1)  # a segunda nem saiu
+
+    def test_repassa_o_formato(self):  # D131: o Classifier manda o schema
+        recebidos = []
+        criar = runner.com_trava(lambda s, defs, formato=None: recebidos.append(formato), Orcamento(1, Path("x")))
+        criar("sistema", [], formato={"type": "object"})
+        self.assertEqual(recebidos, [{"type": "object"}])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -189,3 +189,20 @@ def com_reexecucao(caso: Caso, repeticao: int, api: Path, tag: str, trabalho: Pa
             return Execucao(Fim(NAO_REPARAR, "erro_execucao"), detalhe=str(exc), causa=exc.causa,
                             tentativas=tentativa)
     return Execucao(Fim(NAO_REPARAR, "erro_llm"), detalhe=motivo, causa="erro_llm", tentativas=2)
+
+
+# ---------------------------------------------------------------- orçamento
+
+def com_trava(criar_modelo, orcamento: Orcamento):
+    """Embrulha o `criar_modelo`: antes de cada chamada ao modelo, confere o orçamento (D105).
+
+    O `ModeloClaude` não muda; a trava fica na porta, como o `Chamador` da v1.
+    """
+    def criar(sistema: str, definicoes: list[dict], formato: dict | None = None):
+        modelo = criar_modelo(sistema, definicoes, formato=formato)
+
+        def chamar(historico: list):
+            orcamento.verificar()
+            return modelo(historico)
+        return chamar
+    return criar
