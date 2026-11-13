@@ -79,3 +79,25 @@ class LogDeChamadas:
             f.write(linha + "\n")
             f.flush()
             os.fsync(f.fileno())
+
+
+def gasto_do_log(caminho: Path, id_caso: str | None = None, repeticao: int | None = None) -> tuple[float, int]:
+    """Dólares e tokens já registrados num `chamadas.jsonl` (zero se ele não existe). Da v1 (D105).
+
+    Sem `id_caso`, soma o arquivo inteiro: é o gasto da rodada, que a trava de orçamento confere.
+    Com `id_caso` e `repeticao`, soma só essa execução, com a reexecução (D104), que também é paga:
+    são o `tokens` e o `custo_usd` do registro (D74). Chamada que falhou sem resposta tem custo 0 e
+    tokens nulos.
+    """
+    if not caminho.exists():
+        return 0.0, 0
+    gasto, tokens = Decimal(0), 0
+    for linha in caminho.read_text(encoding="utf-8").splitlines():
+        if not linha.strip():
+            continue
+        c = json.loads(linha)
+        if id_caso is not None and (c["id_caso"], c["repeticao"]) != (id_caso, repeticao):
+            continue
+        gasto += Decimal(str(c["custo_usd"] or 0))
+        tokens += (c["input_tokens"] or 0) + (c["output_tokens"] or 0)
+    return float(gasto), tokens
