@@ -45,6 +45,7 @@ SAIDA_NAO_CONGELADO = 7
 ARQUIVO_RESULTADOS = "resultados-agente1.json"
 ARQUIVO_CHAMADAS = "chamadas.jsonl"
 ARQUIVO_LOG = "log-agentica.json"
+ORACULO_PADRAO = RAIZ_REPO / "casos" / "oraculo-agente1.json"  # o do piloto; o final é oraculo-agente1-final.json
 
 
 # ---------------------------------------------------------------- casos (sem o rótulo do oráculo)
@@ -265,23 +266,25 @@ TRATAMENTOS_PRONTOS = {"agentes"}
 def executar_rodada(casos: list[Caso], oraculo_por_id: dict, api: Path, tag: str, pasta: Path, repeticoes: int,
                     criar_fabrica, commits: tuple[str, str], rodar=execucao.rodar_teste,
                     aquecer_antes: bool = True, limite_caso_s: float = LIMITE_CASO_S,
-                    agora=time.monotonic) -> int:
+                    agora=time.monotonic, oraculo: dict | None = None) -> int:
     """Roda caso a caso, na ordem da D82, e grava, depois de cada execução, os resultados e o log.
 
     Devolve o código de saída. `criar_fabrica(id_caso, repeticao)` devolve o `criar_modelo` de uma
     execução: o Claude com a trava de orçamento, ou o LLM simulado do ensaio. `commits`: os de
-    `prompts/` e de `agente_contrato/` (D105).
+    `prompts/` e de `agente_contrato/` (D105). `oraculo`: o arquivo e o commit do oráculo (`oraculo_do_log`).
     """
     pasta.mkdir(parents=True, exist_ok=True)
     chamadas = pasta / ARQUIVO_CHAMADAS
     registros, entradas, seguidos = [], [], 0
-    sessao = {"inicio_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "tag": tag,
+    sessao = {"inicio_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "tag": tag, "oraculo": oraculo,
               "limites": {"teste_s": execucao.LIMITE_TESTE_S, "caso_s": limite_caso_s,
                           "llm_s": cliente_claude.TIMEOUT_S},
               "commit_do_prompt": commits[0], "commit_do_codigo": commits[1], "repeticoes": repeticoes,
               "aquecimento": None}
     print(f"limites: teste {execucao.LIMITE_TESTE_S} s, caso {limite_caso_s:g} s, chamada ao LLM "
           f"{cliente_claude.TIMEOUT_S} s (D111) | prompts {commits[0]} | código {commits[1]}", flush=True)
+    if oraculo:
+        print(f"oráculo: {oraculo['arquivo']} (commit {oraculo['commit']})", flush=True)
     with tempfile.TemporaryDirectory(prefix="agentica-") as trabalho:
         if aquecer_antes and casos:
             sessao["aquecimento"] = a = aquecer(casos[0], api, tag, Path(trabalho) / "aquecimento", rodar)
@@ -337,6 +340,29 @@ def commits_atuais() -> tuple[str, str]:
     return prompts.commit_dos_prompts(), prompts.commit_dos_prompts(Path(__file__).resolve().parent)
 
 
+class OraculoInvalido(Exception):
+    """O arquivo do oráculo não pode ser usado: fora do repositório ou com mudança não gravada."""
+
+
+def oraculo_do_log(arquivo: Path, raiz_repo: Path = RAIZ_REPO) -> dict:
+    """O arquivo do oráculo, relativo à raiz do repositório, e o commit dele, para o log da sessão (T53).
+
+    Como os prompts e o código (D105), o oráculo de uma rodada tem de estar gravado num commit: fora do
+    repositório ou com mudança pendente, o resultado não diria com que oráculo rodou.
+    """
+    caminho = arquivo.resolve()
+    try:
+        relativo = caminho.relative_to(raiz_repo.resolve()).as_posix()
+    except ValueError:
+        raise OraculoInvalido(f"o oráculo {caminho} está fora do repositório") from None
+    if not caminho.is_file():
+        raise OraculoInvalido(f"o oráculo {relativo} não existe")
+    commit = prompts.commit_dos_prompts(caminho)
+    if commit.endswith(prompts.SUFIXO_ALTERADO) or commit == "sem-commit":
+        raise OraculoInvalido(f"o oráculo {relativo} tem mudança não gravada ({commit}); grave antes de rodar")
+    return {"arquivo": relativo, "commit": commit}
+
+
 def _argumentos(argv: list[str] | None) -> argparse.Namespace:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--api", required=True, type=Path, help="clone da API cobaia (rest-test-healing-sut)")
@@ -344,6 +370,9 @@ def _argumentos(argv: list[str] | None) -> argparse.Namespace:
     ap.add_argument("--orcamento-usd", required=True, type=float,
                     help="a rodada para quando o gasto do chamadas.jsonl da pasta chegar a este valor (D105)")
     ap.add_argument("--repeticoes", type=int, default=REPETICOES, help="repetições por caso (D92: 3)")
+    ap.add_argument("--oraculo", type=Path, default=ORACULO_PADRAO,
+                    help="arquivo do oráculo, dentro do repositório (padrão: casos/oraculo-agente1.json, o do "
+                         "piloto; o da T25 é casos/oraculo-agente1-final.json)")
     ap.add_argument("--casos", nargs="*", help="ids dos casos (padrão: todos os do oráculo)")
     ap.add_argument("--tag", default=TAG)
     ap.add_argument("--env", type=Path, help="arquivo .env com a chave (padrão: .env na raiz do repositório)")
@@ -354,7 +383,12 @@ def _argumentos(argv: list[str] | None) -> argparse.Namespace:
 def main(argv: list[str] | None = None, sdk=None, rodar=execucao.rodar_teste) -> int:
     """Roda a versão agêntica com o Claude de verdade. `sdk` e `rodar` são injetáveis só nos testes."""
     args = _argumentos(argv)
-    oraculo = json.loads((RAIZ_REPO / "casos" / "oraculo-agente1.json").read_text(encoding="utf-8"))
+    try:
+        do_oraculo = oraculo_do_log(args.oraculo)
+    except OraculoInvalido as exc:
+        print(exc, file=sys.stderr)
+        return SAIDA_NAO_CONGELADO
+    oraculo = json.loads((RAIZ_REPO / do_oraculo["arquivo"]).read_text(encoding="utf-8"))
     if oraculo["versao_api"] != args.tag:
         print(f"o oráculo é da tag {oraculo['versao_api']}, não de {args.tag}", file=sys.stderr)
         return 2
@@ -387,7 +421,7 @@ def main(argv: list[str] | None = None, sdk=None, rodar=execucao.rodar_teste) ->
         return com_trava(cliente_claude.FabricaClaude(sdk, log, id_caso, repeticao, commits[0]), orcamento)
 
     codigo = executar_rodada(casos, {c["id_caso"]: c for c in oraculo["casos"]}, args.api, args.tag, args.saida,
-                             args.repeticoes, criar_fabrica, commits, rodar)
+                             args.repeticoes, criar_fabrica, commits, rodar, oraculo=do_oraculo)
     gasto, tokens = gasto_do_log(log.caminho)
     print(f"gasto da rodada: US$ {gasto:.6f} | tokens: {tokens}")
     return codigo
