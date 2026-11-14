@@ -47,7 +47,7 @@ class TestUsoDaResposta(unittest.TestCase):
 
 
 def campos(**extra) -> dict:
-    base = dict(id_caso="A1-001", repeticao=1, etapa="classifier", modelo_retornado="claude-haiku-5-5",
+    base = dict(id_caso="A1-001", tratamento="agentes", repeticao=1, etapa="classifier", modelo_retornado="claude-haiku-5-5",
                 stop_reason="end_turn", input_tokens=10, output_tokens=5, thinking_tokens=None,
                 custo_usd=0.0001, request_id="req_1", latencia_s=1.5, commit_do_prompt="abc",
                 resposta_bruta='{"rotulo":"legitima"}', erro=None)
@@ -81,6 +81,21 @@ class TestLog(unittest.TestCase):
     def test_etapa_invalida(self):
         with self.assertRaises(ValueError):
             self.log().registrar(**campos(etapa="planner"))
+
+    def test_cada_linha_tem_o_tratamento(self):  # T49
+        log = self.log()
+        log.registrar(**campos(tratamento="agente_unico", etapa="agente_unico"))
+        self.assertEqual(json.loads(log.caminho.read_text(encoding="utf-8"))["tratamento"], "agente_unico")
+
+    def test_etapa_que_nao_e_do_tratamento(self):  # T49: o agente único não tem Classifier nem Repair
+        for tratamento, etapa in (("agente_unico", "classifier"), ("agentes", "agente_unico"),
+                                  ("baseline", "classifier")):
+            with self.subTest(tratamento=tratamento), self.assertRaises(ValueError):
+                self.log().registrar(**campos(tratamento=tratamento, etapa=etapa))
+
+    def test_linha_sem_tratamento_e_dos_agentes(self):  # linhas da T47 e da T53, antes da T49
+        self.assertEqual(r.tratamento_da_linha({"id_caso": "A1-001"}), "agentes")
+        self.assertEqual(r.tratamento_da_linha({"tratamento": "agente_unico"}), "agente_unico")
 
     def test_chamada_com_erro_pode_ter_campos_nulos(self):
         log = self.log()

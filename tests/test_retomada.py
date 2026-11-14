@@ -29,12 +29,13 @@ class Interrompido(KeyboardInterrupt):
     """Faz o papel do Ctrl+C ou da queda no meio de uma execução: nada no runner o trata."""
 
 
-def chamada(pasta: Path, id_caso: str, repeticao: int, custo: float = 0.001) -> None:
+def chamada(pasta: Path, id_caso: str, repeticao: int, custo: float = 0.001, tratamento: str = "agentes") -> None:
     """Uma linha paga no chamadas.jsonl, como a que o ModeloClaude grava antes de qualquer coisa (D106)."""
     campos = dict.fromkeys(("modelo_retornado", "stop_reason", "thinking_tokens", "request_id", "latencia_s",
                             "commit_do_prompt", "resposta_bruta", "erro"))
     LogDeChamadas(pasta / runner.ARQUIVO_CHAMADAS).registrar(
-        **campos, id_caso=id_caso, repeticao=repeticao, etapa="classifier", input_tokens=500, output_tokens=100,
+        **campos, id_caso=id_caso, tratamento=tratamento, repeticao=repeticao,
+        etapa="classifier" if tratamento == "agentes" else "agente_unico", input_tokens=500, output_tokens=100,
         custo_usd=custo)
 
 
@@ -60,7 +61,7 @@ class BaseRetomada(Base):
         self.criadas = []  # (id_caso, repeticao) de cada fábrica criada, em ordem: as execuções que rodaram
 
     def fabrica(self, cair_em: tuple[str, int] | None = None):
-        def criar(id_caso, repeticao):
+        def criar(id_caso, repeticao, tratamento):
             self.criadas.append((id_caso, repeticao))
             if (id_caso, repeticao) == cair_em:
                 return ModeloQueCai(self.pasta, id_caso, repeticao)
@@ -180,13 +181,33 @@ class TestBRefazAExecucaoDoMeio(BaseRetomada):
 
 # ---------------------------------------------------------------- c. orçamento da rodada inteira
 
+class TestSemRegistroPorTratamento(unittest.TestCase):
+    """T49: as chamadas pagas sem registro se separam por tratamento no mesmo (caso, repetição)."""
+
+    def linhas(self, *dados) -> list[str]:
+        return [json.dumps({"id_caso": i, "repeticao": r, "custo_usd": c, **({"tratamento": t} if t else {})})
+                for i, t, r, c in dados]
+
+    def test_a_feita_de_um_tratamento_nao_esconde_a_do_outro(self):
+        linhas = self.linhas(("A1-001", "agentes", 1, 0.001), ("A1-001", "agente_unico", 1, 0.002),
+                             ("A1-001", "agente_unico", 1, 0.003))
+        sem = runner._sem_registro(linhas, {("A1-001", "agentes", 1)})
+        self.assertEqual(sem, [{"id_caso": "A1-001", "tratamento": "agente_unico", "repeticao": 1, "chamadas": 2,
+                                "custo_usd": 0.005}])
+
+    def test_linha_sem_tratamento_e_dos_agentes(self):  # chamadas.jsonl de antes da T49
+        linhas = self.linhas(("A1-001", None, 1, 0.001))
+        self.assertEqual(runner._sem_registro(linhas, {("A1-001", "agentes", 1)}), [])
+        self.assertEqual(runner._sem_registro(linhas, {("A1-001", "agente_unico", 1)})[0]["tratamento"], "agentes")
+
+
 class TestCOrcamentoDaRodadaInteira(BaseRetomada):
     def test_a_trava_soma_as_sessoes_anteriores(self):  # D105
         self.interromper()  # 4 chamadas de US$ 0,001: US$ 0,004 gastos
         criar = self.fabrica()
 
-        def com_trava(id_caso, repeticao):
-            return runner.com_trava(criar(id_caso, repeticao),
+        def com_trava(id_caso, repeticao, tratamento):
+            return runner.com_trava(criar(id_caso, repeticao, tratamento),
                                     runner.Orcamento(0.004, self.pasta / runner.ARQUIVO_CHAMADAS))
         self.criadas.clear()
         self.assertEqual(self.sessao(com_trava, self.retomar()), runner.SAIDA_ORCAMENTO)
@@ -195,7 +216,7 @@ class TestCOrcamentoDaRodadaInteira(BaseRetomada):
     def test_com_saldo_a_retomada_segue(self):
         self.interromper()
 
-        def com_trava(id_caso, repeticao):
+        def com_trava(id_caso, repeticao, tratamento):
             return runner.com_trava(legitima_reparada(),
                                     runner.Orcamento(0.005, self.pasta / runner.ARQUIVO_CHAMADAS))
         self.assertEqual(self.sessao(com_trava, self.retomar()), runner.SAIDA_OK)

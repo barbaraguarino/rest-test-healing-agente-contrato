@@ -191,3 +191,66 @@ def rodar_agente(criar_modelo, ferramentas: dict, relogio: RelogioCaso, arquivo:
     restantes = min(LIMITE_REPAIR, LIMITE_TOTAL - classifier.laco.chamadas)  # D62: até 10 no caso
     repair = rodar_repair(criar_modelo, mensagem, ferramentas, relogio, restantes)
     return ResultadoAgente(repair.motivo, classifier, repair)
+
+
+# ---------------------------------------------------------------- agente único (T49, D67)
+
+LIMITE_AGENTE_UNICO = LIMITE_TOTAL  # D67: o mesmo total de 10 chamadas, num laço só; também em prompts/agente_unico.md
+# D67: as mesmas ferramentas dos dois agentes juntos; a diferença do contrato ele busca com ver_diferenca
+FERRAMENTAS_AGENTE_UNICO = ("ler_arquivo", "ver_diferenca", "rodar_teste", "salvar_reparo")
+
+
+@dataclass(frozen=True)
+class ResultadoAgenteUnico:
+    """O fim do agente único. A decisão vem do arquivo: reparou se algum salvar_reparo foi aceito.
+
+    `motivo`: "reparo" (reparo aceito e rótulo válido, ou o limite chegou depois do reparo),
+    "reparo_saida_invalida" (reparo aceito, mas a resposta final não é o JSON pedido), "nao_reparar"
+    (`problema_real` sem reparo), "sem_reparo" (`legitima` sem reparo aceito), "saida_invalida" (sem reparo e
+    sem JSON válido), "limite_de_chamadas" (10 chamadas sem reparo) ou "limite_do_caso" (tempo esgotado).
+    """
+    motivo: str
+    rotulo: str | None        # o rótulo do JSON final, só para o log; None se não veio um válido
+    justificativa: str | None
+    detalhe: str | None       # por que a resposta final foi inválida
+    reparou: bool             # algum salvar_reparo foi aceito pelo guarda (D129)
+    laco: ResultadoLaco
+
+    @property
+    def chamadas(self) -> int:
+        return self.laco.chamadas
+
+    @property
+    def incoerente(self) -> bool:
+        """O rótulo diz `problema_real`, mas o agente reparou: vale o arquivo, e o log marca (T49)."""
+        return self.reparou and self.rotulo == PROBLEMA_REAL
+
+
+def rodar_agente_unico(criar_modelo, ferramentas: dict, relogio: RelogioCaso, arquivo: str, classe: str,
+                       metodo: str, falha: Falha | None, texto_do_metodo: str) -> ResultadoAgenteUnico:
+    """O agente único (D67): um só laço que classifica e repara, com as 4 ferramentas e até 10 chamadas.
+
+    O LLM decide tudo: o que ler, o rótulo, se repara, o que salvar e quando parar. Este código só dá as
+    ferramentas, aplica o limite (o guarda já está dentro do salvar_reparo, D129) e lê o fim. A primeira
+    mensagem é a do Classifier, sem a diferença do contrato. A resposta final usa o schema do Classifier
+    (D131), e o `ler_rotulo` continua como defesa (D102).
+    """
+    definicoes, suas = _so_as(FERRAMENTAS_AGENTE_UNICO, ferramentas)
+    modelo = criar_modelo(carregar("agente_unico"), definicoes, formato=SCHEMA_CLASSIFIER)
+    mensagem = mensagem_classifier(arquivo, classe, metodo, falha, texto_do_metodo)
+    laco = rodar_laco(modelo, mensagem, suas, LIMITE_AGENTE_UNICO, relogio)
+    reparou = _salvou(laco.historico)
+    if laco.motivo == "limite_do_caso":
+        return ResultadoAgenteUnico("limite_do_caso", None, None, None, reparou, laco)
+    if laco.motivo == "limite_de_chamadas":  # como no Repair: o reparo salvo vale mesmo com o limite depois
+        return ResultadoAgenteUnico("reparo" if reparou else "limite_de_chamadas", None, None, None, reparou, laco)
+    try:
+        rotulo, justificativa = ler_rotulo(laco.texto_final)
+    except SaidaInvalida as exc:
+        motivo = "reparo_saida_invalida" if reparou else "saida_invalida"
+        return ResultadoAgenteUnico(motivo, None, None, str(exc), reparou, laco)
+    if reparou:
+        motivo = "reparo"
+    else:
+        motivo = "nao_reparar" if rotulo == PROBLEMA_REAL else "sem_reparo"
+    return ResultadoAgenteUnico(motivo, rotulo, justificativa, None, reparou, laco)

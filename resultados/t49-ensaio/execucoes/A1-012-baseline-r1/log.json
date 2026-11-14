@@ -1,0 +1,20 @@
+{
+  "id_caso": "A1-012",
+  "tratamento": "baseline",
+  "repeticao": 1,
+  "decisao": "reparar",
+  "erro": null,
+  "aplicadas": [
+    "POST /pedidos, requisicao: o campo \"modalidadeFrete\" foi renomeado para \"modalidade\" (string, valores ['PADRAO', 'EXPRESSA'])"
+  ],
+  "ignoradas": [],
+  "recusas_do_guarda": [],
+  "detalhe": null,
+  "causa": null,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": false,
+  "tempo_s": 18.3543,
+  "commit_do_prompt": null,
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b"
+}

@@ -10,9 +10,9 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-from agente_contrato.agentes import ResultadoAgente, ResultadoRepair
+from agente_contrato.agentes import ResultadoAgente, ResultadoAgenteUnico, ResultadoRepair
 from agente_contrato.ferramentas import RECUSA_DO_GUARDA
-from agente_contrato.laco import RespostaModelo
+from agente_contrato.laco import ResultadoLaco, RespostaModelo
 
 REPARAR = "reparar"
 NAO_REPARAR = "nao_reparar"
@@ -27,9 +27,12 @@ class Fim:
 
 def respostas_do_salvar(repair: ResultadoRepair | None) -> list:
     """As respostas que o código deu a cada pedido de salvar_reparo do Repair, em ordem."""
-    if repair is None:
-        return []
-    historico = repair.laco.historico
+    return [] if repair is None else respostas_do_salvar_no(repair.laco)
+
+
+def respostas_do_salvar_no(laco: ResultadoLaco) -> list:
+    """As respostas que o código deu a cada pedido de salvar_reparo de um laço, em ordem."""
+    historico = laco.historico
     pedidos = {p.id for item in historico if isinstance(item, RespostaModelo)
                for p in item.pedidos if p.nome == "salvar_reparo"}
     return [r for item in historico if isinstance(item, tuple) for r in item if r.id_pedido in pedidos]
@@ -58,6 +61,32 @@ def traduzir(agente: ResultadoAgente) -> Fim:
     if motivo == "repair_sem_reparo":  # D130: como o metodo_reparado que não se encaixa na D102
         return Fim(NAO_REPARAR, "saida_invalida")
     raise ValueError(f"motivo de fim desconhecido: {motivo}")
+
+
+def traduzir_agente_unico(agente: ResultadoAgenteUnico) -> Fim:
+    """O fim do agente único no formato comum (T49), com as regras da D129, da D130 e da D132.
+
+    A decisão vem do arquivo (`reparou`). Sem reparo aceito, pelo menos uma recusa do guarda dá `guarda`
+    (D129), salvo o tempo esgotado, que vence o guarda (D130).
+    """
+    respostas = respostas_do_salvar_no(agente.laco)
+    recusado = any(r.erro and r.conteudo.startswith(RECUSA_DO_GUARDA) for r in respostas)
+    motivo = agente.motivo
+    if motivo == "limite_do_caso":
+        return Fim(REPARAR if agente.reparou else NAO_REPARAR, "timeout")
+    if motivo == "reparo":
+        return Fim(REPARAR, None)
+    if motivo == "reparo_saida_invalida":  # como a D132: vale o reparo aceito
+        return Fim(REPARAR, "saida_invalida")
+    if motivo not in ("nao_reparar", "sem_reparo", "saida_invalida", "limite_de_chamadas"):
+        raise ValueError(f"motivo de fim desconhecido: {motivo}")
+    if recusado:  # D129: recusa e nenhum reparo aceito
+        return Fim(NAO_REPARAR, "guarda")
+    if motivo == "nao_reparar":  # problema_real sem reparo: não é erro
+        return Fim(NAO_REPARAR, None)
+    if motivo == "limite_de_chamadas":
+        return Fim(NAO_REPARAR, "limite_chamadas")
+    return Fim(NAO_REPARAR, "saida_invalida")  # legitima sem reparo (D130) ou resposta final inválida (D102)
 
 
 CAMPOS = ("id_caso", "agente", "tratamento", "versao_agente", "categoria", "rotulo_oraculo",
@@ -110,10 +139,11 @@ def gravar_resultados(caminho: Path, versao_api: str, registros: list[dict]) -> 
     os.replace(f.name, caminho)
 
 
-def recusas_do_guarda(agente: ResultadoAgente) -> list[str]:
+def recusas_do_guarda(agente: ResultadoAgente | ResultadoAgenteUnico) -> list[str]:
     """As mensagens de cada recusa do guarda no salvar_reparo, em ordem (D129)."""
-    return [r.conteudo for r in respostas_do_salvar(agente.repair)
-            if r.erro and r.conteudo.startswith(RECUSA_DO_GUARDA)]
+    respostas = (respostas_do_salvar_no(agente.laco) if isinstance(agente, ResultadoAgenteUnico)
+                 else respostas_do_salvar(agente.repair))
+    return [r.conteudo for r in respostas if r.erro and r.conteudo.startswith(RECUSA_DO_GUARDA)]
 
 
 def entrada_do_log(id_caso: str, repeticao: int, agente: ResultadoAgente, fim: Fim,
@@ -134,14 +164,31 @@ def entrada_do_log(id_caso: str, repeticao: int, agente: ResultadoAgente, fim: F
             "commit_do_prompt": commit_do_prompt, "commit_do_codigo": commit_do_codigo}
 
 
-def caminho_do_agente(agente: ResultadoAgente) -> list[dict]:
+def entrada_do_log_agente_unico(id_caso: str, repeticao: int, agente: ResultadoAgenteUnico, fim: Fim,
+                                commit_do_prompt: str, commit_do_codigo: str) -> dict:
+    """A entrada do log de uma execução do agente único (T49), com os mesmos campos da dos agentes onde dá.
+
+    `rotulo` é o do JSON final, só para a análise qualitativa (D67); `incoerente` marca o rótulo
+    `problema_real` com reparo salvo, em que vale o arquivo.
+    """
+    return {"id_caso": id_caso, "repeticao": repeticao, "motivo": agente.motivo,
+            "decisao": fim.decisao, "erro": fim.erro, "rotulo": agente.rotulo,
+            "justificativa": agente.justificativa, "detalhe": agente.detalhe, "incoerente": agente.incoerente,
+            "chamadas": agente.chamadas, "recusas_do_guarda": recusas_do_guarda(agente),
+            "commit_do_prompt": commit_do_prompt, "commit_do_codigo": commit_do_codigo}
+
+
+def caminho_do_agente(agente: ResultadoAgente | ResultadoAgenteUnico) -> list[dict]:
     """O caminho do agente: as ferramentas pedidas em cada volta do laço, com o resultado de cada uma.
 
     Uma volta é uma resposta do modelo; na última, ele termina sem pedir ferramenta (`terminou`). Quem
     escolheu as ferramentas foi o LLM; este código só lê o histórico. Serve ao relatório visual (T52).
     """
     caminho = []
-    lacos = [("classifier", agente.classifier.laco)] + ([("repair", agente.repair.laco)] if agente.repair else [])
+    if isinstance(agente, ResultadoAgenteUnico):  # T49: um laço só
+        lacos = [("agente_unico", agente.laco)]
+    else:
+        lacos = [("classifier", agente.classifier.laco)] + ([("repair", agente.repair.laco)] if agente.repair else [])
     for etapa, laco in lacos:
         respostas = [item for item in laco.historico if isinstance(item, RespostaModelo)]
         resultados = {r.id_pedido: r for item in laco.historico if isinstance(item, tuple) for r in item}

@@ -3,8 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agente_contrato.agentes import (FERRAMENTAS_CLASSIFIER, FERRAMENTAS_REPAIR, LIMITE_CLASSIFIER,
-                                     LIMITE_REPAIR, LIMITE_TOTAL)
+from agente_contrato.agentes import (FERRAMENTAS_AGENTE_UNICO, FERRAMENTAS_CLASSIFIER, FERRAMENTAS_REPAIR,
+                                     LIMITE_AGENTE_UNICO, LIMITE_CLASSIFIER, LIMITE_REPAIR, LIMITE_TOTAL)
 from agente_contrato.prompts import SUFIXO_ALTERADO, carregar, commit_dos_prompts
 
 
@@ -28,23 +28,32 @@ class TestPromptsVersionados(unittest.TestCase):
         self.assertIn(f"no máximo {LIMITE_CLASSIFIER} respostas", carregar("classifier"))
         self.assertIn(f"no máximo {LIMITE_REPAIR} respostas", carregar("repair"))
         self.assertLessEqual(LIMITE_CLASSIFIER + LIMITE_REPAIR, LIMITE_TOTAL)  # D62
+        self.assertIn(f"no máximo {LIMITE_AGENTE_UNICO} respostas", carregar("agente_unico"))  # D67
 
     def test_cada_prompt_cita_so_as_ferramentas_do_seu_agente(self):
         todas = set(FERRAMENTAS_CLASSIFIER) | set(FERRAMENTAS_REPAIR)
-        for nome, suas in (("classifier", FERRAMENTAS_CLASSIFIER), ("repair", FERRAMENTAS_REPAIR)):
+        for nome, suas in (("classifier", FERRAMENTAS_CLASSIFIER), ("repair", FERRAMENTAS_REPAIR),
+                           ("agente_unico", FERRAMENTAS_AGENTE_UNICO)):
             texto = carregar(nome)
             for ferramenta in todas:
                 self.assertEqual(f"`{ferramenta}`" in texto, ferramenta in suas, f"{nome}: {ferramenta}")
 
     def test_prompts_nao_citam_o_desenho_do_experimento(self):  # D73
-        for nome in ("classifier", "repair"):
+        for nome in ("classifier", "repair", "agente_unico"):
             texto = carregar(nome)
             for proibido in ("matriz-de-cobertura", "README", "casos/", "oráculo", "experimento"):
                 self.assertNotIn(proibido, texto, nome)
 
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_agente_unico_tem_as_partes_dos_dois_prompts(self):  # D67: classifica e repara
+        unico, classifier, repair = carregar("agente_unico"), carregar("classifier"), carregar("repair")
+        for trecho in ("## As duas classes", "Decida pela evidência que encontrar.",
+                       '{"rotulo": "legitima ou problema_real"'):
+            self.assertIn(trecho, classifier)
+            self.assertIn(trecho, unico)
+        for trecho in ("Não remova nem enfraqueça asserções.", "mande o método de teste **inteiro**"):
+            self.assertIn(trecho, repair)
+            self.assertIn(trecho, unico)
 
 
 class TestCommitDosPrompts(unittest.TestCase):  # D105, iguais aos da v1 (tag rodada-2)
@@ -88,3 +97,7 @@ class TestCommitDosPrompts(unittest.TestCase):  # D105, iguais aos da v1 (tag ro
         raiz = self._repo()
         (raiz / "prompts" / "a.md").write_text("texto", encoding="utf-8")
         self.assertEqual(commit_dos_prompts(raiz / "prompts"), "sem-commit" + SUFIXO_ALTERADO)
+
+
+if __name__ == "__main__":
+    unittest.main()

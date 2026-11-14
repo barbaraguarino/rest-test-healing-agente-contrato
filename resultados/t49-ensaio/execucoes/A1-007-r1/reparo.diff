@@ -1,0 +1,9 @@
+--- antes.java
++++ depois.java
+@@ -20,5 +20,5 @@
+                     .andExpect(jsonPath("$.descricao").value(nullValue()))
+                     .andExpect(jsonPath("$.tags").value(empty()))
+                     .andExpect(jsonPath("$.ativo").value(false))
+-                    .andExpect(jsonPath("$.estoque").value(is(0)));
++                    .andExpect(jsonPath("$.estoque").value(is("0")));
+         }

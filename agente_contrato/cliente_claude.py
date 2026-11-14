@@ -13,7 +13,8 @@ import anthropic
 
 from agente_contrato.laco import PedidoFerramenta, RespostaModelo
 from agente_contrato.prompts import carregar
-from agente_contrato.registro_llm import LogDeChamadas, PromptAcimaDoLimite, custo_usd, uso_da_resposta
+from agente_contrato.registro_llm import (ETAPAS_DO_TRATAMENTO, LogDeChamadas, PromptAcimaDoLimite, custo_usd,
+                                          uso_da_resposta)
 
 MODELO = "claude-haiku-5-5"  # D56
 MAX_TOKENS = 16_000          # D61: teto por resposta; o raciocínio conta nele
@@ -205,9 +206,10 @@ class ModeloClaude:
     """
 
     def __init__(self, sdk, sistema: str, definicoes: list[dict], etapa: str, log: LogDeChamadas,
-                 id_caso: str, repeticao: int, commit_do_prompt: str, formato: dict | None = None):
+                 id_caso: str, repeticao: int, commit_do_prompt: str, formato: dict | None = None,
+                 tratamento: str = "agentes"):
         self._sdk, self._sistema, self._definicoes, self._formato = sdk, sistema, definicoes, formato
-        self._log, self._etapa = log, etapa
+        self._log, self._etapa, self._tratamento = log, etapa, tratamento
         self._id_caso, self._repeticao, self._commit = id_caso, repeticao, commit_do_prompt
         self._brutos = []  # o `content` de cada resposta, reenviado sem mudança (ver `mensagens`)
 
@@ -240,25 +242,29 @@ class ModeloClaude:
     def _registrar(self, **campos) -> None:
         vazios = dict(modelo_retornado=None, stop_reason=None, input_tokens=None, output_tokens=None,
                       thinking_tokens=None, request_id=None, resposta_bruta=None)
-        self._log.registrar(**{**vazios, **campos}, id_caso=self._id_caso, repeticao=self._repeticao,
+        self._log.registrar(**{**vazios, **campos}, id_caso=self._id_caso, tratamento=self._tratamento,
+                            repeticao=self._repeticao,
                             etapa=self._etapa, commit_do_prompt=self._commit)
 
 
 class FabricaClaude:
     """Faz o papel do `criar_modelo(sistema, definicoes, formato)` com o Claude de verdade, numa execução.
 
-    O runner (T23j) cria uma fábrica por execução (caso e repetição); a etapa do log sai do prompt de
-    sistema que o agente mandou.
+    O runner (T23j) cria uma fábrica por execução (caso, tratamento e repetição); a etapa do log sai do
+    prompt de sistema que o agente mandou, e só valem os prompts do tratamento (T49): os do Classifier e
+    do Repair nos agentes, o do agente único no agente único.
     """
 
-    def __init__(self, sdk, log: LogDeChamadas, id_caso: str, repeticao: int, commit_do_prompt: str):
+    def __init__(self, sdk, log: LogDeChamadas, id_caso: str, repeticao: int, commit_do_prompt: str,
+                 tratamento: str = "agentes"):
         self._sdk, self._log = sdk, log
         self._id_caso, self._repeticao, self._commit = id_caso, repeticao, commit_do_prompt
-        self._etapas = {carregar(etapa): etapa for etapa in ("classifier", "repair")}
+        self._tratamento = tratamento
+        self._etapas = {carregar(etapa): etapa for etapa in ETAPAS_DO_TRATAMENTO[tratamento]}
 
     def __call__(self, sistema: str, definicoes: list[dict], formato: dict | None = None) -> ModeloClaude:
         etapa = self._etapas.get(sistema)
         if etapa is None:
-            raise ValueError("prompt de sistema que não é nem o do Classifier nem o do Repair")
+            raise ValueError(f"prompt de sistema que não é de nenhuma etapa do tratamento {self._tratamento}")
         return ModeloClaude(self._sdk, sistema, definicoes, etapa, self._log, self._id_caso, self._repeticao,
-                            self._commit, formato)
+                            self._commit, formato, self._tratamento)

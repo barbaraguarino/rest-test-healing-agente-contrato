@@ -32,7 +32,7 @@ Botão direito na pasta `tests` → **Run 'Python tests in tests'**, com a raiz 
 
 1. **Run → Edit Configurations → + → Python**.
 2. Em **Module name**, `tests.ensaio`; em **Parameters**, `--api ../rest-test-healing-sut --saida resultados/NOME-NOVO`; em **Working directory**, a raiz deste repositório.
-3. **Run**. A última linha diz `ENSAIO OK` ou `ENSAIO FALHOU`. Leva cerca de 9 minutos (1 repetição).
+3. **Run**. A última linha diz `ENSAIO OK` ou `ENSAIO FALHOU`. Por padrão, roda os três tratamentos (baseline, agentes e agente único, D82), com o agente único nos 12 casos; `--tratamentos baseline agentes` deixa o agente único de fora.
 
 Ensaio da retomada (T53): em **Parameters**, acrescente `--interromper-em A1-007 1`. A rodada cai no meio dessa execução, depois do reparo salvo, como um Ctrl+C. Depois, troque `--interromper-em A1-007 1` por `--retomar`, com a mesma `--saida`, e clique em **Run** de novo. O LLM simulado grava cada chamada no `chamadas.jsonl` com custo zero, para a conta das chamadas sem registro aparecer.
 
@@ -46,6 +46,14 @@ A baseline é determinística e não usa LLM: lê a diferença do contrato (`con
 
 Para comparar com a baseline da v1 (t42-baseline, tag `rodada-2`): **Module name** `tests.comparar_t42`, **Parameters** `--api ../rest-test-healing-sut --ensaio resultados/NOME-NOVO`. O script roda o código da v1 só em Python, sem Maven, compara caso a caso o resultado e o método reparado e grava `comparacao-t42.json` na pasta. A última linha diz `COMPARAÇÃO OK` se a única diferença é a da D114.
 
+### Agente único (T49, D67, D97)
+
+O agente único é a referência qualitativa da D02: **um só agente** que classifica e repara no mesmo laço, com as mesmas 4 ferramentas dos dois agentes (`ler_arquivo`, `ver_diferenca`, `rodar_teste` e `salvar_reparo`), o mesmo guarda dentro do `salvar_reparo` (D129) e o limite total de 10 chamadas (`agentes.rodar_agente_unico`, prompt `prompts/agente_unico.md`). Ele recebe a primeira mensagem do Classifier, sem a diferença do contrato, e termina com o JSON do rótulo (schema da D131), que vai só para o log. A decisão vem do arquivo: reparou se algum reparo foi aceito pelo guarda. O rótulo `problema_real` com reparo salvo fica marcado no log (`incoerente`).
+
+Fica fora do teste estatístico e roda só nos 8 casos sorteados dos 24 finais (D97), 3 repetições, depois da baseline e dos agentes em cada caso (D82). O sorteio (`agente_contrato/sorteio.py`, semente 4949) está em `casos/sorteio-agente-unico.json`, gravado num commit anterior a qualquer execução: A1-015, A1-018, A1-019, A1-024, A1-026, A1-029, A1-031 e A1-035. Na T25: **Parameters** `--api ../rest-test-healing-sut --saida resultados/NOME-NOVO --oraculo casos/oraculo-agente1-final.json --tratamentos baseline agentes agente_unico --orcamento-usd VALOR`. O runner recusa o agente único (código de saída 7) se o sorteio tiver mudança não gravada, for de outro oráculo (por exemplo, o do piloto) ou citar caso fora do oráculo; o arquivo, o commit, a semente e os IDs vão para o log (`sorteio`), e a retomada recusa outro sorteio.
+
+Tradução para o formato comum (D74, D87: `tratamento` `agente_unico`, `versao_agente` `agentica`), pelas regras da D129, D130 e D132: reparo aceito é `reparar` (mesmo com o limite depois; com resposta final inválida, erro `saida_invalida`); `problema_real` sem reparo é `nao_reparar` sem erro; sem reparo aceito, uma recusa do guarda dá `guarda`, o limite de 10 dá `limite_chamadas`, e o rótulo `legitima` ou uma resposta final inválida dão `saida_invalida`; o tempo do caso esgotado é `timeout` e vence o guarda.
+
 ### Configurar a chave (só para a rodada paga)
 
 1. Copie `.env.example` para `.env`, na raiz do repositório.
@@ -58,11 +66,11 @@ O código lê a chave só desse arquivo (`cliente_claude.ler_chave`), não da va
 `agente_contrato/rodar.py` é o runner. Para cada caso, em ordem de `id_caso` (D82): copia a API cobaia na tag, aplica o patch, roda o Maven inicial, roda o Classifier e o Repair (`rodar_agente`), confere o guarda no arquivo final (D129), roda o Maven final com o menor entre 120 s e o que resta do caso (D111, D123) e grava o resultado e o log. Em cada caso, a baseline roda antes dos agentes (D82), 1 vez (D92), com os mesmos cópia, patch, Maven inicial, guarda e Maven final, e sem LLM; `--tratamentos agentes` roda só os agentes.
 
 1. **Run → Edit Configurations → + → Python**, **Module name** `agente_contrato.rodar`, **Working directory** a raiz deste repositório.
-2. **Parameters**: `--api ../rest-test-healing-sut --saida resultados/NOME-NOVO --orcamento-usd 0.10`. Opções: `--repeticoes N` (padrão 3 nos agentes, D92; a baseline roda 1 vez), `--tratamentos baseline agentes` (padrão: os dois, D82), `--casos A1-001 A1-004` (padrão: todos), `--oraculo casos/oraculo-agente1-final.json` (padrão: `casos/oraculo-agente1.json`, o do piloto; o final é o da T25) e `--retomar` (veja abaixo).
+2. **Parameters**: `--api ../rest-test-healing-sut --saida resultados/NOME-NOVO --orcamento-usd 0.10`. Opções: `--repeticoes N` (padrão 3 nos agentes, D92; a baseline roda 1 vez), `--tratamentos baseline agentes agente_unico` (padrão: `baseline agentes`, D82; o agente único exige o sorteio, veja acima), `--casos A1-001 A1-004` (padrão: todos), `--oraculo casos/oraculo-agente1-final.json` (padrão: `casos/oraculo-agente1.json`, o do piloto; o final é o da T25) e `--retomar` (veja abaixo).
 3. **Run**. O runner mostra a trava e pede que você digite `SIM` antes de chamar a API paga.
 
 Travas antes de gastar:
-- `--orcamento-usd` é obrigatório com os agentes. O gasto é relido do `chamadas.jsonl` da pasta antes de cada chamada, e a rodada para ao chegar ao valor (D105); pode passar dele por no máximo uma chamada (cerca de US$ 0,009).
+- `--orcamento-usd` é obrigatório com os agentes ou o agente único, e vale para os dois juntos. O gasto é relido do `chamadas.jsonl` da pasta antes de cada chamada, e a rodada para ao chegar ao valor (D105); pode passar dele por no máximo uma chamada (cerca de US$ 0,009).
 - O runner não roda com mudança não gravada em `prompts/` ou `agente_contrato/` (código de saída 7): o log precisa dizer com que prompt e código rodou (D105).
 - O oráculo tem de estar dentro do repositório e sem mudança não gravada (código de saída 7). O arquivo e o commit dele vão para o log (`oraculo`).
 - Sem `--retomar`, a pasta de saída deve ser nova: uma pasta com `resultados-agente1.json`, `log-agentica.json` ou `chamadas.jsonl` é recusada (código de saída 2).
@@ -87,10 +95,11 @@ Códigos de saída: 0 terminou; 3 erro que repetir não resolve (400, 401, 403, 
 | Arquivo | Conteúdo |
 |---|---|
 | `resultados-agente1.json` | Um registro por execução no formato comum (D74); é o arquivo que o validador da T20a lê |
-| `chamadas.jsonl` | Uma linha por chamada ao Claude, gravada na hora, com tokens, custo e `request_id` |
+| `chamadas.jsonl` | Uma linha por chamada ao Claude, gravada na hora, com o `tratamento` (T49), tokens, custo e `request_id`; linhas sem o `tratamento`, de antes da T49, são dos agentes |
 | `log-agentica.json` | Tag, oráculo (arquivo e commit), limites, commits dos prompts e do código, `sessoes` (início, tratamentos, execuções já gravadas, chamadas sem registro e aquecimento do Maven de cada vez que o comando rodou), exclusões com a causa (D111e) e o porquê de cada execução, com o `tratamento`; na baseline, as mudanças aplicadas, as ignoradas com o motivo e as recusas do guarda |
 | `execucoes/A1-NNN-rN/` | Agentes: `antes.java`, `depois.java`, `reparo.diff`, `caminho.json` (as ferramentas pedidas em cada volta) e `log.json` |
 | `execucoes/A1-NNN-baseline-r1/` | Baseline: os mesmos arquivos, com `caminho.json` vazio (não há agente) |
+| `execucoes/A1-NNN-agente_unico-rN/` | Agente único: os mesmos arquivos dos agentes, com um laço só no `caminho.json` |
 
 Até a T50 (comparador), `equivalente_oraculo` e `cenario_alterado` saem nulos, nos dois tratamentos, e o validador recusa o arquivo nos casos legítimos reparados (D110): é o esperado.
 
@@ -132,6 +141,7 @@ O agente nunca lê o oráculo. Ele recebe só o patch aplicado na API cobaia e o
 | `resultados/t47-rodada-teste/` | Rodada de teste paga da versão agêntica nos 12 casos do piloto, 1 repetição (T47), para medir tokens e custo; 66 chamadas, US$ 0,061937; não são resultados do estudo |
 | `resultados/t53-ensaio-retomada/` | Ensaio da retomada (T53) nos 12 casos do piloto, Maven de verdade e LLM simulado, 1 repetição: a rodada cai no meio do A1-007 r1 e é retomada; `terminal-sessao1.txt` e `terminal-sessao2.txt` têm a saída de cada vez; não são resultados do estudo |
 | `resultados/t51-ensaio/` | Ensaio da baseline nova (T51) nos 12 casos do piloto, Maven de verdade, 1 repetição, sem LLM; `comparacao-t42.json` compara com a t42-baseline da v1 (só o A1-007 muda, pela D114); não são resultados do estudo |
+| `resultados/t49-ensaio/` | Ensaio do agente único (T49) nos 12 casos do piloto, Maven de verdade e LLM simulado, 1 repetição, com os três tratamentos (baseline, agentes e agente único, este nos 12 casos); `terminal.txt` tem a saída; não são resultados do estudo |
 | `resultados/t51-ensaio-d133/` | O ensaio da T51 refeito depois da D133 (o `tempo_s` da baseline conta o Maven final), mesmos 12 casos e 1 repetição: `comparacao-t42.txt` (só o A1-007 muda, pela D114) e `comparacao-t51-ensaio.txt` (contra o `t51-ensaio`, só o `tempo_s` muda); não são resultados do estudo |
 | `resultados/t48-conferencia/` | Conferência automática dos 24 casos finais (T48), sem LLM e sem API: `tabela.md` (a a e por caso) e `resultado.json`; não são resultados do estudo |
 

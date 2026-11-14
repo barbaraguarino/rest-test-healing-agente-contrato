@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -10,7 +10,7 @@
+                                       "nome": "Pano de Prato",
+                                       "preco": 10.005,
+                                       "categoria": "CASA",
+-                                      "ativo": true,
++                                      "ativo": "ATIVO",
+                                       "estoque": 3,
+                                       "pesoGramas": 80,
+                                       "dimensoes": {"alturaCm": 1, "larguraCm": 40, "comprimentoCm": 60}
