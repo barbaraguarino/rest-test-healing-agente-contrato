@@ -49,6 +49,17 @@ class TestRegistrar(unittest.TestCase):
         self.assertEqual((r["id_caso"], r["categoria"], r["rotulo_oraculo"]),
                          ("A1-003", "renomeacao", "problema_real"))
 
+    def test_baseline_sem_versao_do_agente(self):  # D74, T51
+        r = registrar(Fim("reparar", None), LEGITIMO, 1, True, True, 0.01, tratamento="baseline", versao_agente=None)
+        self.assertEqual((r["tratamento"], r["versao_agente"], r["tokens"], r["custo_usd"]), ("baseline", None, 0, 0.0))
+
+    def test_mesmo_caso_e_repeticao_em_tratamentos_diferentes_e_gravado(self):  # chave da D74
+        a = registrar(Fim("nao_reparar", None), REGRESSAO, 1, compilou=None, passou=False, tempo_s=1)
+        b = registrar(Fim("nao_reparar", None), REGRESSAO, 1, compilou=None, passou=False, tempo_s=1,
+                      tratamento="baseline", versao_agente=None)
+        with tempfile.TemporaryDirectory() as pasta:
+            gravar_resultados(Path(pasta) / "resultados-agente1.json", "linha-de-base-2", [a, b])
+
     def test_execucao_repetida_nao_e_gravada(self):
         r = registrar(Fim("nao_reparar", None), REGRESSAO, 1, compilou=None, passou=False, tempo_s=1)
         with tempfile.TemporaryDirectory() as pasta, self.assertRaises(ValueError):
@@ -90,6 +101,14 @@ class TestArquivoNoValidadorDaT20a(unittest.TestCase):
             self.gravar_e_validar(self.exemplo(None, None))
         self.assertTrue(any("pendente de revisão manual" in p for p in erro.exception.problemas))
         self.assertTrue(any("cenario_alterado nulo" in p for p in erro.exception.problemas))
+
+    def test_baseline_e_agentes_no_mesmo_arquivo(self):  # T51: os nulos da D110 continuam pendentes
+        registros = [registrar(Fim("reparar", None), REGRESSAO, 1, True, False, 0.01, cenario_alterado=False,
+                               tratamento="baseline", versao_agente=None),
+                     registrar(Fim("nao_reparar", "guarda"), {**LEGITIMO, "id_caso": "A1-002"}, 1, None, False, 0.01,
+                               tratamento="baseline", versao_agente=None),
+                     registrar(Fim("nao_reparar", None), REGRESSAO, 1, None, False, 30.0)]
+        self.assertEqual(len(self.gravar_e_validar(registros)), 3)
 
     def test_problema_real_reparado_aceita_veredito_nulo(self):  # D119
         r = registrar(Fim("reparar", None), REGRESSAO, 1, True, True, 50.0, cenario_alterado=False)

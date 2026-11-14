@@ -1,0 +1,10 @@
+--- antes.java
++++ depois.java
+@@ -14,7 +14,6 @@
+                     .andExpect(jsonPath("$.enderecoEntrega.cidade").value("Campinas"))
+                     .andExpect(jsonPath("$.enderecoEntrega.uf").value("SP"))
+                     .andExpect(jsonPath("$.enderecoEntrega.cep").value("13010000"))
+-                    .andExpect(jsonPath("$.modalidadeFrete").value("EXPRESSA"))
+                     .andExpect(jsonPath("$.itens[0].produtoId").value(is(1)))
+                     .andExpect(jsonPath("$.itens[0].nomeProduto").value("Livro de Testes"))
+                     .andExpect(jsonPath("$.itens[0].quantidade").value(is(1)))

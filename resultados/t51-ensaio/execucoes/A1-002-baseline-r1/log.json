@@ -1,0 +1,20 @@
+{
+  "id_caso": "A1-002",
+  "tratamento": "baseline",
+  "repeticao": 1,
+  "decisao": "reparar",
+  "erro": null,
+  "aplicadas": [
+    "POST /carrinhos/{id}/itens, requisicao: o campo \"quantidade\" foi renomeado para \"unidades\" (integer (int32))"
+  ],
+  "ignoradas": [],
+  "recusas_do_guarda": [],
+  "detalhe": null,
+  "causa": null,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 0.0169,
+  "commit_do_prompt": null,
+  "commit_do_codigo": "a44836c92e9dbb6daeadafbe550d8ad9c6236b88"
+}

@@ -1,0 +1,20 @@
+{
+  "id_caso": "A1-011",
+  "tratamento": "baseline",
+  "repeticao": 1,
+  "decisao": "reparar",
+  "erro": null,
+  "aplicadas": [
+    "POST /produtos, requisicao: o campo \"marca\" passou a ser obrigatório (string)"
+  ],
+  "ignoradas": [],
+  "recusas_do_guarda": [],
+  "detalhe": null,
+  "causa": null,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 20.2468,
+  "commit_do_prompt": null,
+  "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+}

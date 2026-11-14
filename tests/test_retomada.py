@@ -72,7 +72,7 @@ class BaseRetomada(Base):
         with redirect_stdout(io.StringIO()) as saida, redirect_stderr(io.StringIO()):
             codigo = runner.executar_rodada(self.casos, self.oraculo, self.api, "base", self.pasta, repeticoes,
                                             criar, commits, MavenFalso(), aquecer_antes=False, oraculo=oraculo,
-                                            anteriores=anteriores)
+                                            anteriores=anteriores, tratamentos=("agentes",))
         self.saida = saida.getvalue()
         return codigo
 
@@ -263,7 +263,7 @@ class BaseMain(BaseRetomada):
 
     def main(self, *extra: str, sdk=None) -> int:
         argv = ["--api", str(self.api), "--saida", str(self.pasta), "--orcamento-usd", "0.004", "--repeticoes",
-                "2", "--tag", "base", "--sim", *extra]
+                "2", "--tag", "base", "--sim", "--tratamentos", "agentes", *extra]
         with redirect_stdout(io.StringIO()) as saida, redirect_stderr(io.StringIO()) as erro:
             codigo = runner.main(argv, sdk=sdk, rodar=MavenFalso())
         self.saida, self.erro = saida.getvalue(), erro.getvalue()

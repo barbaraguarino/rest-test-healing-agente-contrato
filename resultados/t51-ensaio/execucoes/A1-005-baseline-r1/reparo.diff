@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -6,7 +6,7 @@
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .content("""
+                                     {
+-                                      "destino": {"cep": "69005000", "uf": "AM"},
++                                      "destino": {"uf": "AM"},
+                                       "modalidade": "EXPRESSA",
+                                       "itens": [{"produtoId": 2, "quantidade": 1}]
+                                     }

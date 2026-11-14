@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -7,7 +7,7 @@
+                     .andExpect(jsonPath("$.id").value(is(1)))
+                     .andExpect(jsonPath("$.sku").value("LIV-002"))
+                     .andExpect(jsonPath("$.nome").value("Livro de Java"))
+-                    .andExpect(jsonPath("$.descricao").value("Livro sobre Java"))
++                    .andExpect(jsonPath("$.resumo").value("Livro sobre Java"))
+                     .andExpect(jsonPath("$.preco").value(decimal("89.90")))
+                     .andExpect(jsonPath("$.categoria").value("LIVROS"))
+                     .andExpect(jsonPath("$.ativo").value(true))

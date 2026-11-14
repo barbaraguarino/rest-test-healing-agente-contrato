@@ -87,14 +87,134 @@ def texto_do_metodo(texto: str, nome: str) -> str:
     return texto[inicio:corpo.fim]
 
 
+# ---------------------------------------------------------------- corpo JSON da requisição (T51)
+# Igual à v1: um leitor de JSON que guarda a posição de cada chave e valor no texto Java, para a
+# baseline editar o corpo da requisição no lugar (D75).
+
+@dataclass(frozen=True)
+class Membro:
+    chave: str
+    ini: int          # início da chave (com aspas)
+    fim: int          # fim do valor
+    valor: "No"
+
+
+@dataclass(frozen=True)
+class No:
+    tipo: str                           # "objeto", "array" ou "valor"
+    ini: int
+    fim: int
+    membros: tuple[Membro, ...] = ()    # objeto
+    elementos: tuple["No", ...] = ()    # array
+
+
+class _LeitorJson:
+    def __init__(self, texto: str):
+        self.t = texto
+
+    def _espaco(self, i: int) -> int:
+        while i < len(self.t) and self.t[i].isspace():
+            i += 1
+        return i
+
+    def _string(self, i: int) -> int:
+        j = i + 1
+        while j < len(self.t) and self.t[j] != '"':
+            j += 2 if self.t[j] == "\\" else 1
+        if j >= len(self.t):
+            raise ErroDeAnalise("string JSON sem fechamento")
+        return j + 1
+
+    def valor(self, i: int) -> No:
+        i = self._espaco(i)
+        c = self.t[i] if i < len(self.t) else ""
+        if c == "{":
+            return self._objeto(i)
+        if c == "[":
+            return self._array(i)
+        if c == '"':
+            return No("valor", i, self._string(i))
+        j = i
+        while j < len(self.t) and self.t[j] not in ",}]" and not self.t[j].isspace():
+            j += 1
+        if j == i:
+            raise ErroDeAnalise(f"JSON inválido na posição {i}")
+        return No("valor", i, j)
+
+    def _objeto(self, i: int) -> No:
+        membros, j = [], self._espaco(i + 1)
+        while self.t[j] != "}":
+            if self.t[j] != '"':
+                raise ErroDeAnalise(f"chave JSON esperada na posição {j}")
+            fim_chave = self._string(j)
+            dois_pontos = self._espaco(fim_chave)
+            if self.t[dois_pontos] != ":":
+                raise ErroDeAnalise(f"':' esperado na posição {dois_pontos}")
+            valor = self.valor(dois_pontos + 1)
+            membros.append(Membro(self.t[j + 1:fim_chave - 1], j, valor.fim, valor))
+            j = self._espaco(valor.fim)
+            if self.t[j] == ",":
+                j = self._espaco(j + 1)
+        return No("objeto", i, j + 1, membros=tuple(membros))
+
+    def _array(self, i: int) -> No:
+        elementos, j = [], self._espaco(i + 1)
+        while self.t[j] != "]":
+            elemento = self.valor(j)
+            elementos.append(elemento)
+            j = self._espaco(elemento.fim)
+            if self.t[j] == ",":
+                j = self._espaco(j + 1)
+        return No("array", i, j + 1, elementos=tuple(elementos))
+
+
+def analisar_json(texto: str, inicio: int) -> No:
+    """Lê o JSON que começa em `inicio` (espaços antes são aceitos)."""
+    try:
+        return _LeitorJson(texto).valor(inicio)
+    except IndexError:
+        raise ErroDeAnalise("JSON terminou antes do esperado") from None
+
+
+def _partes(caminho: str) -> list[str]:
+    """'itens[].produtoId' -> ['itens', '[]', 'produtoId']"""
+    return [p for p in re.findall(r"\[\]|[^.\[\]]+", caminho)]
+
+
+def _descer(nos: list[No], parte: str) -> list[No]:
+    if parte == "[]":
+        return [e for n in nos if n.tipo == "array" for e in n.elementos]
+    return [m.valor for n in nos if n.tipo == "objeto" for m in n.membros if m.chave == parte]
+
+
+def localizar_membros(raiz: No, caminho: str) -> list[Membro]:
+    """Membros do JSON que o caminho designa (vários, se passar por um array)."""
+    partes = _partes(caminho)
+    if not partes or partes[-1] == "[]":
+        return []
+    pais = [raiz]
+    for parte in partes[:-1]:
+        pais = _descer(pais, parte)
+    return [m for n in pais if n.tipo == "objeto" for m in n.membros if m.chave == partes[-1]]
+
+
+def localizar_objetos(raiz: No, caminho: str) -> list[No]:
+    """Objetos que o caminho designa; '' é a raiz. Serve para inserir campos."""
+    nos = [raiz]
+    for parte in _partes(caminho):
+        nos = _descer(nos, parte)
+    return [n for n in nos if n.tipo == "objeto"]
+
+
 # ---------------------------------------------------------------- chamadas e asserções (T23g)
-# Igual à v1, sem o corpo JSON da requisição, que só a baseline e o comparador usam (T50, T51).
+# Igual à v1. O corpo JSON da requisição (`corpo`) só a baseline e o comparador usam (T51, T50).
 # Premissa da suíte da API cobaia: cada chamada tem a forma mockMvc.perform(verbo("url") ...).
 
 _STATUS = {"isOk": 200, "isCreated": 201, "isNoContent": 204, "isBadRequest": 400,
            "isNotFound": 404, "isUnprocessableEntity": 422}
 
 _CHAMADA = re.compile(r'mockMvc\s*\.perform\(\s*(get|post|put|patch|delete)\(\s*"([^"]+)"')
+_CORPO = re.compile(r'\.content\(\s*"""')
 _JSONPATH = re.compile(r'jsonPath\("([^"]+)"\)')
 _STATUS_ESPERADO = re.compile(r"status\(\)\.(?:is\((\d+)\)|(\w+)\(\))")
 
@@ -117,6 +237,7 @@ class Chamada:
     fim: int
     status_esperado: int | None
     assercoes: tuple[Assercao, ...]
+    corpo: No | None = None  # o JSON de .content(""" ... """), se houver (T51)
 
 
 def resolver_rota(metodo_http: str, url: str, rotas: dict[str, set[str]]) -> str | None:
@@ -146,6 +267,10 @@ def analisar_chamadas(texto: str, metodo: Metodo, rotas: dict[str, set[str]]) ->
     for ini, fim in zip(inicios, limites):
         trecho = texto[ini:fim]
         m = _CHAMADA.match(trecho)
+        corpo = None
+        achado = _CORPO.search(trecho)
+        if achado is not None:
+            corpo = analisar_json(texto, ini + achado.end())
         assercoes = []
         for a in _JSONPATH.finditer(trecho):
             ini_linha = texto.rfind("\n", 0, ini + a.start()) + 1
@@ -154,7 +279,7 @@ def analisar_chamadas(texto: str, metodo: Metodo, rotas: dict[str, set[str]]) ->
                                       ini_linha, fim_linha + 1))
         chamadas.append(Chamada(m.group(1).upper(), m.group(2),
                                 resolver_rota(m.group(1), m.group(2), rotas),
-                                ini, fim, _status(trecho), tuple(assercoes)))
+                                ini, fim, _status(trecho), tuple(assercoes), corpo))
     return chamadas
 
 

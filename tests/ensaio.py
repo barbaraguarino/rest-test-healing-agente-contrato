@@ -96,10 +96,20 @@ def com_log(fabrica: FabricaDupla, log: LogDeChamadas, id_caso: str, repeticao: 
 
 
 def conferir(pasta: Path) -> bool:
-    """Cada execução deve sair como o oráculo espera, sem erro de infraestrutura."""
+    """Cada execução dos agentes deve sair como o oráculo espera, sem erro de infraestrutura.
+
+    A baseline (T51) não segue roteiro: ela erra as regressões por desenho (D75). Aqui só se confere que ela
+    rodou sem erro de infraestrutura; a comparação com a v1 é a de tests/comparar_t42.py.
+    """
     registros = json.loads((pasta / rodar.ARQUIVO_RESULTADOS).read_text(encoding="utf-8"))["execucoes"]
     ok = True
     for r in registros:
+        if r["tratamento"] == rodar.BASELINE:
+            sem_infra = r["erro"] not in ("erro_execucao", "erro_llm")
+            ok = ok and sem_infra
+            print("OK   " if sem_infra else "FALHA", r["id_caso"], "baseline", r["rotulo_oraculo"], r["decisao"],
+                  r["compilou"], r["passou"], r["erro"])
+            continue
         if r["rotulo_oraculo"] == "legitima":
             esperado = (r["decisao"], r["compilou"], r["passou"], r["erro"]) == ("reparar", True, True, None)
         else:
@@ -114,7 +124,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Ensaio da T23j com o Maven de verdade e o LLM simulado")
     ap.add_argument("--api", required=True, type=Path)
     ap.add_argument("--saida", required=True, type=Path)
-    ap.add_argument("--repeticoes", type=int, default=1)
+    ap.add_argument("--repeticoes", type=int, default=1, help="repetições nos agentes; a baseline roda 1 vez (D92)")
+    ap.add_argument("--tratamentos", nargs="+", choices=rodar.ORDEM_DOS_TRATAMENTOS,
+                    default=list(rodar.ORDEM_DOS_TRATAMENTOS), help="padrão: baseline e agentes (D82)")
     ap.add_argument("--casos", nargs="*", help="ids dos casos (padrão: os 12 do piloto)")
     ap.add_argument("--retomar", action="store_true", help="continua a rodada interrompida na mesma --saida (T53)")
     ap.add_argument("--interromper-em", nargs=2, metavar=("CASO", "REPETICAO"),
@@ -143,7 +155,8 @@ def main() -> int:
                        (id_caso, repeticao) == cair_em)
 
     codigo = rodar.executar_rodada(casos, por_id, args.api, tag, args.saida, args.repeticoes, criar_fabrica,
-                                   commits, oraculo=do_oraculo, anteriores=anteriores)
+                                   commits, oraculo=do_oraculo, anteriores=anteriores,
+                                   tratamentos=tuple(args.tratamentos))
     ok = codigo == rodar.SAIDA_OK and conferir(args.saida)
     print("ENSAIO", "OK" if ok else "FALHOU", f"(código de saída do runner: {codigo})")
     return 0 if ok else 1

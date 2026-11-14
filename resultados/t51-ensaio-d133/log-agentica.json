@@ -1,0 +1,321 @@
+{
+  "tag": "linha-de-base-2",
+  "oraculo": {
+    "arquivo": "casos/oraculo-agente1.json",
+    "commit": "b6608b6c82777a72d0dac65629f18ee004e69f95"
+  },
+  "limites": {
+    "teste_s": 120,
+    "caso_s": 180,
+    "llm_s": 120
+  },
+  "commit_do_prompt": "c458680c09f23e45d2b2125c3888d178a6f33e00",
+  "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2",
+  "sessoes": [
+    {
+      "inicio_utc": "2026-11-14T17:26:14+00:00",
+      "repeticoes": 3,
+      "tratamentos": [
+        "baseline"
+      ],
+      "execucoes_ja_gravadas": 0,
+      "linhas_de_chamadas_no_inicio": 0,
+      "chamadas_sem_registro": [],
+      "aquecimento": {
+        "teste": "ProdutoControllerTest.shouldReturn200WithAllFieldsWhenProductExists",
+        "passou": true,
+        "duracao_maven_s": 23.94,
+        "erro": null
+      }
+    }
+  ],
+  "exclusoes": [],
+  "exclusoes_por_causa": {},
+  "execucoes": [
+    {
+      "id_caso": "A1-001",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "GET /produtos/{id}, resposta: o campo \"descricao\" foi renomeado para \"resumo\" (string)"
+      ],
+      "ignoradas": [
+        [
+          "GET /produtos, resposta: o campo \"[].descricao\" foi renomeado para \"[].resumo\" (string)",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "POST /produtos, resposta: o campo \"descricao\" foi renomeado para \"resumo\" (string)",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": true,
+      "tempo_s": 24.9687,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    },
+    {
+      "id_caso": "A1-002",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "POST /carrinhos/{id}/itens, requisicao: o campo \"quantidade\" foi renomeado para \"unidades\" (integer (int32))"
+      ],
+      "ignoradas": [],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": true,
+      "tempo_s": 27.8313,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    },
+    {
+      "id_caso": "A1-003",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "POST /produtos, resposta: o campo \"nome\" foi renomeado para \"titulo\" (string)"
+      ],
+      "ignoradas": [
+        [
+          "GET /produtos, resposta: o campo \"[].nome\" foi renomeado para \"[].titulo\" (string)",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "GET /produtos/{id}, resposta: o campo \"nome\" foi renomeado para \"titulo\" (string)",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": false,
+      "tempo_s": 23.7865,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    },
+    {
+      "id_caso": "A1-004",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "POST /fretes/cotacao, resposta: o campo \"pesoTotalGramas\" foi removido (integer (int32))"
+      ],
+      "ignoradas": [],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": true,
+      "tempo_s": 26.6323,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    },
+    {
+      "id_caso": "A1-005",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "POST /fretes/cotacao, requisicao: o campo \"destino.cep\" foi removido (string)"
+      ],
+      "ignoradas": [],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": true,
+      "tempo_s": 23.8711,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    },
+    {
+      "id_caso": "A1-006",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "GET /pedidos/{id}, resposta: o campo \"modalidadeFrete\" foi removido (string, valores ['PADRAO', 'EXPRESSA'])"
+      ],
+      "ignoradas": [
+        [
+          "POST /pedidos, resposta: o campo \"modalidadeFrete\" foi removido (string, valores ['PADRAO', 'EXPRESSA'])",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "POST /pedidos/{id}/cancelamento, resposta: o campo \"modalidadeFrete\" foi removido (string, valores ['PADRAO', 'EXPRESSA'])",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": false,
+      "tempo_s": 28.5825,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    },
+    {
+      "id_caso": "A1-007",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "POST /produtos, resposta: o campo \"estoque\" mudou de integer (int32) para string"
+      ],
+      "ignoradas": [
+        [
+          "GET /produtos, resposta: o campo \"[].estoque\" mudou de integer (int32) para string",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "GET /produtos/{id}, resposta: o campo \"estoque\" mudou de integer (int32) para string",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": true,
+      "tempo_s": 24.7448,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    },
+    {
+      "id_caso": "A1-008",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "POST /produtos, requisicao: o campo \"ativo\" mudou de boolean para string, valores ['ATIVO', 'INATIVO']"
+      ],
+      "ignoradas": [],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": true,
+      "tempo_s": 23.5892,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    },
+    {
+      "id_caso": "A1-009",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "GET /carrinhos/{id}, resposta: o campo \"itens[].precoUnitario\" foi renomeado para \"itens[].preco\" (number)"
+      ],
+      "ignoradas": [
+        [
+          "POST /carrinhos, resposta: o campo \"itens[].precoUnitario\" foi renomeado para \"itens[].preco\" (number)",
+          "a mudança não atinge o teste"
+        ],
+        [
+          "POST /carrinhos/{id}/itens, resposta: o campo \"itens[].precoUnitario\" foi renomeado para \"itens[].preco\" (number)",
+          "a mudança não atinge o teste"
+        ]
+      ],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": false,
+      "tempo_s": 23.3946,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    },
+    {
+      "id_caso": "A1-010",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "POST /pedidos, requisicao: o campo \"cliente.cpf\" passou a ser obrigatório (string)"
+      ],
+      "ignoradas": [],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": true,
+      "tempo_s": 21.0767,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    },
+    {
+      "id_caso": "A1-011",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "POST /produtos, requisicao: o campo \"marca\" passou a ser obrigatório (string)"
+      ],
+      "ignoradas": [],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": true,
+      "tempo_s": 20.2468,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    },
+    {
+      "id_caso": "A1-012",
+      "tratamento": "baseline",
+      "repeticao": 1,
+      "decisao": "reparar",
+      "erro": null,
+      "aplicadas": [
+        "POST /pedidos, requisicao: o campo \"modalidadeFrete\" foi renomeado para \"modalidade\" (string, valores ['PADRAO', 'EXPRESSA'])"
+      ],
+      "ignoradas": [],
+      "recusas_do_guarda": [],
+      "detalhe": null,
+      "causa": null,
+      "tentativas_maven_inicial": 1,
+      "compilou": true,
+      "passou": false,
+      "tempo_s": 20.633,
+      "commit_do_prompt": null,
+      "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+    }
+  ]
+}
