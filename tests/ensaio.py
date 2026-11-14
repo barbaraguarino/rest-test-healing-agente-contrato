@@ -12,6 +12,11 @@ Roteiro de cada caso:
 
 Uso, na raiz do repositório (PyCharm: veja o README):
     python -m tests.ensaio --api ../rest-test-healing-sut --saida resultados/t23j-ensaio
+
+Ensaio da retomada (T53): `--interromper-em A1-007 1` derruba a rodada no meio dessa execução, depois do
+`salvar_reparo` do Repair, como um Ctrl+C; depois, o mesmo comando com `--retomar` no lugar continua a rodada
+na mesma `--saida`. Cada chamada do LLM simulado é gravada no `chamadas.jsonl`, com custo zero e
+`request_id` "simulado", para a conta das chamadas sem registro aparecer.
 """
 import argparse
 import json
@@ -20,6 +25,7 @@ import tempfile
 from pathlib import Path
 
 from agente_contrato import execucao, rodar
+from agente_contrato.registro_llm import LogDeChamadas
 from agente_contrato.laco import PedidoFerramenta, RespostaModelo
 from agente_contrato.teste_java import texto_do_metodo
 from tests.llm_simulado import FabricaDupla
@@ -64,6 +70,31 @@ def roteiro(caso: rodar.Caso, do_oraculo: dict, raiz_repo: Path, api: Path, tag:
                          RespostaModelo("Reparo salvo e conferido.")])
 
 
+class Interrompido(KeyboardInterrupt):
+    """A queda simulada do ensaio da retomada: nada no runner a trata, como um Ctrl+C."""
+
+
+def com_log(fabrica: FabricaDupla, log: LogDeChamadas, id_caso: str, repeticao: int, cair: bool):
+    """Grava no `chamadas.jsonl` cada chamada do LLM simulado (custo zero); com `cair`, a rodada cai na
+    segunda chamada do Repair, depois de o reparo ser salvo na cópia."""
+    def criar(sistema, definicoes, formato=None):
+        modelo = fabrica(sistema, definicoes, formato=formato)
+        etapa = ("classifier", "repair")[len(fabrica.sistemas) - 1]
+        feitas = []
+
+        def chamar(historico):
+            feitas.append(1)
+            log.registrar(id_caso=id_caso, repeticao=repeticao, etapa=etapa, modelo_retornado="simulado",
+                          stop_reason=None, input_tokens=0, output_tokens=0, thinking_tokens=None, custo_usd=0.0,
+                          request_id="simulado", latencia_s=0.0, commit_do_prompt=None, resposta_bruta=None,
+                          erro=None)
+            if cair and etapa == "repair" and len(feitas) == 2:
+                raise Interrompido(f"ensaio: rodada interrompida no meio de {id_caso} r{repeticao}")
+            return modelo(historico)
+        return chamar
+    return criar
+
+
 def conferir(pasta: Path) -> bool:
     """Cada execução deve sair como o oráculo espera, sem erro de infraestrutura."""
     registros = json.loads((pasta / rodar.ARQUIVO_RESULTADOS).read_text(encoding="utf-8"))["execucoes"]
@@ -85,23 +116,34 @@ def main() -> int:
     ap.add_argument("--saida", required=True, type=Path)
     ap.add_argument("--repeticoes", type=int, default=1)
     ap.add_argument("--casos", nargs="*", help="ids dos casos (padrão: os 12 do piloto)")
+    ap.add_argument("--retomar", action="store_true", help="continua a rodada interrompida na mesma --saida (T53)")
+    ap.add_argument("--interromper-em", nargs=2, metavar=("CASO", "REPETICAO"),
+                    help="derruba a rodada no meio desta execução, para o ensaio da retomada (T53)")
     args = ap.parse_args()
-    if (args.saida / rodar.ARQUIVO_RESULTADOS).exists():
-        print(f"{args.saida} já tem uma rodada; escolha outra --saida", file=sys.stderr)
-        return 2
     raiz_repo = rodar.RAIZ_REPO
-    oraculo = json.loads((raiz_repo / "casos" / "oraculo-agente1.json").read_text(encoding="utf-8"))
+    do_oraculo = rodar.oraculo_do_log(rodar.ORACULO_PADRAO)
+    oraculo = json.loads((raiz_repo / do_oraculo["arquivo"]).read_text(encoding="utf-8"))
     por_id = {c["id_caso"]: c for c in oraculo["casos"]}
     tag = oraculo["versao_api"]
+    commits = rodar.commits_atuais()
+    try:
+        anteriores = rodar.carregar_anteriores(args.saida, args.retomar,
+                                               rodar.cabecalho(tag, do_oraculo, commits, rodar.LIMITE_CASO_S))
+    except rodar.RetomadaInvalida as exc:
+        print(f"o ensaio não roda: {exc}", file=sys.stderr)
+        return 2
+    cair_em = (args.interromper_em[0], int(args.interromper_em[1])) if args.interromper_em else None
+    log = LogDeChamadas(args.saida / rodar.ARQUIVO_CHAMADAS)
     casos = rodar.carregar_casos(oraculo, ids=set(args.casos) if args.casos else None)
     roteiros = {c.id_caso: (c, por_id[c.id_caso]) for c in casos}
 
     def criar_fabrica(id_caso: str, repeticao: int):
-        caso, do_oraculo = roteiros[id_caso]
-        return roteiro(caso, do_oraculo, raiz_repo, args.api, tag)
+        caso, do_caso = roteiros[id_caso]
+        return com_log(roteiro(caso, do_caso, raiz_repo, args.api, tag), log, id_caso, repeticao,
+                       (id_caso, repeticao) == cair_em)
 
     codigo = rodar.executar_rodada(casos, por_id, args.api, tag, args.saida, args.repeticoes, criar_fabrica,
-                                   rodar.commits_atuais())
+                                   commits, oraculo=do_oraculo, anteriores=anteriores)
     ok = codigo == rodar.SAIDA_OK and conferir(args.saida)
     print("ENSAIO", "OK" if ok else "FALHOU", f"(código de saída do runner: {codigo})")
     return 0 if ok else 1
