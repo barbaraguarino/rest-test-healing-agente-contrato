@@ -260,7 +260,7 @@ class TestReexecucao(Base):
     def executar(self, *fabricas):
         fila = list(fabricas)
         with redirect_stdout(io.StringIO()):
-            return runner.com_reexecucao(self.caso, 1, self.api, "base", self.raiz, lambda i, r: fila.pop(0),
+            return runner.com_reexecucao(self.caso, 1, self.api, "base", self.raiz, lambda i, r, t: fila.pop(0),
                                          MavenFalso())
 
     def test_erro_de_rede_reexecuta_uma_vez(self):  # D104
@@ -273,7 +273,7 @@ class TestReexecucao(Base):
 
     def test_infraestrutura_e_erro_execucao(self):  # D111e, D124
         with redirect_stdout(io.StringIO()):
-            e = runner.com_reexecucao(self.caso, 1, self.api, "base", self.raiz, lambda i, r: legitima_reparada(),
+            e = runner.com_reexecucao(self.caso, 1, self.api, "base", self.raiz, lambda i, r, t: legitima_reparada(),
                                       MavenFalso("infra"))
         self.assertEqual((e.fim.erro, e.causa), ("erro_execucao", "infraestrutura"))
 
@@ -302,7 +302,7 @@ class TestTrava(unittest.TestCase):
 
 class TestRodada(Base):
     def test_grava_resultado_log_e_pasta_da_execucao(self):
-        self.assertEqual(self.rodada(lambda i, r: legitima_reparada()), runner.SAIDA_OK)
+        self.assertEqual(self.rodada(lambda i, r, t: legitima_reparada()), runner.SAIDA_OK)
         [registro] = self.resultados()
         self.assertEqual((registro["decisao"], registro["compilou"], registro["passou"], registro["erro"]),
                          ("reparar", True, True, None))
@@ -315,7 +315,7 @@ class TestRodada(Base):
         self.assertEqual((log["exclusoes"], log["execucoes"][0]["commit_do_prompt"]), ([], "p"))
 
     def test_tokens_e_custo_vem_do_log_das_chamadas(self):  # D74, D106
-        def criar(id_caso, repeticao):
+        def criar(id_caso, repeticao, tratamento):
             log = LogDeChamadas(self.pasta / runner.ARQUIVO_CHAMADAS)
             campos = dict.fromkeys(("modelo_retornado", "stop_reason", "thinking_tokens", "request_id",
                                     "latencia_s", "commit_do_prompt", "resposta_bruta", "erro"))
@@ -328,30 +328,31 @@ class TestRodada(Base):
         self.assertEqual((registro["tokens"], registro["custo_usd"]), (6000, 0.001))
 
     def test_erro_de_infraestrutura_entra_nas_exclusoes(self):  # D111e
-        self.rodada(lambda i, r: legitima_reparada(), MavenFalso("passa"))
+        self.rodada(lambda i, r, t: legitima_reparada(), MavenFalso("passa"))
         [registro] = self.resultados()
         self.assertEqual((registro["decisao"], registro["erro"]), ("nao_reparar", "erro_execucao"))
         log = json.loads((self.pasta / runner.ARQUIVO_LOG).read_text(encoding="utf-8"))
         self.assertEqual(log["exclusoes_por_causa"], {"teste_passa_sem_reparo": 1})
 
     def test_erro_fatal_para_a_rodada_sem_gravar(self):  # D104, D108
-        codigo = self.rodada(lambda i, r: FabricaComExcecao(Modelo([], ErroFatal("HTTP 400", 0.1))))
+        codigo = self.rodada(lambda i, r, t: FabricaComExcecao(Modelo([], ErroFatal("HTTP 400", 0.1))))
         self.assertEqual(codigo, runner.SAIDA_ERRO_FATAL)
         self.assertFalse((self.pasta / runner.ARQUIVO_RESULTADOS).exists())
 
     def test_orcamento_esgotado_para_a_rodada(self):  # D105
-        codigo = self.rodada(lambda i, r: FabricaComExcecao(Modelo([], OrcamentoEsgotado(2.0, 2.0))))
+        codigo = self.rodada(lambda i, r, t: FabricaComExcecao(Modelo([], OrcamentoEsgotado(2.0, 2.0))))
         self.assertEqual(codigo, runner.SAIDA_ORCAMENTO)
 
     def test_tres_erro_llm_seguidos_param(self):  # D104
         casos = [runner.Caso(f"A1-00{n}", self.caso.patch, "ProdutoTest", "busca") for n in (1, 2, 3, 4)]
         self.oraculo.update({c.id_caso: {**self.oraculo["A1-001"], "id_caso": c.id_caso} for c in casos})
-        codigo = self.rodada(lambda i, r: FabricaComExcecao(Modelo([], ErroDeRede("x", 1))), casos=casos)
+        codigo = self.rodada(lambda i, r, t: FabricaComExcecao(Modelo([], ErroDeRede("x", 1))), casos=casos)
         self.assertEqual(codigo, runner.SAIDA_ERROS_SEGUIDOS)
         self.assertEqual([r["id_caso"] for r in self.resultados()], ["A1-001", "A1-002", "A1-003"])
 
-    def test_ordem_dos_tratamentos_d82(self):  # em cada caso, a baseline e depois os agentes
-        self.assertEqual(runner.ORDEM_DOS_TRATAMENTOS, ("baseline", "agentes"))
+    def test_ordem_dos_tratamentos_d82(self):  # em cada caso, a baseline, os agentes e o agente único (T49)
+        self.assertEqual(runner.ORDEM_DOS_TRATAMENTOS, ("baseline", "agentes", "agente_unico"))
+        self.assertEqual(runner.TRATAMENTOS_PADRAO, ("baseline", "agentes"))
 
 if __name__ == "__main__":
     unittest.main()

@@ -82,7 +82,7 @@ class TestExecutarBaseline(Base):
 
 
 class TestRodadaComBaseline(Base):
-    def rodar(self, criar=lambda i, r: legitima_reparada(), repeticoes=2, **kw) -> int:
+    def rodar(self, criar=lambda i, r, t: legitima_reparada(), repeticoes=2, **kw) -> int:
         with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
             return runner.executar_rodada([self.caso], self.oraculo, self.api, "base", self.pasta, repeticoes, criar,
                                           ("p", "c"), MavenFalso(), aquecer_antes=False, **kw)

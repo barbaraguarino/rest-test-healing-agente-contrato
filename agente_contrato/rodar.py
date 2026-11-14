@@ -1,9 +1,11 @@
-"""Runner do Agente 1 (T23j, T51): roda os casos, um a um, nos dois tratamentos, e grava resultados e logs.
+"""Runner do Agente 1 (T23j, T51, T49): roda os casos, um a um, nos três tratamentos, e grava resultados e logs.
 
 Tudo aqui é código determinístico. O LLM só decide dentro do `rodar_agente` (o rótulo, as ferramentas
 e o reparo); este módulo prepara a cópia da API cobaia, roda o Maven antes e depois, confere o guarda
 no arquivo final, trata os erros que atravessam o laço e grava o resultado de cada execução. A baseline
 (T51, D75) não usa LLM: `executar_baseline` faz os mesmos passos, com `baseline.reparar` no lugar do agente.
+O agente único (T49, D67) usa os mesmos passos dos agentes, com `rodar_agente_unico` no lugar de `rodar_agente`,
+e só roda nos casos sorteados (`casos/sorteio-agente-unico.json`, D97).
 
 Separação exigida pelo CLAUDE.md: `executar_caso` recebe só o patch e o nome do teste afetado e nunca
 vê o oráculo; o rótulo e a categoria entram no `registrar`, depois do caso.
@@ -15,6 +17,8 @@ Uso, na raiz do repositório (PyCharm: veja o README):
     python -m agente_contrato.rodar ... --saida resultados/NOME --retomar            # continua a rodada interrompida
     python -m agente_contrato.rodar --api ../rest-test-healing-sut --saida resultados/NOME --tratamentos baseline
                                                                      # só a baseline: sem chave, sem gasto
+    python -m agente_contrato.rodar ... --oraculo casos/oraculo-agente1-final.json \
+        --tratamentos baseline agentes agente_unico                  # a T25: o agente único nos 8 sorteados
 """
 import argparse
 import json
@@ -27,13 +31,14 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-from agente_contrato import baseline, cliente_claude, execucao, prompts
-from agente_contrato.agentes import ResultadoAgente, rodar_agente
+from agente_contrato import baseline, cliente_claude, execucao, prompts, sorteio
+from agente_contrato.agentes import ResultadoAgente, ResultadoAgenteUnico, rodar_agente, rodar_agente_unico
 from agente_contrato.cliente_claude import ErroDeRede, ErroFatal, RespostaInvalida
 from agente_contrato.contrato import descrever_mudanca, diferenca, rotas_do_contrato
 from agente_contrato.ferramentas import contratos, guarda_do_caso, montar
 from agente_contrato.registro import (NAO_REPARAR, REPARAR, Fim, caminho_do_agente, entrada_do_log,
-                                      gravar_execucao, gravar_resultados, registrar, traduzir)
+                                      entrada_do_log_agente_unico, gravar_execucao, gravar_resultados, registrar,
+                                      traduzir, traduzir_agente_unico)
 from agente_contrato.registro_llm import (LogDeChamadas, Orcamento, OrcamentoEsgotado, PromptAcimaDoLimite,
                                           gasto_do_log, tratamento_da_linha)
 from agente_contrato.relogio import LIMITE_CASO_S, RelogioCaso
@@ -94,7 +99,7 @@ class Execucao:
     compilou: bool | None = None
     passou: bool = False
     tempo_s: float = 0.0
-    agente: ResultadoAgente | None = None  # None quando uma exceção interrompeu o agente
+    agente: ResultadoAgente | ResultadoAgenteUnico | None = None  # None quando uma exceção interrompeu o agente
     antes: str = ""                        # o método afetado no começo do caso (para a T52)
     depois: str = ""                       # o método afetado no fim do caso
     detalhe: str | None = None             # por que o caso terminou em erro, para o log
@@ -112,8 +117,11 @@ def _metodo(texto: str, metodo: str) -> str:
 
 def executar_caso(caso: Caso, api: Path, tag: str, trabalho: Path, criar_modelo,
                   rodar=execucao.rodar_teste, limite_caso_s: float = LIMITE_CASO_S,
-                  agora=time.monotonic) -> Execucao:
+                  agora=time.monotonic, tratamento: str = "agentes") -> Execucao:
     """Os 7 passos de um caso: cópia, patch, Maven inicial, laço, guarda final, Maven final e o fim.
+
+    `tratamento` escolhe o que roda no passo 4: os agentes (`rodar_agente`) ou o agente único
+    (`rodar_agente_unico`, T49). Os outros passos são os mesmos.
 
     Uma falha de infraestrutura sai como ErroDeExecucao; ErroDeRede, ErroFatal, PromptAcimaDoLimite e
     OrcamentoEsgotado atravessam para quem chama decidir (D104, D105, D106, D108). A cópia é apagada
@@ -136,9 +144,9 @@ def executar_caso(caso: Caso, api: Path, tag: str, trabalho: Path, criar_modelo,
         e = Execucao(Fim(NAO_REPARAR, None), antes=_metodo(original, caso.metodo),
                      tentativas_maven_inicial=tentativas)
         try:                                                                     # 4
-            e.agente = rodar_agente(criar_modelo, ferramentas, relogio, arquivo, caso.classe, caso.metodo,
-                                    falha, e.antes)
-            e.fim = traduzir(e.agente)
+            agente, traduzir_fim = AGENTES[tratamento]
+            e.agente = agente(criar_modelo, ferramentas, relogio, arquivo, caso.classe, caso.metodo, falha, e.antes)
+            e.fim = traduzir_fim(e.agente)
         except RespostaInvalida as exc:  # D132: o caso termina; vale o reparo aceito, se já havia um
             mudou = (copia / arquivo).read_bytes().decode("utf-8") != original
             e.fim, e.detalhe = Fim(REPARAR if mudou else NAO_REPARAR, exc.codigo), exc.motivo
@@ -244,24 +252,26 @@ def baseline_do_caso(caso: Caso, repeticao: int, api: Path, tag: str, trabalho: 
 
 def com_reexecucao(caso: Caso, repeticao: int, api: Path, tag: str, trabalho: Path, criar_fabrica,
                    rodar=execucao.rodar_teste, limite_caso_s: float = LIMITE_CASO_S,
-                   agora=time.monotonic) -> Execucao:
+                   agora=time.monotonic, tratamento: str = "agentes") -> Execucao:
     """D104: um erro de rede reexecuta o caso uma vez, do zero; se falhar de novo, `erro_llm`.
 
     Uma falha de infraestrutura vira `erro_execucao`, fora das métricas (D111e); o Maven inicial já
-    tem a sua reexecução. `criar_fabrica(id_caso, repeticao)` devolve o `criar_modelo` da execução.
+    tem a sua reexecução. `criar_fabrica(id_caso, repeticao, tratamento)` devolve o `criar_modelo` da execução.
     """
     motivo = None
+    rotulo = nome_da_execucao(caso.id_caso, tratamento, repeticao)
     for tentativa in (1, 2):
         try:
-            e = executar_caso(caso, api, tag, trabalho / f"{caso.id_caso}-r{repeticao}-t{tentativa}",
-                              criar_fabrica(caso.id_caso, repeticao), rodar, limite_caso_s, agora)
+            e = executar_caso(caso, api, tag, trabalho / f"{rotulo}-t{tentativa}",
+                              criar_fabrica(caso.id_caso, repeticao, tratamento), rodar, limite_caso_s, agora,
+                              tratamento)
             e.tentativas = tentativa
             return e
         except ErroDeRede as exc:
-            print(f"{caso.id_caso} r{repeticao}: erro de rede na tentativa {tentativa}: {exc.motivo}", flush=True)
+            print(f"{rotulo}: erro de rede na tentativa {tentativa}: {exc.motivo}", flush=True)
             motivo = exc.motivo
         except execucao.ErroDeExecucao as exc:
-            print(f"{caso.id_caso} r{repeticao}: ERRO {exc.codigo} ({exc.causa}): {exc}", flush=True)
+            print(f"{rotulo}: ERRO {exc.codigo} ({exc.causa}): {exc}", flush=True)
             return Execucao(Fim(NAO_REPARAR, "erro_execucao"), detalhe=str(exc), causa=exc.causa,
                             tentativas=tentativa)
     return Execucao(Fim(NAO_REPARAR, "erro_llm"), detalhe=motivo, causa="erro_llm", tentativas=2)
@@ -288,18 +298,36 @@ def com_trava(criar_modelo, orcamento: Orcamento):
 
 TRATAMENTO = "agentes"  # o desta versão, igual ao que `registro.registrar` grava (D74)
 BASELINE = "baseline"
+AGENTE_UNICO = "agente_unico"  # T49, D67, D74; `versao_agente` agentica (D87)
+COM_LLM = (TRATAMENTO, AGENTE_UNICO)
+
+# O que roda no passo 4 de `executar_caso` e como o fim vira `decisao` e `erro`, por tratamento.
+AGENTES = {TRATAMENTO: (rodar_agente, traduzir), AGENTE_UNICO: (rodar_agente_unico, traduzir_agente_unico)}
 
 
-def _entrada(caso: Caso, repeticao: int, e: Execucao, commits: tuple[str, str]) -> dict:
+def nome_da_execucao(id_caso: str, tratamento: str, repeticao: int) -> str:
+    """O nome da pasta da execução: `A1-001-r1` nos agentes (como antes da T49), `A1-001-agente_unico-r1` e
+    `A1-001-baseline-r1` nos outros."""
+    return f"{id_caso}-r{repeticao}" if tratamento == TRATAMENTO else f"{id_caso}-{tratamento}-r{repeticao}"
+
+
+def _entrada(caso: Caso, repeticao: int, e: Execucao, commits: tuple[str, str], tratamento: str = TRATAMENTO) -> dict:
     """A entrada do log da execução; sem o resultado do agente (exceção no meio), os campos ficam nulos."""
-    if e.agente is not None:
+    if isinstance(e.agente, ResultadoAgenteUnico):
+        entrada = entrada_do_log_agente_unico(caso.id_caso, repeticao, e.agente, e.fim, *commits)
+    elif e.agente is not None:
         entrada = entrada_do_log(caso.id_caso, repeticao, e.agente, e.fim, *commits)
+    elif tratamento == AGENTE_UNICO:
+        entrada = {"id_caso": caso.id_caso, "repeticao": repeticao, "motivo": None, "decisao": e.fim.decisao,
+                   "erro": e.fim.erro, "rotulo": None, "justificativa": None, "detalhe": None, "incoerente": None,
+                   "chamadas": None, "recusas_do_guarda": [], "commit_do_prompt": commits[0],
+                   "commit_do_codigo": commits[1]}
     else:
         entrada = {"id_caso": caso.id_caso, "repeticao": repeticao, "motivo": None, "decisao": e.fim.decisao,
                    "erro": e.fim.erro, "rotulo_classifier": None, "justificativa": None, "detalhe": None,
                    "chamadas_classifier": None, "chamadas_repair": None, "recusas_do_guarda": [],
                    "commit_do_prompt": commits[0], "commit_do_codigo": commits[1]}
-    entrada = {"id_caso": entrada["id_caso"], "tratamento": TRATAMENTO, **entrada}
+    entrada = {"id_caso": entrada["id_caso"], "tratamento": tratamento, **entrada}
     entrada.update(detalhe=entrada["detalhe"] or e.detalhe, causa=e.causa, tentativas=e.tentativas,
                    tentativas_maven_inicial=e.tentativas_maven_inicial, compilou=e.compilou, passou=e.passou,
                    tempo_s=round(e.tempo_s, 4))
@@ -325,11 +353,18 @@ def exclusoes(entradas: list[dict]) -> dict:
     return {"exclusoes": lista, "exclusoes_por_causa": dict(Counter(x["causa"] for x in lista))}
 
 
-def cabecalho(tag: str, oraculo: dict | None, commits: tuple[str, str], limite_caso_s: float) -> dict:
-    """O que não pode mudar dentro de uma rodada, nem numa retomada (D105, D111, T53)."""
-    return {"tag": tag, "oraculo": oraculo,
-            "limites": {"teste_s": execucao.LIMITE_TESTE_S, "caso_s": limite_caso_s, "llm_s": cliente_claude.TIMEOUT_S},
-            "commit_do_prompt": commits[0], "commit_do_codigo": commits[1]}
+def cabecalho(tag: str, oraculo: dict | None, commits: tuple[str, str], limite_caso_s: float,
+              sorteio_do_log: dict | None = None) -> dict:
+    """O que não pode mudar dentro de uma rodada, nem numa retomada (D105, D111, T53).
+
+    `sorteio_do_log`: o arquivo, o commit e os IDs do sorteio do agente único (T49, D97); nulo sem ele.
+    """
+    cab = {"tag": tag, "oraculo": oraculo,
+           "limites": {"teste_s": execucao.LIMITE_TESTE_S, "caso_s": limite_caso_s, "llm_s": cliente_claude.TIMEOUT_S},
+           "commit_do_prompt": commits[0], "commit_do_codigo": commits[1]}
+    if sorteio_do_log is not None:  # sem o agente único, o cabeçalho fica como o das rodadas de antes da T49
+        cab["sorteio"] = sorteio_do_log
+    return cab
 
 
 def _gravar_log(pasta: Path, cab: dict, sessoes: list[dict], entradas: list[dict]) -> None:
@@ -443,8 +478,9 @@ def aquecer(caso: Caso, api: Path, tag: str, trabalho: Path, rodar=execucao.roda
 
 
 
-# D82: em cada caso, a baseline e depois os agentes.
-ORDEM_DOS_TRATAMENTOS = (BASELINE, TRATAMENTO)
+# D82: em cada caso, a baseline, depois os agentes e, nos casos sorteados, o agente único (T49).
+ORDEM_DOS_TRATAMENTOS = (BASELINE, TRATAMENTO, AGENTE_UNICO)
+TRATAMENTOS_PADRAO = (BASELINE, TRATAMENTO)  # o agente único só roda quando pedido, com o sorteio
 
 
 def repeticoes_do(tratamento: str, repeticoes: int) -> int:
@@ -456,7 +492,8 @@ def executar_rodada(casos: list[Caso], oraculo_por_id: dict, api: Path, tag: str
                     criar_fabrica, commits: tuple[str, str], rodar=execucao.rodar_teste,
                     aquecer_antes: bool = True, limite_caso_s: float = LIMITE_CASO_S,
                     agora=time.monotonic, oraculo: dict | None = None, anteriores: Anteriores | None = None,
-                    tratamentos: tuple[str, ...] = ORDEM_DOS_TRATAMENTOS) -> int:
+                    tratamentos: tuple[str, ...] = TRATAMENTOS_PADRAO,
+                    casos_agente_unico: set[str] | None = None, sorteio_do_log: dict | None = None) -> int:
     """Roda caso a caso, na ordem da D82, e grava, depois de cada execução, os resultados e o log.
 
     Devolve o código de saída. `criar_fabrica(id_caso, repeticao)` devolve o `criar_modelo` de uma
@@ -464,19 +501,24 @@ def executar_rodada(casos: list[Caso], oraculo_por_id: dict, api: Path, tag: str
     `prompts/` e de `agente_contrato/` (D105). `oraculo`: o arquivo e o commit do oráculo (`oraculo_do_log`).
     `anteriores`: o que a rodada já gravou (`carregar_anteriores`), que é pulado (T53). Cada vez que o
     comando roda vira uma entrada de `sessoes` no log. `tratamentos`: quais rodam, sempre na ordem da D82;
-    só com a baseline, `criar_fabrica` não é usado e nada chama o LLM. `repeticoes` vale para os agentes; a
-    baseline roda 1 vez (D92).
+    só com a baseline, `criar_fabrica` não é usado e nada chama o LLM. `repeticoes` vale para os agentes e
+    para o agente único; a baseline roda 1 vez (D92). `casos_agente_unico`: os IDs em que o agente único roda
+    (o sorteio da D97); None, em todos (só no ensaio). `sorteio_do_log`: vai para o cabeçalho do log.
     """
     anteriores = anteriores or Anteriores()
     feitos = anteriores.feitos()
-    cab = cabecalho(tag, oraculo, commits, limite_caso_s)
+    cab = cabecalho(tag, oraculo, commits, limite_caso_s, sorteio_do_log)
     registros, entradas, sessoes = list(anteriores.registros), list(anteriores.entradas), list(anteriores.sessoes)
     seguidos = 0
     pasta.mkdir(parents=True, exist_ok=True)
     chamadas = pasta / ARQUIVO_CHAMADAS
     rodam = [t for t in ORDEM_DOS_TRATAMENTOS if t in tratamentos]
-    pendentes = [(c, t, r) for c in casos for t in rodam for r in range(1, repeticoes_do(t, repeticoes) + 1)
-                 if (c.id_caso, t, r) not in feitos]
+
+    def roda(caso: Caso, tratamento: str) -> bool:  # D97: o agente único só nos sorteados
+        return tratamento != AGENTE_UNICO or casos_agente_unico is None or caso.id_caso in casos_agente_unico
+
+    pendentes = [(c, t, r) for c in casos for t in rodam if roda(c, t)
+                 for r in range(1, repeticoes_do(t, repeticoes) + 1) if (c.id_caso, t, r) not in feitos]
     print(f"limites: teste {execucao.LIMITE_TESTE_S} s, caso {limite_caso_s:g} s, chamada ao LLM "
           f"{cliente_claude.TIMEOUT_S} s (D111) | prompts {commits[0]} | código {commits[1]}", flush=True)
     if oraculo:
@@ -502,6 +544,8 @@ def executar_rodada(casos: list[Caso], oraculo_por_id: dict, api: Path, tag: str
         _gravar_log(pasta, cab, sessoes, entradas)
         for caso in casos:
             for tratamento in rodam:
+                if not roda(caso, tratamento):
+                    continue
                 for repeticao in range(1, repeticoes_do(tratamento, repeticoes) + 1):
                     if (caso.id_caso, tratamento, repeticao) in feitos:
                         continue
@@ -523,7 +567,7 @@ def executar_rodada(casos: list[Caso], oraculo_por_id: dict, api: Path, tag: str
                         continue  # a contagem de erro_llm seguidos é só dos agentes (D104)
                     try:
                         e = com_reexecucao(caso, repeticao, api, tag, Path(trabalho), criar_fabrica, rodar,
-                                           limite_caso_s, agora)
+                                           limite_caso_s, agora, tratamento)
                     except ErroFatal as exc:
                         print(f"PARADA: erro que repetir não resolve (D104, D108): {exc.motivo}", file=sys.stderr)
                         return SAIDA_ERRO_FATAL
@@ -534,17 +578,19 @@ def executar_rodada(casos: list[Caso], oraculo_por_id: dict, api: Path, tag: str
                         print(f"PARADA: {exc} (D106)", file=sys.stderr)
                         return SAIDA_PROMPT_GRANDE
                     # só as chamadas desta sessão: as de uma tentativa interrompida antes ficam sem registro
-                    custo, tokens = gasto_do_log(chamadas, caso.id_caso, repeticao, anteriores.linhas_de_chamadas)
+                    custo, tokens = gasto_do_log(chamadas, caso.id_caso, repeticao, anteriores.linhas_de_chamadas,
+                                                 tratamento)
                     registro = registrar(e.fim, oraculo_por_id[caso.id_caso], repeticao, e.compilou, e.passou,
-                                         e.tempo_s, tokens, round(custo, 8))
-                    entrada = _entrada(caso, repeticao, e, commits)
+                                         e.tempo_s, tokens, round(custo, 8), tratamento=tratamento,
+                                         versao_agente="agentica")  # D87 no agente único
+                    entrada = _entrada(caso, repeticao, e, commits, tratamento)
                     registros.append(registro)
                     entradas.append(entrada)
                     gravar_resultados(pasta / ARQUIVO_RESULTADOS, tag, registros)
-                    gravar_execucao(pasta / "execucoes" / f"{caso.id_caso}-r{repeticao}", entrada,
+                    gravar_execucao(pasta / "execucoes" / nome_da_execucao(caso.id_caso, tratamento, repeticao), entrada,
                                     caminho_do_agente(e.agente) if e.agente else [], e.antes, e.depois)
                     _gravar_log(pasta, cab, sessoes, entradas)
-                    print(f"{caso.id_caso} agentes r{repeticao}: decisao={registro['decisao']} "
+                    print(f"{caso.id_caso} {tratamento} r{repeticao}: decisao={registro['decisao']} "
                           f"compilou={registro['compilou']} passou={registro['passou']} erro={registro['erro']} "
                           f"tokens={tokens} custo=US$ {custo:.6f} (rodada: US$ {gasto_do_log(chamadas)[0]:.6f})",
                           flush=True)
@@ -588,6 +634,31 @@ def oraculo_do_log(arquivo: Path, raiz_repo: Path = RAIZ_REPO) -> dict:
     return {"arquivo": relativo, "commit": commit}
 
 
+class SorteioInvalido(Exception):
+    """O sorteio do agente único não pode ser usado nesta rodada (D97)."""
+
+
+def sorteio_do_log(arquivo: Path, do_oraculo: dict, oraculo: dict, raiz_repo: Path = RAIZ_REPO) -> dict:
+    """O arquivo, o commit e os IDs do sorteio do agente único, para o log (T49, D97).
+
+    Como o oráculo, o sorteio tem de estar gravado num commit, e tem de ser do mesmo oráculo da rodada: com o
+    oráculo do piloto, por exemplo, o agente único não roda pelo runner (o ensaio roda nos 12 casos do piloto).
+    """
+    try:
+        do_arquivo = oraculo_do_log(arquivo, raiz_repo)
+    except OraculoInvalido as exc:
+        raise SorteioInvalido(str(exc).replace("o oráculo", "o sorteio")) from None
+    dados = json.loads((raiz_repo / do_arquivo["arquivo"]).read_text(encoding="utf-8"))
+    if dados["oraculo"]["arquivo"] != do_oraculo["arquivo"]:
+        raise SorteioInvalido(f"o sorteio é do oráculo {dados['oraculo']['arquivo']}, e a rodada usa "
+                              f"{do_oraculo['arquivo']}")
+    ids = sorteio.ids_sorteados(dados)
+    faltam = ids - {c["id_caso"] for c in oraculo["casos"]}
+    if faltam:
+        raise SorteioInvalido(f"casos sorteados que não estão no oráculo: {sorted(faltam)}")
+    return {**do_arquivo, "semente": dados["semente"], "ids": sorted(ids)}
+
+
 def _argumentos(argv: list[str] | None) -> argparse.Namespace:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--api", required=True, type=Path, help="clone da API cobaia (rest-test-healing-sut)")
@@ -598,11 +669,13 @@ def _argumentos(argv: list[str] | None) -> argparse.Namespace:
     ap.add_argument("--orcamento-usd", type=float,
                     help="obrigatório com os agentes: a rodada para quando o gasto do chamadas.jsonl da pasta chegar "
                          "a este valor (D105); na retomada, vale para a rodada inteira, somando as sessões anteriores")
-    ap.add_argument("--tratamentos", nargs="+", choices=ORDEM_DOS_TRATAMENTOS, default=list(ORDEM_DOS_TRATAMENTOS),
-                    help="quais tratamentos rodam, sempre na ordem da D82 (padrão: baseline e agentes); só com a "
-                         "baseline, a rodada não lê a chave nem gasta nada")
+    ap.add_argument("--tratamentos", nargs="+", choices=ORDEM_DOS_TRATAMENTOS, default=list(TRATAMENTOS_PADRAO),
+                    help="quais tratamentos rodam, sempre na ordem da D82 (padrão: baseline e agentes; a T25 pede "
+                         "também agente_unico); só com a baseline, a rodada não lê a chave nem gasta nada")
+    ap.add_argument("--sorteio", type=Path, default=sorteio.ARQUIVO_SORTEIO,
+                    help="com agente_unico: o arquivo do sorteio dos casos (D97; padrão: casos/sorteio-agente-unico.json)")
     ap.add_argument("--repeticoes", type=int, default=REPETICOES,
-                    help="repetições por caso nos agentes (D92: 3); a baseline roda 1 vez")
+                    help="repetições por caso nos agentes e no agente único (D92: 3); a baseline roda 1 vez")
     ap.add_argument("--oraculo", type=Path, default=ORACULO_PADRAO,
                     help="arquivo do oráculo, dentro do repositório (padrão: casos/oraculo-agente1.json, o do "
                          "piloto; o da T25 é casos/oraculo-agente1-final.json)")
@@ -616,9 +689,9 @@ def _argumentos(argv: list[str] | None) -> argparse.Namespace:
 def main(argv: list[str] | None = None, sdk=None, rodar=execucao.rodar_teste) -> int:
     """Roda a versão agêntica com o Claude de verdade. `sdk` e `rodar` são injetáveis só nos testes."""
     args = _argumentos(argv)
-    com_agentes = TRATAMENTO in args.tratamentos
+    com_agentes = any(t in args.tratamentos for t in COM_LLM)
     if com_agentes and args.orcamento_usd is None:
-        print("com os agentes, --orcamento-usd é obrigatório (D105)", file=sys.stderr)
+        print("com os agentes ou o agente único, --orcamento-usd é obrigatório (D105)", file=sys.stderr)
         return 2
     try:
         do_oraculo = oraculo_do_log(args.oraculo)
@@ -633,6 +706,13 @@ def main(argv: list[str] | None = None, sdk=None, rodar=execucao.rodar_teste) ->
         print(f"a API cobaia não foi encontrada em {args.api.resolve()}; o caminho de --api é relativo à "
               f"pasta de trabalho ({Path.cwd()})", file=sys.stderr)
         return 2
+    do_sorteio = None
+    if AGENTE_UNICO in args.tratamentos:
+        try:
+            do_sorteio = sorteio_do_log(args.sorteio, do_oraculo, oraculo)
+        except SorteioInvalido as exc:
+            print(f"o agente único não roda: {exc}", file=sys.stderr)
+            return SAIDA_NAO_CONGELADO
     commits = commits_atuais()
     if any(c.endswith(prompts.SUFIXO_ALTERADO) for c in commits):  # D105: o log diria com que código rodou
         print(f"há mudança não gravada nos prompts ou no código ({commits[0]}, {commits[1]}); grave antes de "
@@ -640,7 +720,7 @@ def main(argv: list[str] | None = None, sdk=None, rodar=execucao.rodar_teste) ->
         return SAIDA_NAO_CONGELADO
     try:  # antes de ler a chave: uma pasta recusada não gasta nada (T53)
         anteriores = carregar_anteriores(args.saida, args.retomar, cabecalho(args.tag, do_oraculo, commits,
-                                                                             LIMITE_CASO_S))
+                                                                             LIMITE_CASO_S, do_sorteio))
     except RetomadaInvalida as exc:
         print(f"a rodada não roda: {exc}", file=sys.stderr)
         return 2
@@ -658,7 +738,9 @@ def main(argv: list[str] | None = None, sdk=None, rodar=execucao.rodar_teste) ->
     log = LogDeChamadas(args.saida / ARQUIVO_CHAMADAS)
     orcamento = Orcamento(args.orcamento_usd, log.caminho)
     print(f"casos {', '.join(c.id_caso for c in casos)} | {' e '.join(tratamentos)} | {args.repeticoes} "
-          f"repetição(ões) nos agentes | modelo "
+          f"repetição(ões) nos agentes"
+          + (f" e no agente único (sorteados: {', '.join(do_sorteio['ids'])}, semente {do_sorteio['semente']})"
+             if do_sorteio else "") + " | modelo "
           f"{cliente_claude.MODELO} | trava de US$ {args.orcamento_usd:.2f}"
           + (f" (já gastos US$ {ja_gasto:.6f} nesta pasta)" if args.retomar else ""))
     if not args.sim:
@@ -668,11 +750,14 @@ def main(argv: list[str] | None = None, sdk=None, rodar=execucao.rodar_teste) ->
             print("cancelado, nada foi gasto")
             return 1
 
-    def criar_fabrica(id_caso: str, repeticao: int):  # uma FabricaClaude por execução (T23i)
-        return com_trava(cliente_claude.FabricaClaude(sdk, log, id_caso, repeticao, commits[0]), orcamento)
+    def criar_fabrica(id_caso: str, repeticao: int, tratamento: str):  # uma FabricaClaude por execução (T23i)
+        return com_trava(cliente_claude.FabricaClaude(sdk, log, id_caso, repeticao, commits[0], tratamento),
+                         orcamento)
 
     codigo = executar_rodada(casos, por_id, args.api, args.tag, args.saida, args.repeticoes, criar_fabrica,
-                             commits, rodar, oraculo=do_oraculo, anteriores=anteriores, tratamentos=tratamentos)
+                             commits, rodar, oraculo=do_oraculo, anteriores=anteriores, tratamentos=tratamentos,
+                             casos_agente_unico=set(do_sorteio["ids"]) if do_sorteio else None,
+                             sorteio_do_log=do_sorteio)
     gasto, tokens = gasto_do_log(log.caminho)
     print(f"gasto da rodada: US$ {gasto:.6f} | tokens: {tokens}"
           + (" (com as sessões anteriores desta pasta)" if args.retomar else ""))

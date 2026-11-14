@@ -61,7 +61,7 @@ class BaseRetomada(Base):
         self.criadas = []  # (id_caso, repeticao) de cada fábrica criada, em ordem: as execuções que rodaram
 
     def fabrica(self, cair_em: tuple[str, int] | None = None):
-        def criar(id_caso, repeticao):
+        def criar(id_caso, repeticao, tratamento):
             self.criadas.append((id_caso, repeticao))
             if (id_caso, repeticao) == cair_em:
                 return ModeloQueCai(self.pasta, id_caso, repeticao)
@@ -206,8 +206,8 @@ class TestCOrcamentoDaRodadaInteira(BaseRetomada):
         self.interromper()  # 4 chamadas de US$ 0,001: US$ 0,004 gastos
         criar = self.fabrica()
 
-        def com_trava(id_caso, repeticao):
-            return runner.com_trava(criar(id_caso, repeticao),
+        def com_trava(id_caso, repeticao, tratamento):
+            return runner.com_trava(criar(id_caso, repeticao, tratamento),
                                     runner.Orcamento(0.004, self.pasta / runner.ARQUIVO_CHAMADAS))
         self.criadas.clear()
         self.assertEqual(self.sessao(com_trava, self.retomar()), runner.SAIDA_ORCAMENTO)
@@ -216,7 +216,7 @@ class TestCOrcamentoDaRodadaInteira(BaseRetomada):
     def test_com_saldo_a_retomada_segue(self):
         self.interromper()
 
-        def com_trava(id_caso, repeticao):
+        def com_trava(id_caso, repeticao, tratamento):
             return runner.com_trava(legitima_reparada(),
                                     runner.Orcamento(0.005, self.pasta / runner.ARQUIVO_CHAMADAS))
         self.assertEqual(self.sessao(com_trava, self.retomar()), runner.SAIDA_OK)
