@@ -24,10 +24,11 @@ def commit_dos_prompts(pasta: Path = PASTA_PADRAO) -> str:
 
     Termina em `+alterado` quando há mudança não commitada ou arquivo novo na pasta: o resultado
     dessa execução não diz com que prompt rodou. Sem nenhum commit ainda, devolve `sem-commit`.
-    Também serve para o código, com a pasta `agente_contrato`.
+    Também serve para o código, com a pasta `agente_contrato`, e para um arquivo só, como o oráculo (T53).
     """
     def git(*args: str) -> str:
-        proc = subprocess.run(["git", *args, "--", str(pasta)], cwd=pasta, capture_output=True, text=True)
+        proc = subprocess.run(["git", *args, "--", str(pasta)], cwd=pasta if pasta.is_dir() else pasta.parent,
+                              capture_output=True, text=True)
         if proc.returncode != 0 and "does not have any commits" in proc.stderr:
             return ""  # repositório novo: ainda não há commit
         if proc.returncode != 0:

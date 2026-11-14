@@ -34,6 +34,8 @@ Botão direito na pasta `tests` → **Run 'Python tests in tests'**, com a raiz 
 2. Em **Module name**, `tests.ensaio`; em **Parameters**, `--api ../rest-test-healing-sut --saida resultados/NOME-NOVO`; em **Working directory**, a raiz deste repositório.
 3. **Run**. A última linha diz `ENSAIO OK` ou `ENSAIO FALHOU`. Leva cerca de 9 minutos (1 repetição).
 
+Ensaio da retomada (T53): em **Parameters**, acrescente `--interromper-em A1-007 1`. A rodada cai no meio dessa execução, depois do reparo salvo, como um Ctrl+C. Depois, troque `--interromper-em A1-007 1` por `--retomar`, com a mesma `--saida`, e clique em **Run** de novo. O LLM simulado grava cada chamada no `chamadas.jsonl` com custo zero, para a conta das chamadas sem registro aparecer.
+
 ### Configurar a chave (só para a rodada paga)
 
 1. Copie `.env.example` para `.env`, na raiz do repositório.
@@ -46,13 +48,27 @@ O código lê a chave só desse arquivo (`cliente_claude.ler_chave`), não da va
 `agente_contrato/rodar.py` é o runner. Para cada caso, em ordem de `id_caso` (D82): copia a API cobaia na tag, aplica o patch, roda o Maven inicial, roda o Classifier e o Repair (`rodar_agente`), confere o guarda no arquivo final (D129), roda o Maven final com o menor entre 120 s e o que resta do caso (D111, D123) e grava o resultado e o log. A baseline já tem o lugar na ordem e aparece como pendente até a T51.
 
 1. **Run → Edit Configurations → + → Python**, **Module name** `agente_contrato.rodar`, **Working directory** a raiz deste repositório.
-2. **Parameters**: `--api ../rest-test-healing-sut --saida resultados/NOME-NOVO --orcamento-usd 0.10`. Opções: `--repeticoes N` (padrão 3, D92) e `--casos A1-001 A1-004` (padrão: todos).
+2. **Parameters**: `--api ../rest-test-healing-sut --saida resultados/NOME-NOVO --orcamento-usd 0.10`. Opções: `--repeticoes N` (padrão 3, D92), `--casos A1-001 A1-004` (padrão: todos), `--oraculo casos/oraculo-agente1-final.json` (padrão: `casos/oraculo-agente1.json`, o do piloto; o final é o da T25) e `--retomar` (veja abaixo).
 3. **Run**. O runner mostra a trava e pede que você digite `SIM` antes de chamar a API paga.
 
 Travas antes de gastar:
 - `--orcamento-usd` é obrigatório. O gasto é relido do `chamadas.jsonl` da pasta antes de cada chamada, e a rodada para ao chegar ao valor (D105); pode passar dele por no máximo uma chamada (cerca de US$ 0,009).
 - O runner não roda com mudança não gravada em `prompts/` ou `agente_contrato/` (código de saída 7): o log precisa dizer com que prompt e código rodou (D105).
-- A pasta de saída deve ser nova: ainda não há retomada de uma rodada interrompida.
+- O oráculo tem de estar dentro do repositório e sem mudança não gravada (código de saída 7). O arquivo e o commit dele vão para o log (`oraculo`).
+- Sem `--retomar`, a pasta de saída deve ser nova: uma pasta com `resultados-agente1.json`, `log-agentica.json` ou `chamadas.jsonl` é recusada (código de saída 2).
+
+Todas essas conferências acontecem antes de o runner ler a chave: uma pasta recusada não gasta nada.
+
+### Retomar uma rodada interrompida (`--retomar`, T53)
+
+Se a rodada parar no meio (queda de luz, Ctrl+C, orçamento esgotado, erro fatal ou 3 `erro_llm` seguidos), rode de novo com os **mesmos Parameters** e mais `--retomar`, com a mesma `--saida`. O runner:
+- pula cada execução (caso, tratamento, repetição) que já está nos resultados **e** no log; a que está só num deles roda de novo;
+- refaz do início a execução que parou no meio. As chamadas pagas dela ficam em `sessoes[].chamadas_sem_registro` do log, e o `custo_usd` da execução refeita soma só as chamadas da sessão que a terminou. Assim, cada chamada paga é contada uma vez: no registro de uma execução ou nas chamadas sem registro;
+- conta o `--orcamento-usd` para a rodada inteira: o gasto começa do que já está no `chamadas.jsonl`, e a confirmação mostra quanto já foi gasto;
+- recusa a pasta (código de saída 2) se a tag, o oráculo (arquivo ou commit), os prompts, o código ou os limites de tempo forem outros. Uma pasta de antes da T53, sem o oráculo no log, também é recusada;
+- faz de novo o aquecimento do Maven (D111f), porque a retomada pode ser em outra hora ou outra máquina.
+
+Cada vez que o comando roda vira uma entrada de `sessoes` no log. O contador de 3 `erro_llm` seguidos começa do zero em cada sessão.
 
 Códigos de saída: 0 terminou; 3 erro que repetir não resolve (400, 401, 403, outros 4xx, inclusive o limite de gasto do workspace; D104, D108); 4 orçamento esgotado; 5 três `erro_llm` seguidos (D104); 6 prompt acima de 100 mil tokens (D106); 7 código ou prompts com mudança não gravada.
 
@@ -62,7 +78,7 @@ Códigos de saída: 0 terminou; 3 erro que repetir não resolve (400, 401, 403, 
 |---|---|
 | `resultados-agente1.json` | Um registro por execução no formato comum (D74); é o arquivo que o validador da T20a lê |
 | `chamadas.jsonl` | Uma linha por chamada ao Claude, gravada na hora, com tokens, custo e `request_id` |
-| `log-agentica.json` | Limites, commits dos prompts e do código, aquecimento do Maven, exclusões com a causa (D111e) e o porquê de cada execução |
+| `log-agentica.json` | Tag, oráculo (arquivo e commit), limites, commits dos prompts e do código, `sessoes` (início, execuções já gravadas, chamadas sem registro e aquecimento do Maven de cada vez que o comando rodou), exclusões com a causa (D111e) e o porquê de cada execução |
 | `execucoes/A1-NNN-rN/` | `antes.java`, `depois.java`, `reparo.diff`, `caminho.json` (as ferramentas pedidas em cada volta) e `log.json` |
 
 Até a T50 (comparador), `equivalente_oraculo` sai nulo, e o validador recusa o arquivo nos casos legítimos reparados (D110): é o esperado.
@@ -103,6 +119,7 @@ O agente nunca lê o oráculo. Ele recebe só o patch aplicado na API cobaia e o
 | `resultados/t23j-ensaio/` | Ensaio da versão agêntica nos 12 casos do piloto, Maven de verdade e LLM simulado, 1 repetição (T23j); não são resultados do estudo |
 | `resultados/t23j-d131/` | Uma chamada real do Classifier no A1-001, que confirmou que o modelo aceita o `output_config.format` junto com as ferramentas (D131); US$ 0,0003179 |
 | `resultados/t47-rodada-teste/` | Rodada de teste paga da versão agêntica nos 12 casos do piloto, 1 repetição (T47), para medir tokens e custo; 66 chamadas, US$ 0,061937; não são resultados do estudo |
+| `resultados/t53-ensaio-retomada/` | Ensaio da retomada (T53) nos 12 casos do piloto, Maven de verdade e LLM simulado, 1 repetição: a rodada cai no meio do A1-007 r1 e é retomada; `terminal-sessao1.txt` e `terminal-sessao2.txt` têm a saída de cada vez; não são resultados do estudo |
 | `resultados/t48-conferencia/` | Conferência automática dos 24 casos finais (T48), sem LLM e sem API: `tabela.md` (a a e por caso) e `resultado.json`; não são resultados do estudo |
 
 Os detalhes de cada rodada estão no README da tag `rodada-2` e na Operação do Estudo (repositório `rest-test-healing-estudo`).
