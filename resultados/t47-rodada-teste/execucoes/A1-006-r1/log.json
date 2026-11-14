@@ -1,0 +1,21 @@
+{
+  "id_caso": "A1-006",
+  "repeticao": 1,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo_classifier": "problema_real",
+  "justificativa": "A falha é em $.cliente.email, e o diff do contrato só registra a remoção de modalidadeFrete, não de email. O contrato novo ainda declara cliente.email em ClienteResponse, mas o código em ClienteResponse.java só expõe o campo nome, então a API se afasta do contrato sem que a mudança esteja registrada.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 0,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "c458680c09f23e45d2b2125c3888d178a6f33e00",
+  "commit_do_codigo": "e904cc6e158141cf846a223774d7c6bfc0e78e11",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 8.6092
+}

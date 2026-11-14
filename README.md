@@ -102,6 +102,7 @@ O agente nunca lê o oráculo. Ele recebe só o patch aplicado na API cobaia e o
 | `resultados/t44-d113/` | Conferência do defeito da correção esperada do A1-007 (T44) |
 | `resultados/t23j-ensaio/` | Ensaio da versão agêntica nos 12 casos do piloto, Maven de verdade e LLM simulado, 1 repetição (T23j); não são resultados do estudo |
 | `resultados/t23j-d131/` | Uma chamada real do Classifier no A1-001, que confirmou que o modelo aceita o `output_config.format` junto com as ferramentas (D131); US$ 0,0003179 |
+| `resultados/t47-rodada-teste/` | Rodada de teste paga da versão agêntica nos 12 casos do piloto, 1 repetição (T47), para medir tokens e custo; 66 chamadas, US$ 0,061937; não são resultados do estudo |
 
 Os detalhes de cada rodada estão no README da tag `rodada-2` e na Operação do Estudo (repositório `rest-test-healing-estudo`).
 
