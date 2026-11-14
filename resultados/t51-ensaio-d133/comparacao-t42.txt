@@ -1,0 +1,15 @@
+A1-001 legitima      reparar     compilou=True passou=True erro=None | reparo: igual | t42: igual
+A1-002 legitima      reparar     compilou=True passou=True erro=None | reparo: igual | t42: igual
+A1-003 problema_real reparar     compilou=True passou=False erro=None | reparo: igual | t42: igual
+A1-004 legitima      reparar     compilou=True passou=True erro=None | reparo: igual | t42: igual
+A1-005 legitima      reparar     compilou=True passou=True erro=None | reparo: igual | t42: igual
+A1-006 problema_real reparar     compilou=True passou=False erro=None | reparo: igual | t42: igual
+A1-007 legitima      reparar     compilou=True passou=True erro=None | reparo: D114 | t42: igual
+       -                    .andExpect(jsonPath("$.estoque").value("0"));
+       +                    .andExpect(jsonPath("$.estoque").value(is("0")));
+A1-008 legitima      reparar     compilou=True passou=True erro=None | reparo: igual | t42: igual
+A1-009 problema_real reparar     compilou=True passou=False erro=None | reparo: igual | t42: igual
+A1-010 legitima      reparar     compilou=True passou=True erro=None | reparo: igual | t42: igual
+A1-011 legitima      reparar     compilou=True passou=True erro=None | reparo: igual | t42: igual
+A1-012 problema_real reparar     compilou=True passou=False erro=None | reparo: igual | t42: igual
+COMPARAÇÃO OK: só a diferença da D114
