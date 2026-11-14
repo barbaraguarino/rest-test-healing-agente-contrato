@@ -1,0 +1,104 @@
+{
+  "tarefa": "T49",
+  "decisao": "D97",
+  "semente": 4949,
+  "metodo": "para cada (categoria, rotulo), nesta ordem, os id_caso em ordem crescente e um random.Random(semente).choice, o mesmo gerador para as 8 combinações",
+  "oraculo": {
+    "arquivo": "casos/oraculo-agente1-final.json",
+    "commit": "e899f1b8cc068dce229624bfaff85ad9b9e9c594",
+    "tag": "oraculo-final",
+    "commit_da_tag": "27350f1ab1d557444dc7f78b945a4be93b5d80b6"
+  },
+  "sorteados": [
+    {
+      "categoria": "renomeacao",
+      "rotulo_oraculo": "legitima",
+      "candidatos": [
+        "A1-013",
+        "A1-014",
+        "A1-015",
+        "A1-016"
+      ],
+      "id_caso": "A1-015"
+    },
+    {
+      "categoria": "renomeacao",
+      "rotulo_oraculo": "problema_real",
+      "candidatos": [
+        "A1-017",
+        "A1-018"
+      ],
+      "id_caso": "A1-018"
+    },
+    {
+      "categoria": "remocao",
+      "rotulo_oraculo": "legitima",
+      "candidatos": [
+        "A1-019",
+        "A1-020",
+        "A1-021",
+        "A1-022"
+      ],
+      "id_caso": "A1-019"
+    },
+    {
+      "categoria": "remocao",
+      "rotulo_oraculo": "problema_real",
+      "candidatos": [
+        "A1-023",
+        "A1-024"
+      ],
+      "id_caso": "A1-024"
+    },
+    {
+      "categoria": "alteracao_tipo",
+      "rotulo_oraculo": "legitima",
+      "candidatos": [
+        "A1-025",
+        "A1-026",
+        "A1-027",
+        "A1-028"
+      ],
+      "id_caso": "A1-026"
+    },
+    {
+      "categoria": "alteracao_tipo",
+      "rotulo_oraculo": "problema_real",
+      "candidatos": [
+        "A1-029",
+        "A1-030"
+      ],
+      "id_caso": "A1-029"
+    },
+    {
+      "categoria": "campo_obrigatorio_novo",
+      "rotulo_oraculo": "legitima",
+      "candidatos": [
+        "A1-031",
+        "A1-032",
+        "A1-033",
+        "A1-034"
+      ],
+      "id_caso": "A1-031"
+    },
+    {
+      "categoria": "campo_obrigatorio_novo",
+      "rotulo_oraculo": "problema_real",
+      "candidatos": [
+        "A1-035",
+        "A1-036"
+      ],
+      "id_caso": "A1-035"
+    }
+  ],
+  "ids": [
+    "A1-015",
+    "A1-018",
+    "A1-019",
+    "A1-024",
+    "A1-026",
+    "A1-029",
+    "A1-031",
+    "A1-035"
+  ]
+}
