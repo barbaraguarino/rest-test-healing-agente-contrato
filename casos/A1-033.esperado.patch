@@ -1,0 +1,12 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
+index 627fe6b..ebffa6a 100644
+--- a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
+@@ -103,6 +103,7 @@ class FreteControllerTest {
+                                     {
+                                       "destino": {"cep": "01001000", "uf": "SP"},
+                                       "modalidade": "PADRAO",
++                                      "seguro": false,
+                                       "itens": [{"produtoId": 2, "quantidade": 1}]
+                                     }
+                                     """))

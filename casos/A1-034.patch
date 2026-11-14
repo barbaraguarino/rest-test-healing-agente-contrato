@@ -1,0 +1,44 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..8750bcf 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -481,6 +481,10 @@
+       "ItemCarrinhoRequest" : {
+         "type" : "object",
+         "properties" : {
++          "origem" : {
++            "type" : "string",
++            "minLength" : 1
++          },
+           "produtoId" : {
+             "type" : "integer",
+             "format" : "int64"
+@@ -491,7 +495,7 @@
+             "minimum" : 1
+           }
+         },
+-        "required" : [ "produtoId", "quantidade" ]
++        "required" : [ "origem", "produtoId", "quantidade" ]
+       },
+       "ItemCarrinhoResponse" : {
+         "type" : "object",
+diff --git a/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java b/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
+index a73d2d2..3aec8a7 100644
+--- a/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
+@@ -4,6 +4,7 @@ import static br.edu.resttesthealingsut.shared.validacao.MensagensValidacao.MINI
+ import static br.edu.resttesthealingsut.shared.validacao.MensagensValidacao.OBRIGATORIO;
+ 
+ import jakarta.validation.constraints.Min;
++import jakarta.validation.constraints.NotBlank;
+ import jakarta.validation.constraints.NotNull;
+ 
+ /**
+@@ -12,5 +13,6 @@ import jakarta.validation.constraints.NotNull;
+  */
+ public record ItemCarrinhoRequest(
+         @NotNull(message = OBRIGATORIO) Long produtoId,
+-        @NotNull(message = OBRIGATORIO) @Min(value = 1, message = MINIMO_UM) Integer quantidade) {
++        @NotNull(message = OBRIGATORIO) @Min(value = 1, message = MINIMO_UM) Integer quantidade,
++        @NotBlank(message = OBRIGATORIO) String origem) {
+ }
