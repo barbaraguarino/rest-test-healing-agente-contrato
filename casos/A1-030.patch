@@ -1,0 +1,72 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..1ff9c72 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -376,7 +376,7 @@
+       "DestinoRequest" : {
+         "type" : "object",
+         "properties" : {
+-          "cep" : {
++          "codigoPostal" : {
+             "type" : "string",
+             "pattern" : "\\d{8}"
+           },
+@@ -385,7 +385,7 @@
+             "enum" : [ "AC", "AP", "AM", "PA", "RO", "RR", "TO", "AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE", "DF", "GO", "MT", "MS", "ES", "MG", "RJ", "SP", "PR", "RS", "SC" ]
+           }
+         },
+-        "required" : [ "cep", "uf" ]
++        "required" : [ "codigoPostal", "uf" ]
+       },
+       "DimensoesRequest" : {
+         "type" : "object",
+diff --git a/src/main/java/br/edu/resttesthealingsut/frete/FreteService.java b/src/main/java/br/edu/resttesthealingsut/frete/FreteService.java
+index 87a6d3c..7714908 100644
+--- a/src/main/java/br/edu/resttesthealingsut/frete/FreteService.java
++++ b/src/main/java/br/edu/resttesthealingsut/frete/FreteService.java
+@@ -54,8 +54,11 @@ public class FreteService {
+             subtotais.add(Dinheiro.subtotalDoItem(produto.getPreco(), quantidade));
+         });
+ 
++        ModalidadeFrete modalidade = Boolean.TRUE.equals(request.modalidade())
++                ? ModalidadeFrete.EXPRESSA
++                : ModalidadeFrete.PADRAO;
+         ResultadoFrete resultado = calculadora.calcular(
+-                request.destino().uf(), request.modalidade(), itensFrete, Dinheiro.somar(subtotais));
+-        return CotacaoFreteResponse.de(request.modalidade(), resultado);
++                request.destino().uf(), modalidade, itensFrete, Dinheiro.somar(subtotais));
++        return CotacaoFreteResponse.de(modalidade, resultado);
+     }
+ }
+diff --git a/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteRequest.java b/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteRequest.java
+index f95c780..263ca23 100644
+--- a/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteRequest.java
+@@ -3,7 +3,6 @@ package br.edu.resttesthealingsut.frete.dto;
+ import static br.edu.resttesthealingsut.shared.validacao.MensagensValidacao.OBRIGATORIO;
+ import static br.edu.resttesthealingsut.shared.validacao.MensagensValidacao.PELO_MENOS_UM_ITEM;
+ 
+-import br.edu.resttesthealingsut.frete.ModalidadeFrete;
+ import jakarta.validation.Valid;
+ import jakarta.validation.constraints.NotEmpty;
+ import jakarta.validation.constraints.NotNull;
+@@ -15,6 +14,6 @@ import java.util.List;
+  */
+ public record CotacaoFreteRequest(
+         @NotNull(message = OBRIGATORIO) @Valid DestinoRequest destino,
+-        @NotNull(message = OBRIGATORIO) ModalidadeFrete modalidade,
++        @NotNull(message = OBRIGATORIO) Boolean modalidade,
+         @NotEmpty(message = PELO_MENOS_UM_ITEM) List<@NotNull(message = OBRIGATORIO) @Valid ItemCotacaoRequest> itens) {
+ }
+diff --git a/src/main/java/br/edu/resttesthealingsut/frete/dto/DestinoRequest.java b/src/main/java/br/edu/resttesthealingsut/frete/dto/DestinoRequest.java
+index 755b9f0..e571bf6 100644
+--- a/src/main/java/br/edu/resttesthealingsut/frete/dto/DestinoRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/frete/dto/DestinoRequest.java
+@@ -13,6 +13,6 @@ import jakarta.validation.constraints.Pattern;
+  * um CEP vazio gera uma única violação (8 dígitos), e não duas.
+  */
+ public record DestinoRequest(
+-        @NotNull(message = OBRIGATORIO) @Pattern(regexp = PADRAO_CEP, message = OITO_DIGITOS) String cep,
++        @NotNull(message = OBRIGATORIO) @Pattern(regexp = PADRAO_CEP, message = OITO_DIGITOS) String codigoPostal,
+         @NotNull(message = OBRIGATORIO) Uf uf) {
+ }
