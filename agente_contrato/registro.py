@@ -63,19 +63,22 @@ def traduzir(agente: ResultadoAgente) -> Fim:
 CAMPOS = ("id_caso", "agente", "tratamento", "versao_agente", "categoria", "rotulo_oraculo",
           "decisao", "compilou", "passou", "equivalente_oraculo", "assercoes_enfraquecidas",
           "cenario_alterado", "repeticao", "tempo_s", "tokens", "custo_usd", "erro")  # D74, nesta ordem
+CHAVE = ("id_caso", "agente", "tratamento", "versao_agente", "repeticao")  # o que não se repete (D74)
 
 
 def registrar(fim: Fim, oraculo_do_caso: dict, repeticao: int, compilou: bool | None, passou: bool,
               tempo_s: float, tokens: int = 0, custo_usd: float = 0.0,
-              equivalente_oraculo: bool | None = None, cenario_alterado: bool | None = None) -> dict:
+              equivalente_oraculo: bool | None = None, cenario_alterado: bool | None = None,
+              tratamento: str = "agentes", versao_agente: str | None = "agentica") -> dict:
     """O registro da D74 de uma execução. Chamada só depois do caso: é o único lugar que lê o oráculo.
 
     `compilou` e `passou` vêm do Maven final (T23j); `equivalente_oraculo` e `cenario_alterado`, do
     comparador (T50), e ficam nulos até lá: num caso legítimo reparado, o validador da T20a recusa o
     arquivo até a revisão manual preencher o veredito (D110). `tokens` e `custo_usd` vêm da T23i.
+    A baseline (T51) passa `tratamento="baseline"` e `versao_agente=None` (D74).
     """
-    registro = {"id_caso": oraculo_do_caso["id_caso"], "agente": "agente1", "tratamento": "agentes",
-                "versao_agente": "agentica", "categoria": oraculo_do_caso["categoria"],
+    registro = {"id_caso": oraculo_do_caso["id_caso"], "agente": "agente1", "tratamento": tratamento,
+                "versao_agente": versao_agente, "categoria": oraculo_do_caso["categoria"],
                 "rotulo_oraculo": oraculo_do_caso["rotulo_oraculo"], "decisao": fim.decisao,
                 "compilou": None, "passou": False, "equivalente_oraculo": None,
                 "assercoes_enfraquecidas": None, "cenario_alterado": None, "repeticao": repeticao,
@@ -93,9 +96,9 @@ def registrar(fim: Fim, oraculo_do_caso: dict, repeticao: int, compilou: bool | 
 def gravar_resultados(caminho: Path, versao_api: str, registros: list[dict]) -> None:
     """Regrava o arquivo de resultados inteiro por um temporário, como na v1: uma queda no meio da
     gravação não corrompe os registros já gravados."""
-    chaves = [tuple(r[c] for c in ("id_caso", "repeticao")) for r in registros]
+    chaves = [tuple(r[c] for c in CHAVE) for r in registros]
     if len(set(chaves)) != len(chaves):
-        raise ValueError("execução (id_caso, repeticao) repetida")
+        raise ValueError("execução (id_caso, agente, tratamento, versao_agente, repeticao) repetida")
     conteudo = {"versao_api": versao_api, "execucoes": [{c: r[c] for c in CAMPOS} for r in registros]}
     caminho.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=caminho.parent, prefix=caminho.name,
