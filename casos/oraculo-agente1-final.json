@@ -162,6 +162,60 @@
       "patch": "casos/A1-030.patch",
       "rotulo_oraculo": "problema_real",
       "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-031",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldReturn422AndKeepStockAndCartWhenStockIsNoLongerEnough",
+      "patch": "casos/A1-031.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-031.esperado.patch"
+    },
+    {
+      "id_caso": "A1-032",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "ProdutoControllerTest.shouldRoundPriceHalfUpWhenPriceHasThreeDecimalPlaces",
+      "patch": "casos/A1-032.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-032.esperado.patch"
+    },
+    {
+      "id_caso": "A1-033",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "FreteControllerTest.shouldCountStartedKilogramWhenWeightExceedsKilogramByOneGram",
+      "patch": "casos/A1-033.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-033.esperado.patch"
+    },
+    {
+      "id_caso": "A1-034",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "CarrinhoControllerTest.shouldReturn422WhenProductIsInactive",
+      "patch": "casos/A1-034.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-034.esperado.patch"
+    },
+    {
+      "id_caso": "A1-035",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldAcceptCouponWhenSubtotalIsAtMinimum",
+      "patch": "casos/A1-035.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-036",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "ProdutoControllerTest.shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing",
+      "patch": "casos/A1-036.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
     }
   ]
 }

@@ -222,5 +222,85 @@
     "\"codigoPostal\": \"01001000\""
    ]
   ]
+ },
+ "A1-031": {
+  "contrato_esperado": [
+   [
+    "campo_obrigatorio_novo",
+    "requisicao",
+    "enderecoEntrega.bairro"
+   ]
+  ]
+ },
+ "A1-032": {
+  "contrato_esperado": [
+   [
+    "campo_obrigatorio_novo",
+    "requisicao",
+    "garantiaMeses"
+   ]
+  ]
+ },
+ "A1-033": {
+  "contrato_esperado": [
+   [
+    "campo_obrigatorio_novo",
+    "requisicao",
+    "seguro"
+   ]
+  ]
+ },
+ "A1-034": {
+  "contrato_esperado": [
+   [
+    "campo_obrigatorio_novo",
+    "requisicao",
+    "origem"
+   ]
+  ]
+ },
+ "A1-035": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "enderecoEntrega.numero",
+    "enderecoEntrega.numeroImovel"
+   ]
+  ],
+  "campo_nao_registrado": "enderecoEntrega.complemento",
+  "legit_no_teste": [
+   [
+    "shouldAcceptCouponWhenSubtotalIsAtMinimum",
+    "\"numero\": \"10\"",
+    "\"numeroImovel\": \"10\""
+   ]
+  ],
+  "chave_enviada_pelo_teste": "enderecoEntrega"
+ },
+ "A1-036": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "resposta",
+    "[].estoque",
+    "[].quantidadeEstoque"
+   ],
+   [
+    "renomeacao",
+    "resposta",
+    "estoque",
+    "quantidadeEstoque"
+   ]
+  ],
+  "campo_nao_registrado": "descricao",
+  "legit_no_teste": [
+   [
+    "shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing",
+    "\"$.estoque\"",
+    "\"$.quantidadeEstoque\""
+   ]
+  ],
+  "chave_enviada_pelo_teste": "sku"
  }
 }

@@ -113,6 +113,9 @@ def conferir_caso(item: dict, esperado: dict, api: Path, trabalho: Path) -> dict
         campo = esperado["campo_nao_registrado"]
         ultimo = campo.split(".")[-1]
         atinge_n = f'"{ultimo}"' in trecho or f'.{ultimo}"' in trecho or f'.{ultimo}[' in trecho
+        pai = esperado.get("chave_enviada_pelo_teste")  # campo obrigatório novo: o teste não o envia, mas envia o objeto
+        if pai:
+            atinge_n = f'"{pai}"' in trecho
         fora_do_contrato = all(campo not in (m.caminho, m.novo_caminho) for m in mudancas)
         corrigido, atinge_l = antes, True
         for _, velho, novo_txt in esperado["legit_no_teste"]:
