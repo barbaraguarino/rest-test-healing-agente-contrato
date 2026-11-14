@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -21,7 +21,7 @@
+                     .andExpect(status().isCreated())
+                     .andExpect(jsonPath("$.id").isNumber())
+                     .andExpect(jsonPath("$.sku").value("ELE-001"))
+-                    .andExpect(jsonPath("$.nome").value("Fone de Ouvido"))
++                    .andExpect(jsonPath("$.titulo").value("Fone de Ouvido"))
+                     .andExpect(jsonPath("$.descricao").value("Fone sem fio"))
+                     .andExpect(jsonPath("$.preco").value(decimal("199.90")))
+                     .andExpect(jsonPath("$.categoria").value("ELETRONICOS"))

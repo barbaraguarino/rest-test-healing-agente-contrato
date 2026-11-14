@@ -1,0 +1,21 @@
+recusado só pelos nulos do comparador (T50), esperados pela D110:
+- registro 0 (A1-001): cenario_alterado nulo com decisao=reparar
+- registro 0 (A1-001): equivalente_oraculo nulo em caso legítimo reparado: pendente de revisão manual (D80)
+- registro 1 (A1-002): cenario_alterado nulo com decisao=reparar
+- registro 1 (A1-002): equivalente_oraculo nulo em caso legítimo reparado: pendente de revisão manual (D80)
+- registro 2 (A1-003): cenario_alterado nulo com decisao=reparar
+- registro 3 (A1-004): cenario_alterado nulo com decisao=reparar
+- registro 3 (A1-004): equivalente_oraculo nulo em caso legítimo reparado: pendente de revisão manual (D80)
+- registro 4 (A1-005): cenario_alterado nulo com decisao=reparar
+- registro 4 (A1-005): equivalente_oraculo nulo em caso legítimo reparado: pendente de revisão manual (D80)
+- registro 5 (A1-006): cenario_alterado nulo com decisao=reparar
+- registro 6 (A1-007): cenario_alterado nulo com decisao=reparar
+- registro 6 (A1-007): equivalente_oraculo nulo em caso legítimo reparado: pendente de revisão manual (D80)
+- registro 7 (A1-008): cenario_alterado nulo com decisao=reparar
+- registro 7 (A1-008): equivalente_oraculo nulo em caso legítimo reparado: pendente de revisão manual (D80)
+- registro 8 (A1-009): cenario_alterado nulo com decisao=reparar
+- registro 9 (A1-010): cenario_alterado nulo com decisao=reparar
+- registro 9 (A1-010): equivalente_oraculo nulo em caso legítimo reparado: pendente de revisão manual (D80)
+- registro 10 (A1-011): cenario_alterado nulo com decisao=reparar
+- registro 10 (A1-011): equivalente_oraculo nulo em caso legítimo reparado: pendente de revisão manual (D80)
+- registro 11 (A1-012): cenario_alterado nulo com decisao=reparar
