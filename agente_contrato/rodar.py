@@ -10,6 +10,8 @@ vê o oráculo; o rótulo e a categoria entram no `registrar`, depois do caso.
 Uso, na raiz do repositório (PyCharm: veja o README):
 
     python -m agente_contrato.rodar --api ../rest-test-healing-sut --saida resultados/NOME --orcamento-usd 0.10
+    python -m agente_contrato.rodar ... --oraculo casos/oraculo-agente1-final.json   # o oráculo da T25
+    python -m agente_contrato.rodar ... --saida resultados/NOME --retomar            # continua a rodada interrompida
 """
 import argparse
 import json
@@ -18,7 +20,7 @@ import sys
 import tempfile
 import time
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -211,6 +213,9 @@ def com_trava(criar_modelo, orcamento: Orcamento):
 
 # ---------------------------------------------------------------- log e registro
 
+TRATAMENTO = "agentes"  # o desta versão, igual ao que `registro.registrar` grava (D74)
+
+
 def _entrada(caso: Caso, repeticao: int, e: Execucao, commits: tuple[str, str]) -> dict:
     """A entrada do log da execução; sem o resultado do agente (exceção no meio), os campos ficam nulos."""
     if e.agente is not None:
@@ -220,6 +225,7 @@ def _entrada(caso: Caso, repeticao: int, e: Execucao, commits: tuple[str, str]) 
                    "erro": e.fim.erro, "rotulo_classifier": None, "justificativa": None, "detalhe": None,
                    "chamadas_classifier": None, "chamadas_repair": None, "recusas_do_guarda": [],
                    "commit_do_prompt": commits[0], "commit_do_codigo": commits[1]}
+    entrada = {"id_caso": entrada["id_caso"], "tratamento": TRATAMENTO, **entrada}
     entrada.update(detalhe=entrada["detalhe"] or e.detalhe, causa=e.causa, tentativas=e.tentativas,
                    tentativas_maven_inicial=e.tentativas_maven_inicial, compilou=e.compilou, passou=e.passou,
                    tempo_s=round(e.tempo_s, 4))
@@ -233,9 +239,101 @@ def exclusoes(entradas: list[dict]) -> dict:
     return {"exclusoes": lista, "exclusoes_por_causa": dict(Counter(x["causa"] for x in lista))}
 
 
-def _gravar_log(pasta: Path, sessao: dict, entradas: list[dict]) -> None:
-    dados = {**sessao, **exclusoes(entradas), "execucoes": entradas}
+def cabecalho(tag: str, oraculo: dict | None, commits: tuple[str, str], limite_caso_s: float) -> dict:
+    """O que não pode mudar dentro de uma rodada, nem numa retomada (D105, D111, T53)."""
+    return {"tag": tag, "oraculo": oraculo,
+            "limites": {"teste_s": execucao.LIMITE_TESTE_S, "caso_s": limite_caso_s, "llm_s": cliente_claude.TIMEOUT_S},
+            "commit_do_prompt": commits[0], "commit_do_codigo": commits[1]}
+
+
+def _gravar_log(pasta: Path, cab: dict, sessoes: list[dict], entradas: list[dict]) -> None:
+    dados = {**cab, "sessoes": sessoes, **exclusoes(entradas), "execucoes": entradas}
     (pasta / ARQUIVO_LOG).write_text(json.dumps(dados, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+# ---------------------------------------------------------------- retomada (T53, da v1 da T10)
+
+class RetomadaInvalida(Exception):
+    """A pasta de saída não pode receber esta rodada (D105: uma rodada, um oráculo, um prompt, um código)."""
+
+
+def chave(x: dict) -> tuple[str, str, int]:
+    """O que identifica uma execução na rodada: (caso, tratamento, repetição)."""
+    return x["id_caso"], x["tratamento"], x["repeticao"]
+
+
+@dataclass
+class Anteriores:
+    """O que as sessões anteriores da rodada já gravaram na pasta.
+
+    Uma execução só está feita quando está nos resultados e no log: a queda entre gravar um e outro faz a
+    execução rodar de novo. `linhas_de_chamadas`: quantas linhas o `chamadas.jsonl` tinha no começo
+    desta sessão; o registro de uma execução só soma as linhas depois delas.
+    """
+    registros: list = field(default_factory=list)
+    entradas: list = field(default_factory=list)
+    sessoes: list = field(default_factory=list)
+    chamadas_sem_registro: list = field(default_factory=list)  # pagas, de execuções que não chegaram ao fim
+    linhas_de_chamadas: int = 0
+
+    def feitos(self) -> set:
+        return {chave(x) for x in self.entradas}
+
+
+def _ler_json(caminho: Path):
+    return json.loads(caminho.read_text(encoding="utf-8")) if caminho.exists() else None
+
+
+def _sem_registro(linhas: list[str], feitos: set) -> list[dict]:
+    """As chamadas pagas destas linhas cuja execução não está feita: o registro de ninguém as soma.
+
+    O `chamadas.jsonl` não tem o tratamento: hoje só os agentes chamam o LLM (a T49 acrescenta o campo).
+    """
+    contagem: dict = {}
+    for linha in linhas:
+        if not linha.strip():
+            continue
+        c = json.loads(linha)
+        if (c["id_caso"], TRATAMENTO, c["repeticao"]) in feitos:
+            continue
+        n, custo = contagem.get((c["id_caso"], c["repeticao"]), (0, 0.0))
+        contagem[(c["id_caso"], c["repeticao"])] = n + 1, custo + (c["custo_usd"] or 0)
+    return [{"id_caso": i, "tratamento": TRATAMENTO, "repeticao": r, "chamadas": n, "custo_usd": round(custo, 8)}
+            for (i, r), (n, custo) in contagem.items()]
+
+
+def carregar_anteriores(pasta: Path, retomar: bool, cab: dict) -> Anteriores:
+    """Sem `retomar`, exige pasta sem rodada. Com `retomar`, devolve o que já foi gravado, e recusa se mudou
+    a tag, o oráculo, os prompts, o código ou os limites (`cab`, de `cabecalho`). Não lê a chave da API.
+    """
+    resultados, log_rodada, chamadas = pasta / ARQUIVO_RESULTADOS, pasta / ARQUIVO_LOG, pasta / ARQUIVO_CHAMADAS
+    if not retomar:
+        if any(a.exists() for a in (resultados, log_rodada, chamadas)):
+            raise RetomadaInvalida(f"{pasta} já tem uma rodada; use --retomar para continuá-la ou escolha outra "
+                                   f"--saida")
+        return Anteriores()
+    dados, log = _ler_json(resultados), _ler_json(log_rodada)
+    if log is None:
+        if dados is not None or chamadas.exists():
+            raise RetomadaInvalida(f"{pasta} tem resultados ou chamadas, mas não tem o {ARQUIVO_LOG}: não dá para "
+                                   f"conferir com que oráculo, prompts, código e limites a rodada começou")
+        return Anteriores()  # pasta vazia: a retomada começa do zero
+    diferencas = [f"{k}: gravado {log.get(k)}, agora {v}" for k, v in cab.items() if log.get(k) != v]
+    if dados is not None and dados["versao_api"] != cab["tag"]:
+        diferencas.append(f"versao_api dos resultados: gravada {dados['versao_api']}, agora {cab['tag']}")
+    if diferencas:
+        raise RetomadaInvalida("a rodada gravada é de outra configuração (" + "; ".join(diferencas) + ")")
+    no_resultado = {chave(r) for r in (dados or {"execucoes": []})["execucoes"]}
+    a = Anteriores(entradas=[x for x in log["execucoes"] if chave(x) in no_resultado], sessoes=log["sessoes"])
+    feitos = a.feitos()
+    a.registros = [r for r in (dados or {"execucoes": []})["execucoes"] if chave(r) in feitos]
+    linhas = chamadas.read_text(encoding="utf-8").splitlines() if chamadas.exists() else []
+    a.linhas_de_chamadas = len(linhas)
+    # cada linha é contada uma vez só: a desta sessão olha as linhas da sessão anterior; as de antes dela
+    # já estão no registro de uma execução ou nas `chamadas_sem_registro` de uma sessão anterior
+    desde = a.sessoes[-1]["linhas_de_chamadas_no_inicio"] if a.sessoes else 0
+    a.chamadas_sem_registro = _sem_registro(linhas[desde:], feitos)
+    return a
 
 
 # ---------------------------------------------------------------- rodada
@@ -257,6 +355,7 @@ def aquecer(caso: Caso, api: Path, tag: str, trabalho: Path, rodar=execucao.roda
     return dados
 
 
+
 # D82: em cada caso, a baseline e depois os agentes. A baseline nova é a T51, ainda não feita: o lugar
 # dela fica aqui, e o runner só avisa que ela está pendente.
 ORDEM_DOS_TRATAMENTOS = ("baseline", "agentes")
@@ -266,37 +365,54 @@ TRATAMENTOS_PRONTOS = {"agentes"}
 def executar_rodada(casos: list[Caso], oraculo_por_id: dict, api: Path, tag: str, pasta: Path, repeticoes: int,
                     criar_fabrica, commits: tuple[str, str], rodar=execucao.rodar_teste,
                     aquecer_antes: bool = True, limite_caso_s: float = LIMITE_CASO_S,
-                    agora=time.monotonic, oraculo: dict | None = None) -> int:
+                    agora=time.monotonic, oraculo: dict | None = None, anteriores: Anteriores | None = None) -> int:
     """Roda caso a caso, na ordem da D82, e grava, depois de cada execução, os resultados e o log.
 
     Devolve o código de saída. `criar_fabrica(id_caso, repeticao)` devolve o `criar_modelo` de uma
     execução: o Claude com a trava de orçamento, ou o LLM simulado do ensaio. `commits`: os de
     `prompts/` e de `agente_contrato/` (D105). `oraculo`: o arquivo e o commit do oráculo (`oraculo_do_log`).
+    `anteriores`: o que a rodada já gravou (`carregar_anteriores`), que é pulado (T53). Cada vez que o
+    comando roda vira uma entrada de `sessoes` no log.
     """
+    anteriores = anteriores or Anteriores()
+    feitos = anteriores.feitos()
+    cab = cabecalho(tag, oraculo, commits, limite_caso_s)
+    registros, entradas, sessoes = list(anteriores.registros), list(anteriores.entradas), list(anteriores.sessoes)
+    seguidos = 0
     pasta.mkdir(parents=True, exist_ok=True)
     chamadas = pasta / ARQUIVO_CHAMADAS
-    registros, entradas, seguidos = [], [], 0
-    sessao = {"inicio_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "tag": tag, "oraculo": oraculo,
-              "limites": {"teste_s": execucao.LIMITE_TESTE_S, "caso_s": limite_caso_s,
-                          "llm_s": cliente_claude.TIMEOUT_S},
-              "commit_do_prompt": commits[0], "commit_do_codigo": commits[1], "repeticoes": repeticoes,
-              "aquecimento": None}
+    pendentes = [(c, r) for c in casos for t in ORDEM_DOS_TRATAMENTOS if t in TRATAMENTOS_PRONTOS
+                 for r in range(1, repeticoes + 1) if (c.id_caso, t, r) not in feitos]
     print(f"limites: teste {execucao.LIMITE_TESTE_S} s, caso {limite_caso_s:g} s, chamada ao LLM "
           f"{cliente_claude.TIMEOUT_S} s (D111) | prompts {commits[0]} | código {commits[1]}", flush=True)
     if oraculo:
         print(f"oráculo: {oraculo['arquivo']} (commit {oraculo['commit']})", flush=True)
+    if feitos:
+        sem = anteriores.chamadas_sem_registro
+        print(f"retomada: {len(feitos)} execuções já gravadas, {len(pendentes)} a rodar; chamadas pagas sem "
+              f"registro: {sum(c['chamadas'] for c in sem)} (US$ {sum(c['custo_usd'] for c in sem):.6f})",
+              flush=True)
+    if not pendentes:
+        print("nada a rodar: todas as execuções já estão gravadas", flush=True)
+        return SAIDA_OK
+    sessao = {"inicio_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "repeticoes": repeticoes,
+              "execucoes_ja_gravadas": len(feitos), "linhas_de_chamadas_no_inicio": anteriores.linhas_de_chamadas,
+              "chamadas_sem_registro": anteriores.chamadas_sem_registro, "aquecimento": None}
+    sessoes.append(sessao)
     with tempfile.TemporaryDirectory(prefix="agentica-") as trabalho:
-        if aquecer_antes and casos:
-            sessao["aquecimento"] = a = aquecer(casos[0], api, tag, Path(trabalho) / "aquecimento", rodar)
+        if aquecer_antes:
+            sessao["aquecimento"] = a = aquecer(pendentes[0][0], api, tag, Path(trabalho) / "aquecimento", rodar)
             print(f"aquecimento do Maven (D111f, fora das métricas): {a['teste']} passou={a['passou']} "
                   f"maven={a['duracao_maven_s']} s erro={a['erro']}", flush=True)
-        _gravar_log(pasta, sessao, entradas)
+        _gravar_log(pasta, cab, sessoes, entradas)
         for caso in casos:
             for tratamento in ORDEM_DOS_TRATAMENTOS:
                 if tratamento not in TRATAMENTOS_PRONTOS:
                     print(f"{caso.id_caso}: {tratamento} pendente (T51)", flush=True)
                     continue
                 for repeticao in range(1, repeticoes + 1):
+                    if (caso.id_caso, tratamento, repeticao) in feitos:
+                        continue
                     try:
                         e = com_reexecucao(caso, repeticao, api, tag, Path(trabalho), criar_fabrica, rodar,
                                            limite_caso_s, agora)
@@ -309,7 +425,8 @@ def executar_rodada(casos: list[Caso], oraculo_por_id: dict, api: Path, tag: str
                     except PromptAcimaDoLimite as exc:
                         print(f"PARADA: {exc} (D106)", file=sys.stderr)
                         return SAIDA_PROMPT_GRANDE
-                    custo, tokens = gasto_do_log(chamadas, caso.id_caso, repeticao)
+                    # só as chamadas desta sessão: as de uma tentativa interrompida antes ficam sem registro
+                    custo, tokens = gasto_do_log(chamadas, caso.id_caso, repeticao, anteriores.linhas_de_chamadas)
                     registro = registrar(e.fim, oraculo_por_id[caso.id_caso], repeticao, e.compilou, e.passou,
                                          e.tempo_s, tokens, round(custo, 8))
                     entrada = _entrada(caso, repeticao, e, commits)
@@ -318,7 +435,7 @@ def executar_rodada(casos: list[Caso], oraculo_por_id: dict, api: Path, tag: str
                     gravar_resultados(pasta / ARQUIVO_RESULTADOS, tag, registros)
                     gravar_execucao(pasta / "execucoes" / f"{caso.id_caso}-r{repeticao}", entrada,
                                     caminho_do_agente(e.agente) if e.agente else [], e.antes, e.depois)
-                    _gravar_log(pasta, sessao, entradas)
+                    _gravar_log(pasta, cab, sessoes, entradas)
                     print(f"{caso.id_caso} r{repeticao}: decisao={registro['decisao']} "
                           f"compilou={registro['compilou']} passou={registro['passou']} erro={registro['erro']} "
                           f"tokens={tokens} custo=US$ {custo:.6f} (rodada: US$ {gasto_do_log(chamadas)[0]:.6f})",
@@ -366,9 +483,13 @@ def oraculo_do_log(arquivo: Path, raiz_repo: Path = RAIZ_REPO) -> dict:
 def _argumentos(argv: list[str] | None) -> argparse.Namespace:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--api", required=True, type=Path, help="clone da API cobaia (rest-test-healing-sut)")
-    ap.add_argument("--saida", required=True, type=Path, help="pasta de saída, nova ou vazia")
+    ap.add_argument("--saida", required=True, type=Path,
+                    help="pasta de saída, nova ou vazia; com --retomar, a da rodada interrompida")
+    ap.add_argument("--retomar", action="store_true",
+                    help="continua a rodada interrompida na mesma --saida, sem refazer o que já foi gravado (T53)")
     ap.add_argument("--orcamento-usd", required=True, type=float,
-                    help="a rodada para quando o gasto do chamadas.jsonl da pasta chegar a este valor (D105)")
+                    help="a rodada para quando o gasto do chamadas.jsonl da pasta chegar a este valor (D105); "
+                         "na retomada, vale para a rodada inteira, somando as sessões anteriores")
     ap.add_argument("--repeticoes", type=int, default=REPETICOES, help="repetições por caso (D92: 3)")
     ap.add_argument("--oraculo", type=Path, default=ORACULO_PADRAO,
                     help="arquivo do oráculo, dentro do repositório (padrão: casos/oraculo-agente1.json, o do "
@@ -396,23 +517,29 @@ def main(argv: list[str] | None = None, sdk=None, rodar=execucao.rodar_teste) ->
         print(f"a API cobaia não foi encontrada em {args.api.resolve()}; o caminho de --api é relativo à "
               f"pasta de trabalho ({Path.cwd()})", file=sys.stderr)
         return 2
-    if (args.saida / ARQUIVO_RESULTADOS).exists() or (args.saida / ARQUIVO_CHAMADAS).exists():
-        print(f"{args.saida} já tem uma rodada; escolha outra --saida", file=sys.stderr)
-        return 2
     commits = commits_atuais()
     if any(c.endswith(prompts.SUFIXO_ALTERADO) for c in commits):  # D105: o log diria com que código rodou
         print(f"há mudança não gravada nos prompts ou no código ({commits[0]}, {commits[1]}); grave antes de "
               f"gastar", file=sys.stderr)
         return SAIDA_NAO_CONGELADO
+    try:  # antes de ler a chave: uma pasta recusada não gasta nada (T53)
+        anteriores = carregar_anteriores(args.saida, args.retomar, cabecalho(args.tag, do_oraculo, commits,
+                                                                             LIMITE_CASO_S))
+    except RetomadaInvalida as exc:
+        print(f"a rodada não roda: {exc}", file=sys.stderr)
+        return 2
     casos = carregar_casos(oraculo, ids=set(args.casos) if args.casos else None)
+    ja_gasto = gasto_do_log(args.saida / ARQUIVO_CHAMADAS)[0]
     if sdk is None:
         sdk = cliente_claude.criar_sdk(cliente_claude.ler_chave(args.env or RAIZ_REPO / ".env"))
     log = LogDeChamadas(args.saida / ARQUIVO_CHAMADAS)
     orcamento = Orcamento(args.orcamento_usd, log.caminho)
     print(f"casos {', '.join(c.id_caso for c in casos)} | {args.repeticoes} repetição(ões) | modelo "
-          f"{cliente_claude.MODELO} | trava de US$ {args.orcamento_usd:.2f}")
+          f"{cliente_claude.MODELO} | trava de US$ {args.orcamento_usd:.2f}"
+          + (f" (já gastos US$ {ja_gasto:.6f} nesta pasta)" if args.retomar else ""))
     if not args.sim:
-        print(f"ATENÇÃO: vai chamar a API PAGA (trava de US$ {args.orcamento_usd:.2f}).")
+        print(f"ATENÇÃO: vai chamar a API PAGA (trava de US$ {args.orcamento_usd:.2f} para a rodada inteira"
+              + (f", já gastos US$ {ja_gasto:.6f} nesta pasta" if args.retomar else "") + ").")
         if input("Digite SIM para continuar: ").strip() != "SIM":
             print("cancelado, nada foi gasto")
             return 1
@@ -421,9 +548,11 @@ def main(argv: list[str] | None = None, sdk=None, rodar=execucao.rodar_teste) ->
         return com_trava(cliente_claude.FabricaClaude(sdk, log, id_caso, repeticao, commits[0]), orcamento)
 
     codigo = executar_rodada(casos, {c["id_caso"]: c for c in oraculo["casos"]}, args.api, args.tag, args.saida,
-                             args.repeticoes, criar_fabrica, commits, rodar, oraculo=do_oraculo)
+                             args.repeticoes, criar_fabrica, commits, rodar, oraculo=do_oraculo,
+                             anteriores=anteriores)
     gasto, tokens = gasto_do_log(log.caminho)
-    print(f"gasto da rodada: US$ {gasto:.6f} | tokens: {tokens}")
+    print(f"gasto da rodada: US$ {gasto:.6f} | tokens: {tokens}"
+          + (" (com as sessões anteriores desta pasta)" if args.retomar else ""))
     return codigo
 
 
