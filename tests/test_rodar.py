@@ -319,7 +319,8 @@ class TestRodada(Base):
             log = LogDeChamadas(self.pasta / runner.ARQUIVO_CHAMADAS)
             campos = dict.fromkeys(("modelo_retornado", "stop_reason", "thinking_tokens", "request_id",
                                     "latencia_s", "commit_do_prompt", "resposta_bruta", "erro"))
-            log.registrar(**campos, id_caso=id_caso, repeticao=repeticao, etapa="classifier", input_tokens=5000,
+            log.registrar(**campos, id_caso=id_caso, tratamento="agentes", repeticao=repeticao, etapa="classifier",
+                          input_tokens=5000,
                           output_tokens=1000, custo_usd=0.001)
             return legitima_reparada()
         self.rodada(criar)

@@ -35,7 +35,7 @@ from agente_contrato.ferramentas import contratos, guarda_do_caso, montar
 from agente_contrato.registro import (NAO_REPARAR, REPARAR, Fim, caminho_do_agente, entrada_do_log,
                                       gravar_execucao, gravar_resultados, registrar, traduzir)
 from agente_contrato.registro_llm import (LogDeChamadas, Orcamento, OrcamentoEsgotado, PromptAcimaDoLimite,
-                                          gasto_do_log)
+                                          gasto_do_log, tratamento_da_linha)
 from agente_contrato.relogio import LIMITE_CASO_S, RelogioCaso
 from agente_contrato.teste_java import texto_do_metodo
 
@@ -373,19 +373,20 @@ def _ler_json(caminho: Path):
 def _sem_registro(linhas: list[str], feitos: set) -> list[dict]:
     """As chamadas pagas destas linhas cuja execução não está feita: o registro de ninguém as soma.
 
-    O `chamadas.jsonl` não tem o tratamento: hoje só os agentes chamam o LLM (a T49 acrescenta o campo).
+    Cada linha diz o tratamento (T49); as gravadas antes da T49 não têm o campo e são dos agentes.
     """
     contagem: dict = {}
     for linha in linhas:
         if not linha.strip():
             continue
         c = json.loads(linha)
-        if (c["id_caso"], TRATAMENTO, c["repeticao"]) in feitos:
+        k = (c["id_caso"], tratamento_da_linha(c), c["repeticao"])
+        if k in feitos:
             continue
-        n, custo = contagem.get((c["id_caso"], c["repeticao"]), (0, 0.0))
-        contagem[(c["id_caso"], c["repeticao"])] = n + 1, custo + (c["custo_usd"] or 0)
-    return [{"id_caso": i, "tratamento": TRATAMENTO, "repeticao": r, "chamadas": n, "custo_usd": round(custo, 8)}
-            for (i, r), (n, custo) in contagem.items()]
+        n, custo = contagem.get(k, (0, 0.0))
+        contagem[k] = n + 1, custo + (c["custo_usd"] or 0)
+    return [{"id_caso": i, "tratamento": t, "repeticao": r, "chamadas": n, "custo_usd": round(custo, 8)}
+            for (i, t, r), (n, custo) in contagem.items()]
 
 
 def carregar_anteriores(pasta: Path, retomar: bool, cab: dict) -> Anteriores:

@@ -7,9 +7,12 @@ from pathlib import Path
 from agente_contrato import registro_llm as r
 
 
-def linha(id_caso: str, repeticao: int, custo, entrada, saida) -> str:
-    return json.dumps({"id_caso": id_caso, "repeticao": repeticao, "custo_usd": custo,
-                       "input_tokens": entrada, "output_tokens": saida}) + "\n"
+def linha(id_caso: str, repeticao: int, custo, entrada, saida, tratamento: str | None = None) -> str:
+    dados = {"id_caso": id_caso, "repeticao": repeticao, "custo_usd": custo, "input_tokens": entrada,
+             "output_tokens": saida}
+    if tratamento is not None:  # sem o campo: linha de antes da T49
+        dados["tratamento"] = tratamento
+    return json.dumps(dados) + "\n"
 
 
 class TestGastoDoLog(unittest.TestCase):
@@ -40,6 +43,19 @@ class TestGastoDoLog(unittest.TestCase):
         gasto, tokens = r.gasto_do_log(self.log, "A1-001", 1)
         self.assertAlmostEqual(gasto, 0.003, places=10)
         self.assertEqual(tokens, 14000)
+
+
+    def test_separa_os_tratamentos_no_mesmo_caso_e_repeticao(self):  # T49
+        self.log.write_text(linha("A1-001", 1, 0.001, 5000, 1000, "agentes")
+                            + linha("A1-001", 1, 0.004, 9000, 900, "agente_unico")
+                            + linha("A1-001", 1, 0.002, 6000, 2000), encoding="utf-8")  # sem campo: agentes
+        gasto, tokens = r.gasto_do_log(self.log, "A1-001", 1)
+        self.assertAlmostEqual(gasto, 0.003, places=10)
+        self.assertEqual(tokens, 14000)
+        gasto, tokens = r.gasto_do_log(self.log, "A1-001", 1, tratamento="agente_unico")
+        self.assertAlmostEqual(gasto, 0.004, places=10)
+        self.assertEqual(tokens, 9900)
+        self.assertAlmostEqual(r.gasto_do_log(self.log)[0], 0.007, places=10)  # a trava soma tudo
 
 
 class TestOrcamento(unittest.TestCase):

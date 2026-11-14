@@ -11,8 +11,12 @@ from decimal import Decimal
 from pathlib import Path
 
 LIMITE_PROMPT_TOKENS = 100_000  # acima disso a tabela de preços muda (D106)
-ETAPAS = ("classifier", "repair")
-CAMPOS_DO_LOG = ("id_caso", "repeticao", "etapa", "modelo_retornado", "stop_reason", "input_tokens",
+ETAPAS = ("classifier", "repair", "agente_unico")
+# T49: o tratamento separa, no mesmo (caso, repetição), as chamadas dos agentes e as do agente único (D74)
+TRATAMENTOS = ("agentes", "agente_unico")
+TRATAMENTO_SEM_CAMPO = "agentes"  # linhas gravadas antes da T49 (T47, T53): só os agentes chamavam o LLM
+ETAPAS_DO_TRATAMENTO = {"agentes": ("classifier", "repair"), "agente_unico": ("agente_unico",)}
+CAMPOS_DO_LOG = ("id_caso", "tratamento", "repeticao", "etapa", "modelo_retornado", "stop_reason", "input_tokens",
                  "output_tokens", "thinking_tokens", "custo_usd", "request_id", "latencia_s",
                  "commit_do_prompt", "resposta_bruta", "erro")
 
@@ -74,6 +78,8 @@ class LogDeChamadas:
             raise ValueError(f"campos do log: esperados {sorted(CAMPOS_DO_LOG)}, recebidos {sorted(campos)}")
         if campos["etapa"] not in ETAPAS:
             raise ValueError(f"etapa inválida: {campos['etapa']!r}")
+        if campos["etapa"] not in ETAPAS_DO_TRATAMENTO.get(campos["tratamento"], ()):
+            raise ValueError(f"etapa {campos['etapa']!r} não é do tratamento {campos['tratamento']!r}")
         linha = json.dumps({c: campos[c] for c in CAMPOS_DO_LOG}, ensure_ascii=False)
         with open(self.caminho, "a", encoding="utf-8") as f:
             f.write(linha + "\n")
@@ -81,12 +87,17 @@ class LogDeChamadas:
             os.fsync(f.fileno())
 
 
+def tratamento_da_linha(c: dict) -> str:
+    """O tratamento de uma linha do log; as gravadas antes da T49 não têm o campo e são dos agentes."""
+    return c.get("tratamento", TRATAMENTO_SEM_CAMPO)
+
+
 def gasto_do_log(caminho: Path, id_caso: str | None = None, repeticao: int | None = None,
-                 desde: int = 0) -> tuple[float, int]:
+                 desde: int = 0, tratamento: str = TRATAMENTO_SEM_CAMPO) -> tuple[float, int]:
     """Dólares e tokens já registrados num `chamadas.jsonl` (zero se ele não existe). Da v1 (D105).
 
     Sem `id_caso`, soma o arquivo inteiro: é o gasto da rodada, que a trava de orçamento confere.
-    Com `id_caso` e `repeticao`, soma só essa execução, com a reexecução (D104), que também é paga:
+    Com `id_caso` e `repeticao`, soma só essa execução do `tratamento` (T49), com a reexecução (D104), que também é paga:
     são o `tokens` e o `custo_usd` do registro (D74). Chamada que falhou sem resposta tem custo 0 e
     tokens nulos. `desde`: pula as primeiras linhas do arquivo, as de sessões anteriores da mesma rodada
     (retomada, T53): as chamadas pagas de uma execução interrompida não entram no registro dela.
@@ -98,7 +109,8 @@ def gasto_do_log(caminho: Path, id_caso: str | None = None, repeticao: int | Non
         if not linha.strip():
             continue
         c = json.loads(linha)
-        if id_caso is not None and (c["id_caso"], c["repeticao"]) != (id_caso, repeticao):
+        if id_caso is not None and (c["id_caso"], tratamento_da_linha(c), c["repeticao"]) != (
+                id_caso, tratamento, repeticao):
             continue
         gasto += Decimal(str(c["custo_usd"] or 0))
         tokens += (c["input_tokens"] or 0) + (c["output_tokens"] or 0)
