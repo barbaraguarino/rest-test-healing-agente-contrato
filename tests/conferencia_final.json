@@ -1,0 +1,78 @@
+{
+ "A1-013": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "resposta",
+    "frete",
+    "valorFrete"
+   ]
+  ]
+ },
+ "A1-014": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "resposta",
+    "prazoDias",
+    "prazoEntregaDias"
+   ]
+  ]
+ },
+ "A1-015": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "cliente.email",
+    "cliente.emailContato"
+   ]
+  ]
+ },
+ "A1-016": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "produtoId",
+    "idProduto"
+   ]
+  ]
+ },
+ "A1-017": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "resposta",
+    "desconto",
+    "valorDesconto"
+   ]
+  ],
+  "campo_nao_registrado": "total",
+  "legit_no_teste": [
+   [
+    "shouldRoundDiscountHalfUp",
+    "\"$.desconto\"",
+    "\"$.valorDesconto\""
+   ]
+  ]
+ },
+ "A1-018": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "cliente.nome",
+    "cliente.nomeCompleto"
+   ]
+  ],
+  "campo_nao_registrado": "enderecoEntrega.cidade",
+  "legit_no_teste": [
+   [
+    "shouldReturn422WhenSubtotalIsOneCentBelowCouponMinimum",
+    "\"nome\": \"Ana Souza\"",
+    "\"nomeCompleto\": \"Ana Souza\""
+   ]
+  ]
+ }
+}

@@ -1,0 +1,59 @@
+{
+  "versao_api": "linha-de-base-2",
+  "casos": [
+    {
+      "id_caso": "A1-013",
+      "categoria": "renomeacao",
+      "lado": "resposta",
+      "teste_afetado": "PedidoControllerTest.shouldGiveFreeShippingUsingSubtotalBeforeDiscount",
+      "patch": "casos/A1-013.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-013.esperado.patch"
+    },
+    {
+      "id_caso": "A1-014",
+      "categoria": "renomeacao",
+      "lado": "resposta",
+      "teste_afetado": "FreteControllerTest.shouldReturnOneDayDeadlineWhenModeIsExpressInSoutheast",
+      "patch": "casos/A1-014.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-014.esperado.patch"
+    },
+    {
+      "id_caso": "A1-015",
+      "categoria": "renomeacao",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldReturn422WhenCartIsEmpty",
+      "patch": "casos/A1-015.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-015.esperado.patch"
+    },
+    {
+      "id_caso": "A1-016",
+      "categoria": "renomeacao",
+      "lado": "requisicao",
+      "teste_afetado": "CarrinhoControllerTest.shouldAddQuantityToExistingItemWhenProductIsAlreadyInCart",
+      "patch": "casos/A1-016.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-016.esperado.patch"
+    },
+    {
+      "id_caso": "A1-017",
+      "categoria": "renomeacao",
+      "lado": "resposta",
+      "teste_afetado": "PedidoControllerTest.shouldRoundDiscountHalfUp",
+      "patch": "casos/A1-017.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-018",
+      "categoria": "renomeacao",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldReturn422WhenSubtotalIsOneCentBelowCouponMinimum",
+      "patch": "casos/A1-018.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    }
+  ]
+}
