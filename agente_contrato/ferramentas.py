@@ -64,6 +64,9 @@ def _contratos(raiz: Path) -> tuple[dict, dict]:
     return antigo, carregar(raiz / CONTRATO)
 
 
+contratos = _contratos  # a baseline (T51) usa a mesma função: a diferença dela é a mesma do agente
+
+
 def ver_diferenca(raiz: Path) -> str:
     """A evidência do Agente 1 (D62, D122): o contrato da tag comparado com o contrato depois do patch."""
     return descrever_mudancas(diferenca(*_contratos(raiz)))
