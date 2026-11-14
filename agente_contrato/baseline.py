@@ -4,7 +4,10 @@ Lê a lista de mudanças do contrato (contrato.py, T23d) e aplica cada uma mecan
 de teste afetado (teste_java.py). Se nenhuma mudança atinge o teste, não repara. Nos agentes, o LLM
 decide o que a baseline decide por regra: se a mudança é legítima e como o teste deve ser editado.
 
-Igual à baseline da v1 (tag rodada-2).
+Igual à baseline da v1 (tag rodada-2), menos a alteração de tipo na resposta, que segue a D114: o
+matcher do teste original fica, com o valor no tipo novo (`.value(is(0))` -> `.value(is("0"))`).
+A v1 gerava o literal `.value("0")`, que `jsonPath(...).value(objeto)` converte e por isso não
+verifica a mudança de tipo (D53, D113).
 
 Convenções da suíte da API cobaia que as regras assumem: inteiros são
 conferidos com is(N), decimais com decimal("N") (um Matcher<Number>) e o resto com literais.
@@ -87,11 +90,35 @@ def _literal_da_asserção(arg: str) -> str | None:
 
 
 def _arg_da_asserção(tipo: str, literal: str) -> str:
+    """Argumento para um literal sem matcher no teste original: a convenção da D53 para números."""
     if tipo == "integer":
         return f"is({literal})"
     if tipo == "number":
         return f'decimal("{literal}")'
     return literal
+
+
+def argumento_novo(arg: str, antes: c.Propriedade, depois: c.Propriedade) -> str | None:
+    """O argumento de `.value(...)` no tipo novo (D114); None se não há regra.
+
+    - `is(X)` fica `is(X convertido)`: o matcher do original é mantido;
+    - `decimal("X")` fica `decimal(...)` se o tipo novo é número e `is("X")` se é texto, porque
+      `decimal` só compara números;
+    - um literal sem matcher segue a convenção da D53: número novo ganha `is` ou `decimal`, e o
+      resto continua literal (não há matcher para manter).
+    """
+    arg = arg.strip()
+    literal = _literal_da_asserção(arg)
+    novo = converter(literal, antes, depois) if literal is not None else None
+    if novo is None:
+        return None
+    if re.fullmatch(r"is\(.+\)", arg):
+        return f"is({novo})"
+    if re.fullmatch(r'decimal\("[^"]+"\)', arg):
+        if depois.tipo == "string":
+            return f"is({novo})"
+        return f'decimal("{novo}")'
+    return _arg_da_asserção(depois.tipo, novo)
 
 
 # ---------------------------------------------------------------- utilidades de caminho
@@ -208,11 +235,10 @@ def _converter_assercao(texto: str, a: tj.Assercao, m: c.Mudanca) -> list[Edicao
     pos = _argumento_value(texto, a)
     if pos is None:
         return []
-    literal = _literal_da_asserção(texto[pos[0]:pos[1]])
-    novo = converter(literal, m.antes, m.depois) if literal is not None else None
+    novo = argumento_novo(texto[pos[0]:pos[1]], m.antes, m.depois)
     if novo is None:
         return []
-    return [Edicao(pos[0], pos[1], _arg_da_asserção(m.depois.tipo, novo))]
+    return [Edicao(pos[0], pos[1], novo)]
 
 
 # ---------------------------------------------------------------- aplicação das edições
