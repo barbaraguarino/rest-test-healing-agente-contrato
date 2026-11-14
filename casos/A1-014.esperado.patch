@@ -1,0 +1,13 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
+index 627fe6b..841eb22 100644
+--- a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java
+@@ -146,7 +146,7 @@ class FreteControllerTest {
+                                     """))
+                     .andExpect(status().isOk())
+                     .andExpect(jsonPath("$.valor").value(decimal("25.50")))
+-                    .andExpect(jsonPath("$.prazoDias").value(is(1)));
++                    .andExpect(jsonPath("$.prazoEntregaDias").value(is(1)));
+         }
+ 
+         @Test
