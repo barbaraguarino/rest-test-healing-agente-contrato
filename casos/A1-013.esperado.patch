@@ -1,0 +1,13 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java
+index dd5551d..0f72d22 100644
+--- a/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java
+@@ -178,7 +178,7 @@ class PedidoControllerTest {
+                                     }
+                                     """))
+                     .andExpect(status().isCreated())
+-                    .andExpect(jsonPath("$.frete").value(decimal("0.00")));
++                    .andExpect(jsonPath("$.valorFrete").value(decimal("0.00")));
+         }
+ 
+         @Test

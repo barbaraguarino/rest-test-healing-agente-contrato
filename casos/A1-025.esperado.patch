@@ -1,0 +1,13 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java
+index dd5551d..0087cde 100644
+--- a/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java
+@@ -439,7 +439,7 @@ class PedidoControllerTest {
+         void shouldReturn200AndReturnStockWhenOrderIsAwaitingPayment() throws Exception {
+             mockMvc.perform(post("/pedidos/301/cancelamento"))
+                     .andExpect(status().isOk())
+-                    .andExpect(jsonPath("$.id").value(is(301)))
++                    .andExpect(jsonPath("$.id").value(is("301")))
+                     .andExpect(jsonPath("$.status").value("CANCELADO"));
+ 
+             mockMvc.perform(get("/produtos/1"))

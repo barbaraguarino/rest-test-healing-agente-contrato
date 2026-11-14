@@ -1,0 +1,36 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..4b2f543 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -588,8 +588,7 @@
+             "type" : "number"
+           },
+           "id" : {
+-            "type" : "integer",
+-            "format" : "int64"
++            "type" : "string"
+           },
+           "itens" : {
+             "type" : "array",
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java b/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java
+index 33ea3bb..4615018 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java
+@@ -8,7 +8,7 @@ import java.util.List;
+ 
+ /** Corpo da resposta com os dados de um pedido. O cupom não aparece na resposta, só o desconto. */
+ public record PedidoResponse(
+-        Long id,
++        String id,
+         StatusPedido status,
+         ClienteResponse cliente,
+         EnderecoResponse enderecoEntrega,
+@@ -21,7 +21,7 @@ public record PedidoResponse(
+ 
+     public static PedidoResponse de(Pedido pedido) {
+         return new PedidoResponse(
+-                pedido.getId(),
++                String.valueOf(pedido.getId()),
+                 pedido.getStatus(),
+                 ClienteResponse.de(pedido.getCliente()),
+                 EnderecoResponse.de(pedido.getEnderecoEntrega()),

@@ -1,0 +1,306 @@
+{
+ "A1-013": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "resposta",
+    "frete",
+    "valorFrete"
+   ]
+  ]
+ },
+ "A1-014": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "resposta",
+    "prazoDias",
+    "prazoEntregaDias"
+   ]
+  ]
+ },
+ "A1-015": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "cliente.email",
+    "cliente.emailContato"
+   ]
+  ]
+ },
+ "A1-016": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "produtoId",
+    "idProduto"
+   ]
+  ]
+ },
+ "A1-017": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "resposta",
+    "desconto",
+    "valorDesconto"
+   ]
+  ],
+  "campo_nao_registrado": "total",
+  "legit_no_teste": [
+   [
+    "shouldRoundDiscountHalfUp",
+    "\"$.desconto\"",
+    "\"$.valorDesconto\""
+   ]
+  ]
+ },
+ "A1-018": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "cliente.nome",
+    "cliente.nomeCompleto"
+   ]
+  ],
+  "campo_nao_registrado": "enderecoEntrega.cidade",
+  "legit_no_teste": [
+   [
+    "shouldReturn422WhenSubtotalIsOneCentBelowCouponMinimum",
+    "\"nome\": \"Ana Souza\"",
+    "\"nomeCompleto\": \"Ana Souza\""
+   ]
+  ]
+ },
+ "A1-019": {
+  "contrato_esperado": [
+   [
+    "remocao",
+    "resposta",
+    "freteGratis"
+   ]
+  ]
+ },
+ "A1-020": {
+  "contrato_esperado": [
+   [
+    "remocao",
+    "resposta",
+    "enderecoEntrega.complemento"
+   ]
+  ]
+ },
+ "A1-021": {
+  "contrato_esperado": [
+   [
+    "remocao",
+    "requisicao",
+    "quantidade"
+   ]
+  ]
+ },
+ "A1-022": {
+  "contrato_esperado": [
+   [
+    "remocao",
+    "requisicao",
+    "estoque"
+   ]
+  ]
+ },
+ "A1-023": {
+  "contrato_esperado": [
+   [
+    "remocao",
+    "resposta",
+    "subtotal"
+   ]
+  ],
+  "campo_nao_registrado": "itens",
+  "legit_no_teste": [
+   [
+    "shouldReturn201WithEmptyCartWhenCartIsCreated",
+    ".andExpect(jsonPath(\"$.itens\").value(empty()))\n                    .andExpect(jsonPath(\"$.subtotal\").value(decimal(\"0.00\")));",
+    ".andExpect(jsonPath(\"$.itens\").value(empty()));"
+   ]
+  ]
+ },
+ "A1-024": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "carrinhoId",
+    "idCarrinho"
+   ]
+  ],
+  "campo_nao_registrado": "cupom",
+  "legit_no_teste": [
+   [
+    "shouldReturn422WhenCouponDoesNotExist",
+    "\"carrinhoId\": 101",
+    "\"idCarrinho\": 101"
+   ]
+  ]
+ },
+ "A1-025": {
+  "contrato_esperado": [
+   [
+    "alteracao_tipo",
+    "resposta",
+    "id"
+   ]
+  ]
+ },
+ "A1-026": {
+  "contrato_esperado": [
+   [
+    "alteracao_tipo",
+    "resposta",
+    "[].ativo"
+   ],
+   [
+    "alteracao_tipo",
+    "resposta",
+    "ativo"
+   ]
+  ]
+ },
+ "A1-027": {
+  "contrato_esperado": [
+   [
+    "alteracao_tipo",
+    "requisicao",
+    "descricao"
+   ]
+  ]
+ },
+ "A1-028": {
+  "contrato_esperado": [
+   [
+    "alteracao_tipo",
+    "requisicao",
+    "modalidadeFrete"
+   ]
+  ]
+ },
+ "A1-029": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "resposta",
+    "freteGratis",
+    "gratis"
+   ]
+  ],
+  "campo_nao_registrado": "valor",
+  "legit_no_teste": [
+   [
+    "shouldChargeShippingWhenModeIsExpressEvenAtThreshold",
+    "\"$.freteGratis\"",
+    "\"$.gratis\""
+   ]
+  ]
+ },
+ "A1-030": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "destino.cep",
+    "destino.codigoPostal"
+   ]
+  ],
+  "campo_nao_registrado": "modalidade",
+  "legit_no_teste": [
+   [
+    "shouldCountOneKilogramWhenWeightIsExactlyOneKilogram",
+    "\"cep\": \"01001000\"",
+    "\"codigoPostal\": \"01001000\""
+   ]
+  ]
+ },
+ "A1-031": {
+  "contrato_esperado": [
+   [
+    "campo_obrigatorio_novo",
+    "requisicao",
+    "enderecoEntrega.bairro"
+   ]
+  ]
+ },
+ "A1-032": {
+  "contrato_esperado": [
+   [
+    "campo_obrigatorio_novo",
+    "requisicao",
+    "garantiaMeses"
+   ]
+  ]
+ },
+ "A1-033": {
+  "contrato_esperado": [
+   [
+    "campo_obrigatorio_novo",
+    "requisicao",
+    "seguro"
+   ]
+  ]
+ },
+ "A1-034": {
+  "contrato_esperado": [
+   [
+    "campo_obrigatorio_novo",
+    "requisicao",
+    "origem"
+   ]
+  ]
+ },
+ "A1-035": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "enderecoEntrega.numero",
+    "enderecoEntrega.numeroImovel"
+   ]
+  ],
+  "campo_nao_registrado": "enderecoEntrega.complemento",
+  "legit_no_teste": [
+   [
+    "shouldAcceptCouponWhenSubtotalIsAtMinimum",
+    "\"numero\": \"10\"",
+    "\"numeroImovel\": \"10\""
+   ]
+  ],
+  "chave_enviada_pelo_teste": "enderecoEntrega"
+ },
+ "A1-036": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "resposta",
+    "[].estoque",
+    "[].quantidadeEstoque"
+   ],
+   [
+    "renomeacao",
+    "resposta",
+    "estoque",
+    "quantidadeEstoque"
+   ]
+  ],
+  "campo_nao_registrado": "descricao",
+  "legit_no_teste": [
+   [
+    "shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing",
+    "\"$.estoque\"",
+    "\"$.quantidadeEstoque\""
+   ]
+  ],
+  "chave_enviada_pelo_teste": "sku"
+ }
+}

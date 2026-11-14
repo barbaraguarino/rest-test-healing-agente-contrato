@@ -1,0 +1,73 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..881807e 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -552,10 +552,6 @@
+       "PedidoRequest" : {
+         "type" : "object",
+         "properties" : {
+-          "carrinhoId" : {
+-            "type" : "integer",
+-            "format" : "int64"
+-          },
+           "cliente" : {
+             "$ref" : "#/components/schemas/ClienteRequest"
+           },
+@@ -565,12 +561,16 @@
+           "enderecoEntrega" : {
+             "$ref" : "#/components/schemas/EnderecoRequest"
+           },
++          "idCarrinho" : {
++            "type" : "integer",
++            "format" : "int64"
++          },
+           "modalidadeFrete" : {
+             "type" : "string",
+             "enum" : [ "PADRAO", "EXPRESSA" ]
+           }
+         },
+-        "required" : [ "carrinhoId", "cliente", "enderecoEntrega", "modalidadeFrete" ]
++        "required" : [ "cliente", "enderecoEntrega", "idCarrinho", "modalidadeFrete" ]
+       },
+       "PedidoResponse" : {
+         "type" : "object",
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java b/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
+index 2937d49..6bd50f1 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
+@@ -45,7 +45,7 @@ public class PedidoService {
+      */
+     @Transactional
+     public PedidoResponse criar(PedidoRequest request) {
+-        Carrinho carrinho = carrinhoService.buscarEntidade(request.carrinhoId());
++        Carrinho carrinho = carrinhoService.buscarEntidade(request.idCarrinho());
+         ClienteRequest c = request.cliente();
+         EnderecoRequest e = request.enderecoEntrega();
+         Endereco endereco = new Endereco(e.logradouro(), e.numero(), e.complemento(), e.cidade(), e.uf(), e.cep());
+@@ -54,9 +54,7 @@ public class PedidoService {
+                 new Cliente(c.nome(), c.email()), endereco, request.modalidadeFrete(), carrinho.getItens());
+ 
+         // RN08: cupom opcional; ausente significa desconto zero.
+-        BigDecimal desconto = request.cupom() == null
+-                ? Dinheiro.ZERO
+-                : Cupom.porCodigo(request.cupom()).calcularDesconto(pedido.getSubtotal());
++        BigDecimal desconto = Dinheiro.ZERO;
+ 
+         // RN04–RN07 sobre o subtotal antes do desconto e a UF do endereço de entrega.
+         List<ItemFrete> itensFrete = pedido.getItens().stream()
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoRequest.java b/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoRequest.java
+index f6698c6..da511ed 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoRequest.java
+@@ -11,9 +11,8 @@ import jakarta.validation.constraints.NotNull;
+  * um cupom existente que atenda à sua condição (RN08).
+  */
+ public record PedidoRequest(
+-        @NotNull(message = OBRIGATORIO) Long carrinhoId,
++        @NotNull(message = OBRIGATORIO) Long idCarrinho,
+         @NotNull(message = OBRIGATORIO) @Valid ClienteRequest cliente,
+         @NotNull(message = OBRIGATORIO) @Valid EnderecoRequest enderecoEntrega,
+-        @NotNull(message = OBRIGATORIO) ModalidadeFrete modalidadeFrete,
+-        String cupom) {
++        @NotNull(message = OBRIGATORIO) ModalidadeFrete modalidadeFrete) {
+ }

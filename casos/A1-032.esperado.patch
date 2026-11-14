@@ -1,0 +1,13 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+index c795d95..4c94c5d 100644
+--- a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+@@ -110,7 +110,7 @@ class ProdutoControllerTest {
+                                       "preco": 10.005,
+                                       "categoria": "CASA",
+                                       "ativo": true,
+-                                      "estoque": 3,
++                                      "estoque": 3, "garantiaMeses": 12,
+                                       "pesoGramas": 80,
+                                       "dimensoes": {"alturaCm": 1, "larguraCm": 40, "comprimentoCm": 60}
+                                     }

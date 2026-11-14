@@ -1,0 +1,47 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..8aec14a 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -481,7 +481,7 @@
+       "ItemCarrinhoRequest" : {
+         "type" : "object",
+         "properties" : {
+-          "produtoId" : {
++          "idProduto" : {
+             "type" : "integer",
+             "format" : "int64"
+           },
+@@ -491,7 +491,7 @@
+             "minimum" : 1
+           }
+         },
+-        "required" : [ "produtoId", "quantidade" ]
++        "required" : [ "idProduto", "quantidade" ]
+       },
+       "ItemCarrinhoResponse" : {
+         "type" : "object",
+diff --git a/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java b/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java
+index 8b2cee3..2ea8b8a 100644
+--- a/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java
++++ b/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java
+@@ -33,7 +33,7 @@ public class CarrinhoService {
+     @Transactional
+     public CarrinhoResponse adicionarItem(Long carrinhoId, ItemCarrinhoRequest request) {
+         Carrinho carrinho = buscarEntidade(carrinhoId);
+-        Produto produto = produtoService.buscarEntidade(request.produtoId());
++        Produto produto = produtoService.buscarEntidade(request.idProduto());
+         carrinho.adicionar(produto, request.quantidade());
+         // saveAndFlush grava agora e gera o id do item novo antes de montar a resposta.
+         return CarrinhoResponse.de(repository.saveAndFlush(carrinho));
+diff --git a/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java b/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
+index a73d2d2..0c5ee2c 100644
+--- a/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
+@@ -11,6 +11,6 @@ import jakarta.validation.constraints.NotNull;
+  * por produto (RN02) é regra de negócio e fica em {@code Carrinho}, fora do contrato.
+  */
+ public record ItemCarrinhoRequest(
+-        @NotNull(message = OBRIGATORIO) Long produtoId,
++        @NotNull(message = OBRIGATORIO) Long idProduto,
+         @NotNull(message = OBRIGATORIO) @Min(value = 1, message = MINIMO_UM) Integer quantidade) {
+ }

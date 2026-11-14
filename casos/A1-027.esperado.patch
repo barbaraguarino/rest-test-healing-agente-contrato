@@ -1,0 +1,13 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+index c795d95..7dd6061 100644
+--- a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+@@ -43,7 +43,7 @@ class ProdutoControllerTest {
+                                     {
+                                       "sku": "ELE-001",
+                                       "nome": "Fone de Ouvido",
+-                                      "descricao": "Fone sem fio",
++                                      "descricao": ["Fone sem fio"],
+                                       "preco": 199.90,
+                                       "categoria": "ELETRONICOS",
+                                       "ativo": true,

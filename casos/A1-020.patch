@@ -1,0 +1,31 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..1577d4e 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -463,9 +463,6 @@
+           "cidade" : {
+             "type" : "string"
+           },
+-          "complemento" : {
+-            "type" : "string"
+-          },
+           "logradouro" : {
+             "type" : "string"
+           },
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoResponse.java b/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoResponse.java
+index 14bd2d8..f49513f 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoResponse.java
+@@ -4,10 +4,10 @@ import br.edu.resttesthealingsut.frete.Uf;
+ import br.edu.resttesthealingsut.pedido.Endereco;
+ 
+ /** Endereço de entrega na resposta de pedido. {@code complemento} pode ser {@code null}. */
+-public record EnderecoResponse(String logradouro, String numero, String complemento, String cidade, Uf uf, String cep) {
++public record EnderecoResponse(String logradouro, String numero, String cidade, Uf uf, String cep) {
+ 
+     public static EnderecoResponse de(Endereco endereco) {
+-        return new EnderecoResponse(endereco.getLogradouro(), endereco.getNumero(), endereco.getComplemento(),
++        return new EnderecoResponse(endereco.getLogradouro(), endereco.getNumero(),
+                 endereco.getCidade(), endereco.getUf(), endereco.getCep());
+     }
+ }

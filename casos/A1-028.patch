@@ -1,0 +1,68 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..7064ba6 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -566,8 +566,7 @@
+             "$ref" : "#/components/schemas/EnderecoRequest"
+           },
+           "modalidadeFrete" : {
+-            "type" : "string",
+-            "enum" : [ "PADRAO", "EXPRESSA" ]
++            "type" : "boolean"
+           }
+         },
+         "required" : [ "carrinhoId", "cliente", "enderecoEntrega", "modalidadeFrete" ]
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java b/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
+index 2937d49..aa87336 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
+@@ -5,6 +5,7 @@ import br.edu.resttesthealingsut.carrinho.CarrinhoService;
+ import br.edu.resttesthealingsut.frete.CalculadoraFrete;
+ import br.edu.resttesthealingsut.frete.CalculadoraFrete.ItemFrete;
+ import br.edu.resttesthealingsut.frete.CalculadoraFrete.ResultadoFrete;
++import br.edu.resttesthealingsut.frete.ModalidadeFrete;
+ import br.edu.resttesthealingsut.pedido.dto.ClienteRequest;
+ import br.edu.resttesthealingsut.pedido.dto.EnderecoRequest;
+ import br.edu.resttesthealingsut.pedido.dto.PedidoRequest;
+@@ -50,8 +51,11 @@ public class PedidoService {
+         EnderecoRequest e = request.enderecoEntrega();
+         Endereco endereco = new Endereco(e.logradouro(), e.numero(), e.complemento(), e.cidade(), e.uf(), e.cep());
+ 
++        ModalidadeFrete modalidade = Boolean.TRUE.equals(request.modalidadeFrete())
++                ? ModalidadeFrete.EXPRESSA
++                : ModalidadeFrete.PADRAO;
+         Pedido pedido = Pedido.criar(
+-                new Cliente(c.nome(), c.email()), endereco, request.modalidadeFrete(), carrinho.getItens());
++                new Cliente(c.nome(), c.email()), endereco, modalidade, carrinho.getItens());
+ 
+         // RN08: cupom opcional; ausente significa desconto zero.
+         BigDecimal desconto = request.cupom() == null
+@@ -63,7 +67,7 @@ public class PedidoService {
+                 .map(item -> new ItemFrete(item.getProduto().getPesoGramas(), item.getQuantidade()))
+                 .toList();
+         ResultadoFrete frete = calculadoraFrete.calcular(
+-                endereco.getUf(), request.modalidadeFrete(), itensFrete, pedido.getSubtotal());
++                endereco.getUf(), modalidade, itensFrete, pedido.getSubtotal());
+ 
+         pedido.registrarValores(desconto, frete.valor());
+         carrinho.esvaziar();
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoRequest.java b/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoRequest.java
+index f6698c6..451c708 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoRequest.java
+@@ -2,7 +2,6 @@ package br.edu.resttesthealingsut.pedido.dto;
+ 
+ import static br.edu.resttesthealingsut.shared.validacao.MensagensValidacao.OBRIGATORIO;
+ 
+-import br.edu.resttesthealingsut.frete.ModalidadeFrete;
+ import jakarta.validation.Valid;
+ import jakarta.validation.constraints.NotNull;
+ 
+@@ -14,6 +13,6 @@ public record PedidoRequest(
+         @NotNull(message = OBRIGATORIO) Long carrinhoId,
+         @NotNull(message = OBRIGATORIO) @Valid ClienteRequest cliente,
+         @NotNull(message = OBRIGATORIO) @Valid EnderecoRequest enderecoEntrega,
+-        @NotNull(message = OBRIGATORIO) ModalidadeFrete modalidadeFrete,
++        @NotNull(message = OBRIGATORIO) Boolean modalidadeFrete,
+         String cupom) {
+ }

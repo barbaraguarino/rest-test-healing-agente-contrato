@@ -1,0 +1,61 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..04821e5 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -312,12 +312,12 @@
+             "type" : "string",
+             "minLength" : 1
+           },
+-          "nome" : {
++          "nomeCompleto" : {
+             "type" : "string",
+             "minLength" : 1
+           }
+         },
+-        "required" : [ "email", "nome" ]
++        "required" : [ "email", "nomeCompleto" ]
+       },
+       "ClienteResponse" : {
+         "type" : "object",
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java b/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
+index 2937d49..0c51c7a 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
+@@ -48,10 +48,10 @@ public class PedidoService {
+         Carrinho carrinho = carrinhoService.buscarEntidade(request.carrinhoId());
+         ClienteRequest c = request.cliente();
+         EnderecoRequest e = request.enderecoEntrega();
+-        Endereco endereco = new Endereco(e.logradouro(), e.numero(), e.complemento(), e.cidade(), e.uf(), e.cep());
++        Endereco endereco = new Endereco(e.logradouro(), e.numero(), e.complemento(), e.municipio(), e.uf(), e.cep());
+ 
+         Pedido pedido = Pedido.criar(
+-                new Cliente(c.nome(), c.email()), endereco, request.modalidadeFrete(), carrinho.getItens());
++                new Cliente(c.nomeCompleto(), c.email()), endereco, request.modalidadeFrete(), carrinho.getItens());
+ 
+         // RN08: cupom opcional; ausente significa desconto zero.
+         BigDecimal desconto = request.cupom() == null
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteRequest.java b/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteRequest.java
+index afb79ef..f5855c8 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteRequest.java
+@@ -6,6 +6,6 @@ import jakarta.validation.constraints.NotBlank;
+ 
+ /** Cliente na requisição de pedido. O e-mail é só texto obrigatório, sem validação de formato. */
+ public record ClienteRequest(
+-        @NotBlank(message = OBRIGATORIO) String nome,
++        @NotBlank(message = OBRIGATORIO) String nomeCompleto,
+         @NotBlank(message = OBRIGATORIO) String email) {
+ }
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoRequest.java b/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoRequest.java
+index 8c73cae..728d30c 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoRequest.java
+@@ -17,7 +17,7 @@ public record EnderecoRequest(
+         @NotBlank(message = OBRIGATORIO) String logradouro,
+         @NotBlank(message = OBRIGATORIO) String numero,
+         String complemento,
+-        @NotBlank(message = OBRIGATORIO) String cidade,
++        @NotBlank(message = OBRIGATORIO) String municipio,
+         @NotNull(message = OBRIGATORIO) Uf uf,
+         @NotNull(message = OBRIGATORIO) @Pattern(regexp = PADRAO_CEP, message = OITO_DIGITOS) String cep) {
+ }

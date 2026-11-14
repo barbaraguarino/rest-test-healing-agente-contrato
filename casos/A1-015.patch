@@ -1,0 +1,46 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..78eedcd 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -308,7 +308,7 @@
+       "ClienteRequest" : {
+         "type" : "object",
+         "properties" : {
+-          "email" : {
++          "emailContato" : {
+             "type" : "string",
+             "minLength" : 1
+           },
+@@ -317,7 +317,7 @@
+             "minLength" : 1
+           }
+         },
+-        "required" : [ "email", "nome" ]
++        "required" : [ "emailContato", "nome" ]
+       },
+       "ClienteResponse" : {
+         "type" : "object",
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java b/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
+index 2937d49..c2d615d 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
+@@ -51,7 +51,7 @@ public class PedidoService {
+         Endereco endereco = new Endereco(e.logradouro(), e.numero(), e.complemento(), e.cidade(), e.uf(), e.cep());
+ 
+         Pedido pedido = Pedido.criar(
+-                new Cliente(c.nome(), c.email()), endereco, request.modalidadeFrete(), carrinho.getItens());
++                new Cliente(c.nome(), c.emailContato()), endereco, request.modalidadeFrete(), carrinho.getItens());
+ 
+         // RN08: cupom opcional; ausente significa desconto zero.
+         BigDecimal desconto = request.cupom() == null
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteRequest.java b/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteRequest.java
+index afb79ef..995cef3 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/dto/ClienteRequest.java
+@@ -7,5 +7,5 @@ import jakarta.validation.constraints.NotBlank;
+ /** Cliente na requisição de pedido. O e-mail é só texto obrigatório, sem validação de formato. */
+ public record ClienteRequest(
+         @NotBlank(message = OBRIGATORIO) String nome,
+-        @NotBlank(message = OBRIGATORIO) String email) {
++        @NotBlank(message = OBRIGATORIO) String emailContato) {
+ }
