@@ -62,6 +62,15 @@ class TestExecutarBaseline(Base):
         self.executar(maven, limite_caso_s=50, agora=RelogioFalso())
         self.assertEqual(maven.limites, [120, 50])
 
+    def test_tempo_conta_o_maven_final_como_nos_agentes(self):  # D133
+        relogio = RelogioFalso()
+        e, _ = self.executar(MavenFalso(relogio=relogio, passo_s=10), agora=relogio)
+        self.assertEqual(e.tempo_s, 10)  # o Maven inicial fica fora (D118); o final entra
+        relogio = RelogioFalso()
+        with mock.patch.object(runner, "guarda_do_caso", lambda *a: lambda texto: Veredito(False, ("x",))):
+            e, _ = self.executar(MavenFalso(relogio=relogio, passo_s=10), agora=relogio)
+        self.assertEqual(e.tempo_s, 0)  # sem reparo aceito, não há Maven final
+
     def test_teste_que_passa_sem_reparo_e_erro_de_execucao(self):  # D111e
         with redirect_stdout(io.StringIO()):
             e, _ = runner.baseline_do_caso(self.caso, 1, self.api, "base", self.raiz, MavenFalso("passa"))

@@ -192,8 +192,8 @@ def executar_baseline(caso: Caso, api: Path, tag: str, trabalho: Path, rodar=exe
     Cópia, patch e Maven inicial iguais aos dos agentes; a diferença do contrato vem da mesma função que a
     ferramenta ver_diferenca usa (`ferramentas.contratos`, T23d). O reparo passa pelo mesmo guarda
     (`guarda_do_caso`); recusado, não é gravado, e o caso termina sem reparo com o erro `guarda` (D74), como
-    na v1. O Maven final é o dos agentes (D111, D118, D123). `tempo_s` conta da falha ao artefato final, sem
-    o Maven final, como na baseline da v1.
+    na v1. O Maven final é o dos agentes (D111, D118, D123). `tempo_s` conta da falha ao artefato final com
+    o Maven final, como nos agentes (D133).
     """
     copia = execucao.preparar_copia(api, tag, trabalho)                          # 1
     try:
@@ -221,9 +221,9 @@ def executar_baseline(caso: Caso, api: Path, tag: str, trabalho: Path, rodar=exe
             else:
                 e.fim, recusas = Fim(NAO_REPARAR, "guarda"), tuple(veredito.motivos)
         e.depois = _metodo((copia / arquivo).read_bytes().decode("utf-8"), caso.metodo)
-        e.tempo_s = agora() - inicio
         if e.fim.decisao == REPARAR:                                             # 6: Maven final
             e.compilou, e.passou, e.fim = _maven_final(rodar, copia, caso, relogio, e.fim)
+        e.tempo_s = agora() - inicio  # D133: com o Maven final, como nos agentes
         da_baseline = DaBaseline(tuple(descrever_mudanca(m) for m in r.aplicadas),
                                  tuple((descrever_mudanca(m), motivo) for m, motivo in r.ignoradas), recusas)
         return e, da_baseline                                                    # 7: quem chama grava
