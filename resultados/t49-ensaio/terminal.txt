@@ -1,0 +1,77 @@
+limites: teste 120 s, caso 180 s, chamada ao LLM 120 s (D111) | prompts 4c5675549664ec645ba3402bf1955df9b05d3c4b | código 70079b59c239f67fdcf90125c18f53e7835e999b
+oráculo: casos/oraculo-agente1.json (commit b6608b6c82777a72d0dac65629f18ee004e69f95)
+aquecimento do Maven (D111f, fora das métricas): ProdutoControllerTest.shouldReturn200WithAllFieldsWhenProductExists passou=True maven=19.98 s erro=None
+A1-001 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-001 agentes r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-001 agente_unico r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-002 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-002 agentes r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-002 agente_unico r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-003 baseline r1: decisao=reparar compilou=True passou=False erro=None
+A1-003 agentes r1: decisao=nao_reparar compilou=None passou=False erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-003 agente_unico r1: decisao=nao_reparar compilou=None passou=False erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-004 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-004 agentes r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-004 agente_unico r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-005 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-005 agentes r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-005 agente_unico r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-006 baseline r1: decisao=reparar compilou=True passou=False erro=None
+A1-006 agentes r1: decisao=nao_reparar compilou=None passou=False erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-006 agente_unico r1: decisao=nao_reparar compilou=None passou=False erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-007 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-007 agentes r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-007 agente_unico r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-008 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-008 agentes r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-008 agente_unico r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-009 baseline r1: decisao=reparar compilou=True passou=False erro=None
+A1-009 agentes r1: decisao=nao_reparar compilou=None passou=False erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-009 agente_unico r1: decisao=nao_reparar compilou=None passou=False erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-010 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-010 agentes r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-010 agente_unico r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-011 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-011 agentes r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-011 agente_unico r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-012 baseline r1: decisao=reparar compilou=True passou=False erro=None
+A1-012 agentes r1: decisao=nao_reparar compilou=None passou=False erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-012 agente_unico r1: decisao=nao_reparar compilou=None passou=False erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+exclusões (fora das métricas): 0 (nenhuma)
+OK    A1-001 baseline legitima reparar True True None
+OK    A1-001 agentes legitima reparar True True None 34.6 s
+OK    A1-001 agente_unico legitima reparar True True None 37.0 s
+OK    A1-002 baseline legitima reparar True True None
+OK    A1-002 agentes legitima reparar True True None 34.8 s
+OK    A1-002 agente_unico legitima reparar True True None 34.6 s
+OK    A1-003 baseline problema_real reparar True False None
+OK    A1-003 agentes problema_real nao_reparar None False None 17.1 s
+OK    A1-003 agente_unico problema_real nao_reparar None False None 16.6 s
+OK    A1-004 baseline legitima reparar True True None
+OK    A1-004 agentes legitima reparar True True None 35.2 s
+OK    A1-004 agente_unico legitima reparar True True None 34.7 s
+OK    A1-005 baseline legitima reparar True True None
+OK    A1-005 agentes legitima reparar True True None 34.3 s
+OK    A1-005 agente_unico legitima reparar True True None 34.0 s
+OK    A1-006 baseline problema_real reparar True False None
+OK    A1-006 agentes problema_real nao_reparar None False None 16.6 s
+OK    A1-006 agente_unico problema_real nao_reparar None False None 16.3 s
+OK    A1-007 baseline legitima reparar True True None
+OK    A1-007 agentes legitima reparar True True None 35.4 s
+OK    A1-007 agente_unico legitima reparar True True None 35.9 s
+OK    A1-008 baseline legitima reparar True True None
+OK    A1-008 agentes legitima reparar True True None 35.7 s
+OK    A1-008 agente_unico legitima reparar True True None 35.4 s
+OK    A1-009 baseline problema_real reparar True False None
+OK    A1-009 agentes problema_real nao_reparar None False None 15.7 s
+OK    A1-009 agente_unico problema_real nao_reparar None False None 16.4 s
+OK    A1-010 baseline legitima reparar True True None
+OK    A1-010 agentes legitima reparar True True None 35.4 s
+OK    A1-010 agente_unico legitima reparar True True None 35.3 s
+OK    A1-011 baseline legitima reparar True True None
+OK    A1-011 agentes legitima reparar True True None 35.8 s
+OK    A1-011 agente_unico legitima reparar True True None 35.5 s
+OK    A1-012 baseline problema_real reparar True False None
+OK    A1-012 agentes problema_real nao_reparar None False None 15.6 s
+OK    A1-012 agente_unico problema_real nao_reparar None False None 15.6 s
+ENSAIO OK (código de saída do runner: 0)

@@ -1,0 +1,16 @@
+--- antes.java
++++ depois.java
+@@ -7,11 +7,11 @@
+                     .andExpect(jsonPath("$.id").value(is(102)))
+                     .andExpect(jsonPath("$.itens[0].produtoId").value(is(2)))
+                     .andExpect(jsonPath("$.itens[0].quantidade").value(is(1)))
+-                    .andExpect(jsonPath("$.itens[0].precoUnitario").value(decimal("30.00")))
++                    .andExpect(jsonPath("$.itens[0].preco").value(decimal("30.00")))
+                     .andExpect(jsonPath("$.itens[0].subtotal").value(decimal("30.00")))
+                     .andExpect(jsonPath("$.itens[1].produtoId").value(is(1)))
+                     .andExpect(jsonPath("$.itens[1].quantidade").value(is(3)))
+-                    .andExpect(jsonPath("$.itens[1].precoUnitario").value(decimal("25.50")))
++                    .andExpect(jsonPath("$.itens[1].preco").value(decimal("25.50")))
+                     .andExpect(jsonPath("$.itens[1].subtotal").value(decimal("76.50")))
+                     .andExpect(jsonPath("$.subtotal").value(decimal("106.50")));
+         }

@@ -1,0 +1,19 @@
+[
+  {
+    "etapa": "classifier",
+    "volta": 1,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "rodar_teste",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "classifier",
+    "volta": 2,
+    "terminou": true,
+    "ferramentas": []
+  }
+]
