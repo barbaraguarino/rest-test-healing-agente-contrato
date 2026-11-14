@@ -1,0 +1,36 @@
+limites: teste 120 s, caso 180 s, chamada ao LLM 120 s (D111) | prompts c458680c09f23e45d2b2125c3888d178a6f33e00 | código b93bc118965cd6e8955b0910ac72d33aad2352dd
+oráculo: casos/oraculo-agente1.json (commit b6608b6c82777a72d0dac65629f18ee004e69f95)
+retomada: 6 execuções já gravadas, 6 a rodar; chamadas pagas sem registro: 4 (US$ 0.000000)
+aquecimento do Maven (D111f, fora das métricas): ProdutoControllerTest.shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing passou=True maven=18.63 s erro=None
+A1-001: baseline pendente (T51)
+A1-002: baseline pendente (T51)
+A1-003: baseline pendente (T51)
+A1-004: baseline pendente (T51)
+A1-005: baseline pendente (T51)
+A1-006: baseline pendente (T51)
+A1-007: baseline pendente (T51)
+A1-007 r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-008: baseline pendente (T51)
+A1-008 r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-009: baseline pendente (T51)
+A1-009 r1: decisao=nao_reparar compilou=None passou=False erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-010: baseline pendente (T51)
+A1-010 r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-011: baseline pendente (T51)
+A1-011 r1: decisao=reparar compilou=True passou=True erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+A1-012: baseline pendente (T51)
+A1-012 r1: decisao=nao_reparar compilou=None passou=False erro=None tokens=0 custo=US$ 0.000000 (rodada: US$ 0.000000)
+exclusões (fora das métricas): 0 (nenhuma)
+OK    A1-001 legitima reparar True True None 34.0 s
+OK    A1-002 legitima reparar True True None 33.6 s
+OK    A1-003 problema_real nao_reparar None False None 15.8 s
+OK    A1-004 legitima reparar True True None 33.6 s
+OK    A1-005 legitima reparar True True None 33.1 s
+OK    A1-006 problema_real nao_reparar None False None 16.3 s
+OK    A1-007 legitima reparar True True None 33.0 s
+OK    A1-008 legitima reparar True True None 32.7 s
+OK    A1-009 problema_real nao_reparar None False None 14.9 s
+OK    A1-010 legitima reparar True True None 33.5 s
+OK    A1-011 legitima reparar True True None 32.1 s
+OK    A1-012 problema_real nao_reparar None False None 14.6 s
+ENSAIO OK (código de saída do runner: 0)
