@@ -145,5 +145,82 @@
     "\"idCarrinho\": 101"
    ]
   ]
+ },
+ "A1-025": {
+  "contrato_esperado": [
+   [
+    "alteracao_tipo",
+    "resposta",
+    "id"
+   ]
+  ]
+ },
+ "A1-026": {
+  "contrato_esperado": [
+   [
+    "alteracao_tipo",
+    "resposta",
+    "[].ativo"
+   ],
+   [
+    "alteracao_tipo",
+    "resposta",
+    "ativo"
+   ]
+  ]
+ },
+ "A1-027": {
+  "contrato_esperado": [
+   [
+    "alteracao_tipo",
+    "requisicao",
+    "descricao"
+   ]
+  ]
+ },
+ "A1-028": {
+  "contrato_esperado": [
+   [
+    "alteracao_tipo",
+    "requisicao",
+    "modalidadeFrete"
+   ]
+  ]
+ },
+ "A1-029": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "resposta",
+    "freteGratis",
+    "gratis"
+   ]
+  ],
+  "campo_nao_registrado": "valor",
+  "legit_no_teste": [
+   [
+    "shouldChargeShippingWhenModeIsExpressEvenAtThreshold",
+    "\"$.freteGratis\"",
+    "\"$.gratis\""
+   ]
+  ]
+ },
+ "A1-030": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "destino.cep",
+    "destino.codigoPostal"
+   ]
+  ],
+  "campo_nao_registrado": "modalidade",
+  "legit_no_teste": [
+   [
+    "shouldCountOneKilogramWhenWeightIsExactlyOneKilogram",
+    "\"cep\": \"01001000\"",
+    "\"codigoPostal\": \"01001000\""
+   ]
+  ]
  }
 }

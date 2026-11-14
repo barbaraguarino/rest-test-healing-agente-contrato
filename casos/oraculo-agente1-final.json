@@ -108,6 +108,60 @@
       "patch": "casos/A1-024.patch",
       "rotulo_oraculo": "problema_real",
       "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-025",
+      "categoria": "alteracao_tipo",
+      "lado": "resposta",
+      "teste_afetado": "PedidoControllerTest.shouldReturn200AndReturnStockWhenOrderIsAwaitingPayment",
+      "patch": "casos/A1-025.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-025.esperado.patch"
+    },
+    {
+      "id_caso": "A1-026",
+      "categoria": "alteracao_tipo",
+      "lado": "resposta",
+      "teste_afetado": "ProdutoControllerTest.shouldReturnAllProductsIncludingInactiveWhenCategoryIsMissing",
+      "patch": "casos/A1-026.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-026.esperado.patch"
+    },
+    {
+      "id_caso": "A1-027",
+      "categoria": "alteracao_tipo",
+      "lado": "requisicao",
+      "teste_afetado": "ProdutoControllerTest.shouldReturn201WithAllFieldsWhenPayloadIsComplete",
+      "patch": "casos/A1-027.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-027.esperado.patch"
+    },
+    {
+      "id_caso": "A1-028",
+      "categoria": "alteracao_tipo",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldReturn404WhenCartDoesNotExist",
+      "patch": "casos/A1-028.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-028.esperado.patch"
+    },
+    {
+      "id_caso": "A1-029",
+      "categoria": "alteracao_tipo",
+      "lado": "resposta",
+      "teste_afetado": "FreteControllerTest.shouldChargeShippingWhenModeIsExpressEvenAtThreshold",
+      "patch": "casos/A1-029.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-030",
+      "categoria": "alteracao_tipo",
+      "lado": "requisicao",
+      "teste_afetado": "FreteControllerTest.shouldCountOneKilogramWhenWeightIsExactlyOneKilogram",
+      "patch": "casos/A1-030.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
     }
   ]
 }
