@@ -74,5 +74,76 @@
     "\"nomeCompleto\": \"Ana Souza\""
    ]
   ]
+ },
+ "A1-019": {
+  "contrato_esperado": [
+   [
+    "remocao",
+    "resposta",
+    "freteGratis"
+   ]
+  ]
+ },
+ "A1-020": {
+  "contrato_esperado": [
+   [
+    "remocao",
+    "resposta",
+    "enderecoEntrega.complemento"
+   ]
+  ]
+ },
+ "A1-021": {
+  "contrato_esperado": [
+   [
+    "remocao",
+    "requisicao",
+    "quantidade"
+   ]
+  ]
+ },
+ "A1-022": {
+  "contrato_esperado": [
+   [
+    "remocao",
+    "requisicao",
+    "estoque"
+   ]
+  ]
+ },
+ "A1-023": {
+  "contrato_esperado": [
+   [
+    "remocao",
+    "resposta",
+    "subtotal"
+   ]
+  ],
+  "campo_nao_registrado": "itens",
+  "legit_no_teste": [
+   [
+    "shouldReturn201WithEmptyCartWhenCartIsCreated",
+    ".andExpect(jsonPath(\"$.itens\").value(empty()))\n                    .andExpect(jsonPath(\"$.subtotal\").value(decimal(\"0.00\")));",
+    ".andExpect(jsonPath(\"$.itens\").value(empty()));"
+   ]
+  ]
+ },
+ "A1-024": {
+  "contrato_esperado": [
+   [
+    "renomeacao",
+    "requisicao",
+    "carrinhoId",
+    "idCarrinho"
+   ]
+  ],
+  "campo_nao_registrado": "cupom",
+  "legit_no_teste": [
+   [
+    "shouldReturn422WhenCouponDoesNotExist",
+    "\"carrinhoId\": 101",
+    "\"idCarrinho\": 101"
+   ]
+  ]
  }
 }

@@ -54,6 +54,60 @@
       "patch": "casos/A1-018.patch",
       "rotulo_oraculo": "problema_real",
       "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-019",
+      "categoria": "remocao",
+      "lado": "resposta",
+      "teste_afetado": "FreteControllerTest.shouldGiveFreeShippingWhenSubtotalIsAtThreshold",
+      "patch": "casos/A1-019.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-019.esperado.patch"
+    },
+    {
+      "id_caso": "A1-020",
+      "categoria": "remocao",
+      "lado": "resposta",
+      "teste_afetado": "PedidoControllerTest.shouldReturn201WithAllFieldsWhenOrderHasCouponAndComplement",
+      "patch": "casos/A1-020.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-020.esperado.patch"
+    },
+    {
+      "id_caso": "A1-021",
+      "categoria": "remocao",
+      "lado": "requisicao",
+      "teste_afetado": "CarrinhoControllerTest.shouldReturn200WhenCartIsOneUnitBelowMaximum",
+      "patch": "casos/A1-021.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-021.esperado.patch"
+    },
+    {
+      "id_caso": "A1-022",
+      "categoria": "remocao",
+      "lado": "requisicao",
+      "teste_afetado": "ProdutoControllerTest.shouldReturn422WhenSkuAlreadyExists",
+      "patch": "casos/A1-022.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-022.esperado.patch"
+    },
+    {
+      "id_caso": "A1-023",
+      "categoria": "remocao",
+      "lado": "resposta",
+      "teste_afetado": "CarrinhoControllerTest.shouldReturn201WithEmptyCartWhenCartIsCreated",
+      "patch": "casos/A1-023.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-024",
+      "categoria": "remocao",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldReturn422WhenCouponDoesNotExist",
+      "patch": "casos/A1-024.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
     }
   ]
 }
