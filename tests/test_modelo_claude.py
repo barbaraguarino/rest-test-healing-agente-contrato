@@ -9,7 +9,7 @@ import anthropic
 import httpx2
 
 from agente_contrato import cliente_claude as cc
-from agente_contrato.agentes import SCHEMA_CLASSIFIER, rodar_agente
+from agente_contrato.agentes import SCHEMA_CLASSIFIER, rodar_agente, rodar_agente_unico
 from agente_contrato.laco import rodar_laco
 from agente_contrato.prompts import carregar
 from agente_contrato.registro_llm import LogDeChamadas, PromptAcimaDoLimite
@@ -200,6 +200,24 @@ class TestFabrica(Base):
         with self.assertRaises(ValueError):
             self.fabrica(SdkFalso())("outro prompt", [])
 
+    def test_os_agentes_gravam_o_tratamento(self):  # T49
+        self.fabrica(SdkFalso(TERMINA))(carregar("classifier"), [])(["x"])
+        self.assertEqual(self.linhas()[0]["tratamento"], "agentes")
+
+    def test_agente_unico_grava_a_etapa_e_o_tratamento(self):  # T49
+        fabrica = cc.FabricaClaude(SdkFalso(TERMINA), self.log, "A1-001", 1, "abc123", tratamento="agente_unico")
+        fabrica(carregar("agente_unico"), [])(["x"])
+        linha, = self.linhas()
+        self.assertEqual((linha["tratamento"], linha["etapa"]), ("agente_unico", "agente_unico"))
+
+    def test_cada_tratamento_so_aceita_os_seus_prompts(self):  # T49
+        with self.assertRaises(ValueError):
+            self.fabrica(SdkFalso())(carregar("agente_unico"), [])
+        unico = cc.FabricaClaude(SdkFalso(), self.log, "A1-001", 1, "abc123", tratamento="agente_unico")
+        for etapa in ("classifier", "repair"):
+            with self.subTest(etapa=etapa), self.assertRaises(ValueError):
+                unico(carregar(etapa), [])
+
     def test_cada_modelo_tem_a_sua_conversa(self):
         sdk = SdkFalso(TERMINA, TERMINA)
         fabrica = self.fabrica(sdk)
@@ -225,6 +243,27 @@ class TestAgenteInteiro(Base):
         self.assertEqual(sdk.recebidos[0]["output_config"]["format"]["schema"], SCHEMA_CLASSIFIER)  # D131
         self.assertNotIn("format", sdk.recebidos[1]["output_config"])
         self.assertEqual(ferramentas.rodadas, ["ver_diferenca", "salvar_reparo"])
+
+
+class TestAgenteUnicoComOCliente(Base):
+    """O `rodar_agente_unico` com a FabricaClaude no lugar do simulado (T49)."""
+
+    def test_um_laco_com_o_schema_em_todas_as_chamadas(self):  # D67, D131
+        rotulo = '{"rotulo": "legitima", "justificativa": "Troquei nome por titulo."}'
+        salva = mensagem([bloco("tool_use", id="toolu_r1", name="salvar_reparo",
+                                input={"metodo_reparado": "void lista() {}"})], "tool_use")
+        sdk = SdkFalso(salva, mensagem([bloco("text", text=rotulo)]))
+        ferramentas = FerramentasFalsas()
+        r = rodar_agente_unico(cc.FabricaClaude(sdk, self.log, "A1-001", 1, "abc123", tratamento="agente_unico"),
+                               ferramentas.dicionario(), RelogioCaso(agora=RelogioFalso()),
+                               "src/test/java/loja/ProdutoTest.java", "ProdutoTest", "lista", None,
+                               "@Test\nvoid lista() {}")
+        self.assertEqual((r.motivo, r.rotulo, r.chamadas), ("reparo", "legitima", 2))
+        self.assertEqual([(l["tratamento"], l["etapa"]) for l in self.linhas()], [("agente_unico", "agente_unico")] * 2)
+        for enviado in sdk.recebidos:
+            self.assertEqual(enviado["output_config"]["format"]["schema"], SCHEMA_CLASSIFIER)
+        self.assertEqual([t["name"] for t in sdk.recebidos[0]["tools"]],
+                         ["ler_arquivo", "ver_diferenca", "rodar_teste", "salvar_reparo"])
 
 
 if __name__ == "__main__":
