@@ -145,6 +145,8 @@ class Base(unittest.TestCase):
                                     **kw)
 
     def rodada(self, criar_fabrica, maven=None, casos=None, **kw) -> int:
+        """Uma rodada só com os agentes; a baseline tem os testes dela em test_rodar_baseline.py (T51)."""
+        kw.setdefault("tratamentos", ("agentes",))
         with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
             return runner.executar_rodada(casos or [self.caso], self.oraculo, self.api, "base", self.pasta, 1,
                                           criar_fabrica, ("p", "c"), maven or MavenFalso(), aquecer_antes=False,
@@ -347,15 +349,8 @@ class TestRodada(Base):
         self.assertEqual(codigo, runner.SAIDA_ERROS_SEGUIDOS)
         self.assertEqual([r["id_caso"] for r in self.resultados()], ["A1-001", "A1-002", "A1-003"])
 
-    def test_baseline_fica_pendente_ate_a_t51(self):  # D82: o lugar dela já está na ordem
+    def test_ordem_dos_tratamentos_d82(self):  # em cada caso, a baseline e depois os agentes
         self.assertEqual(runner.ORDEM_DOS_TRATAMENTOS, ("baseline", "agentes"))
-        self.assertNotIn("baseline", runner.TRATAMENTOS_PRONTOS)
-        saida = io.StringIO()
-        with redirect_stdout(saida):
-            runner.executar_rodada([self.caso], self.oraculo, self.api, "base", self.pasta, 1,
-                                   lambda i, r: legitima_reparada(), ("p", "c"), MavenFalso(), aquecer_antes=False)
-        self.assertIn("A1-001: baseline pendente (T51)", saida.getvalue())
-
 
 if __name__ == "__main__":
     unittest.main()
