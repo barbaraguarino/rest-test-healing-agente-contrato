@@ -1,0 +1,21 @@
+{
+  "id_caso": "A1-003",
+  "repeticao": 1,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo_classifier": "problema_real",
+  "justificativa": "A falha é em \"$.sku\", e o contrato novo continua declarando \"sku\" em ProdutoResponse; o diff só registra a renomeação de \"nome\" para \"titulo\". O código mudou a resposta: ProdutoResponse.java define o campo como \"codigo\" (o construtor recebe produto.getSku() nessa posição), então a mudança de sku para codigo não está registrada no contrato e quebra o contrato atual.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 0,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "c458680c09f23e45d2b2125c3888d178a6f33e00",
+  "commit_do_codigo": "e904cc6e158141cf846a223774d7c6bfc0e78e11",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 8.9855
+}

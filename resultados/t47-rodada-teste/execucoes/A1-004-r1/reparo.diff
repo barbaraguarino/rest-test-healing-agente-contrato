@@ -1,0 +1,10 @@
+--- antes.java
++++ depois.java
+@@ -15,6 +15,5 @@
+                     .andExpect(jsonPath("$.modalidade").value("PADRAO"))
+                     .andExpect(jsonPath("$.valor").value(decimal("17.00")))
+                     .andExpect(jsonPath("$.prazoDias").value(is(3)))
+-                    .andExpect(jsonPath("$.freteGratis").value(false))
+-                    .andExpect(jsonPath("$.pesoTotalGramas").value(is(500)));
++                    .andExpect(jsonPath("$.freteGratis").value(false));
+         }

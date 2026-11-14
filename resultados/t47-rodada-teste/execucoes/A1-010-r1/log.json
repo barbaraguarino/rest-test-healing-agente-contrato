@@ -1,0 +1,21 @@
+{
+  "id_caso": "A1-010",
+  "repeticao": 1,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "A diferença do contrato registra que `cliente.cpf` passou a ser obrigatório em POST /pedidos, e `ClienteRequest` implementa isso com `@NotBlank` no campo `cpf`. O corpo do teste não envia `cpf`, então a validação responde 400 antes de chegar ao serviço, e a falha é explicada pela mudança intencional. A correção é adicionar `\"cpf\"` ao JSON do teste.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 4,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "c458680c09f23e45d2b2125c3888d178a6f33e00",
+  "commit_do_codigo": "e904cc6e158141cf846a223774d7c6bfc0e78e11",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 51.6774
+}
