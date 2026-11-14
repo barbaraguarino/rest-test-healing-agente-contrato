@@ -1,4 +1,4 @@
-"""Gabarito: os testes da tag rodada-2 (tests/test_teste_java.py), sem os do corpo JSON."""
+"""Gabarito: os testes da tag rodada-2 (tests/test_teste_java.py); os do corpo JSON voltaram na T51."""
 import unittest
 
 from agente_contrato import teste_java as tj
@@ -55,6 +55,47 @@ class ChamadasTest(unittest.TestCase):
         self.assertEqual(JAVA[a.ini_expressao:a.fim_expressao], "$.estoque")
         self.assertIn("jsonPath", JAVA[a.ini_linha:a.fim_linha])
         self.assertTrue(JAVA[a.ini_linha:a.fim_linha].endswith("\n"))
+
+    def test_corpo_json_so_na_chamada_que_tem_content(self):
+        self.assertEqual(self.chamadas[0].corpo.tipo, "objeto")
+        self.assertIsNone(self.chamadas[1].corpo)
+
+
+class CorpoJsonTest(unittest.TestCase):
+    def setUp(self):
+        m = tj.localizar_metodo(JAVA, "shouldDecreaseStockWhenOrderIsCreated")
+        self.corpo = tj.analisar_chamadas(JAVA, m, ROTAS)[0].corpo
+
+    def _texto(self, membro):
+        return JAVA[membro.ini:membro.fim]
+
+    def test_membro_simples_e_aninhado(self):
+        [m] = tj.localizar_membros(self.corpo, "modalidadeFrete")
+        self.assertEqual(self._texto(m), '"modalidadeFrete": "PADRAO"')
+        [m] = tj.localizar_membros(self.corpo, "cliente.nome")
+        self.assertEqual(self._texto(m), '"nome": "Ana, S."')  # vírgula dentro da string
+
+    def test_membro_dentro_de_array_devolve_todos_os_que_existem(self):
+        achados = tj.localizar_membros(self.corpo, "itens[].quantidade")
+        self.assertEqual([self._texto(m) for m in achados], ['"quantidade": 1'])
+        self.assertEqual(len(tj.localizar_membros(self.corpo, "itens[].produtoId")), 2)
+
+    def test_caminho_inexistente_devolve_lista_vazia(self):
+        self.assertEqual(tj.localizar_membros(self.corpo, "cliente.cpf"), [])
+        self.assertEqual(tj.localizar_membros(self.corpo, "naoExiste.x"), [])
+
+    def test_objetos_para_insercao(self):
+        [raiz] = tj.localizar_objetos(self.corpo, "")
+        self.assertEqual(JAVA[raiz.ini], "{")
+        [cliente] = tj.localizar_objetos(self.corpo, "cliente")
+        self.assertEqual(JAVA[cliente.fim - 1], "}")
+        self.assertEqual(len(tj.localizar_objetos(self.corpo, "itens[]")), 2)
+
+    def test_json_invalido_falha(self):
+        with self.assertRaises(tj.ErroDeAnalise):
+            tj.analisar_json('{"a" 1}', 0)
+        with self.assertRaises(tj.ErroDeAnalise):
+            tj.analisar_json('{"a": 1', 0)
 
 
 class RotaEExpressaoTest(unittest.TestCase):
