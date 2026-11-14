@@ -132,6 +132,7 @@ O agente nunca lê o oráculo. Ele recebe só o patch aplicado na API cobaia e o
 | `resultados/t47-rodada-teste/` | Rodada de teste paga da versão agêntica nos 12 casos do piloto, 1 repetição (T47), para medir tokens e custo; 66 chamadas, US$ 0,061937; não são resultados do estudo |
 | `resultados/t53-ensaio-retomada/` | Ensaio da retomada (T53) nos 12 casos do piloto, Maven de verdade e LLM simulado, 1 repetição: a rodada cai no meio do A1-007 r1 e é retomada; `terminal-sessao1.txt` e `terminal-sessao2.txt` têm a saída de cada vez; não são resultados do estudo |
 | `resultados/t51-ensaio/` | Ensaio da baseline nova (T51) nos 12 casos do piloto, Maven de verdade, 1 repetição, sem LLM; `comparacao-t42.json` compara com a t42-baseline da v1 (só o A1-007 muda, pela D114); não são resultados do estudo |
+| `resultados/t51-ensaio-d133/` | O ensaio da T51 refeito depois da D133 (o `tempo_s` da baseline conta o Maven final), mesmos 12 casos e 1 repetição: `comparacao-t42.txt` (só o A1-007 muda, pela D114) e `comparacao-t51-ensaio.txt` (contra o `t51-ensaio`, só o `tempo_s` muda); não são resultados do estudo |
 | `resultados/t48-conferencia/` | Conferência automática dos 24 casos finais (T48), sem LLM e sem API: `tabela.md` (a a e por caso) e `resultado.json`; não são resultados do estudo |
 
 Os detalhes de cada rodada estão no README da tag `rodada-2` e na Operação do Estudo (repositório `rest-test-healing-estudo`).
