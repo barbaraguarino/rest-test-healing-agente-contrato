@@ -1,0 +1,423 @@
+MÉTRICAS · versao_api linha-de-base-2
+
+=== agente1 · agente_unico · versão agentica ===
+
+Casos: 8
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 4        FN = 0
+  Problema real    FP = 2        VN = 2
+
+Termos adicionais: R = 4   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           0,7500       6/8
+  Repair Rate                  1,0000       4/4
+  Safety                       1,0000       4/4
+  Unsafe Repair Rate           0,0000       0/6
+  Referência (sempre repara)   0,5000          
+
+Descritivas, por caso
+                   Média      Mediana       Mínimo        Máximo
+  --------------------------------------------------------------
+  tempo_s        34,3334      35,7832      10,6313       53,0909
+  tokens      71710,9167   64619,5000   34679,6667   135140,3333
+  custo_usd       0,0080       0,0071       0,0042        0,0151
+
+=== agente1 · agentes · versão agentica ===
+
+Casos: 24
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima        VP = 16        FN = 0
+  Problema real    FP = 4        VN = 4
+
+Termos adicionais: R = 16   M = 2   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           0,8333     20/24
+  Repair Rate                  1,0000     16/16
+  Safety                       0,7500       6/8
+  Unsafe Repair Rate           0,1000      2/20
+  Referência (sempre repara)   0,6667          
+
+Descritivas, por caso
+                   Média      Mediana       Mínimo       Máximo
+  -------------------------------------------------------------
+  tempo_s        36,7948      37,6690       7,4587      65,0819
+  tokens      47311,7917   41356,6667   21152,0000   86775,0000
+  custo_usd       0,0057       0,0051       0,0025       0,0100
+
+=== agente1 · baseline · versão - ===
+
+Casos: 24
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima        VP = 13        FN = 3
+  Problema real    FP = 8        VN = 0
+
+Termos adicionais: R = 13   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           0,5417     13/24
+  Repair Rate                  0,8125     13/16
+  Safety                       1,0000       8/8
+  Unsafe Repair Rate           0,0000      0/21
+  Referência (sempre repara)   0,6667          
+
+Descritivas, por caso
+                Média   Mediana   Mínimo    Máximo
+  ------------------------------------------------
+  tempo_s     11,3494   11,9903   0,0063   21,7058
+  tokens       0,0000    0,0000   0,0000    0,0000
+  custo_usd    0,0000    0,0000   0,0000    0,0000
+
+POR CATEGORIA DE MUDANÇA (descritivo)
+
+=== agente1 · agente_unico · versão agentica · categoria alteracao_tipo ===
+
+Casos: 2
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 1        FN = 0
+  Problema real    FP = 1        VN = 0
+
+Termos adicionais: R = 1   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           0,5000       1/2
+  Repair Rate                  1,0000       1/1
+  Safety                       1,0000       1/1
+  Unsafe Repair Rate           0,0000       0/2
+  Referência (sempre repara)   0,5000          
+
+Descritivas, por caso
+                   Média      Mediana       Mínimo       Máximo
+  -------------------------------------------------------------
+  tempo_s        41,1804      41,1804      35,4108      46,9500
+  tokens      73308,3333   73308,3333   58293,3333   88323,3333
+  custo_usd       0,0081       0,0081       0,0065       0,0098
+
+=== agente1 · agente_unico · versão agentica · categoria campo_obrigatorio_novo ===
+
+Casos: 2
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 1        FN = 0
+  Problema real    FP = 0        VN = 1
+
+Termos adicionais: R = 1   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           1,0000       2/2
+  Repair Rate                  1,0000       1/1
+  Safety                       1,0000       1/1
+  Unsafe Repair Rate           0,0000       0/1
+  Referência (sempre repara)   0,5000          
+
+Descritivas, por caso
+                   Média      Mediana       Mínimo       Máximo
+  -------------------------------------------------------------
+  tempo_s        28,7528      28,7528      11,3140      46,1916
+  tokens      66546,3333   66546,3333   52141,3333   80951,3333
+  custo_usd       0,0074       0,0074       0,0060       0,0088
+
+=== agente1 · agente_unico · versão agentica · categoria remocao ===
+
+Casos: 2
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 1        FN = 0
+  Problema real    FP = 0        VN = 1
+
+Termos adicionais: R = 1   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           1,0000       2/2
+  Repair Rate                  1,0000       1/1
+  Safety                       1,0000       1/1
+  Unsafe Repair Rate           0,0000       0/1
+  Referência (sempre repara)   0,5000          
+
+Descritivas, por caso
+                   Média      Mediana       Mínimo       Máximo
+  -------------------------------------------------------------
+  tempo_s        23,3934      23,3934      10,6313      36,1556
+  tokens      43946,0000   43946,0000   34679,6667   53212,3333
+  custo_usd       0,0051       0,0051       0,0042       0,0060
+
+=== agente1 · agente_unico · versão agentica · categoria renomeacao ===
+
+Casos: 2
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 1        FN = 0
+  Problema real    FP = 1        VN = 0
+
+Termos adicionais: R = 1   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           0,5000       1/2
+  Repair Rate                  1,0000       1/1
+  Safety                       1,0000       1/1
+  Unsafe Repair Rate           0,0000       0/2
+  Referência (sempre repara)   0,5000          
+
+Descritivas, por caso
+                    Média       Mediana       Mínimo        Máximo
+  ----------------------------------------------------------------
+  tempo_s         44,0069       44,0069      34,9229       53,0909
+  tokens      103043,0000   103043,0000   70945,6667   135140,3333
+  custo_usd        0,0114        0,0114       0,0077        0,0151
+
+=== agente1 · agentes · versão agentica · categoria alteracao_tipo ===
+
+Casos: 6
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 4        FN = 0
+  Problema real    FP = 2        VN = 0
+
+Termos adicionais: R = 4   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           0,6667       4/6
+  Repair Rate                  1,0000       4/4
+  Safety                       1,0000       2/2
+  Unsafe Repair Rate           0,0000       0/6
+  Referência (sempre repara)   0,6667          
+
+Descritivas, por caso
+                   Média      Mediana       Mínimo       Máximo
+  -------------------------------------------------------------
+  tempo_s        41,3243      42,6367      34,0243      46,5626
+  tokens      58521,4444   62796,5000   22011,3333   86775,0000
+  custo_usd       0,0069       0,0074       0,0028       0,0100
+
+=== agente1 · agentes · versão agentica · categoria campo_obrigatorio_novo ===
+
+Casos: 6
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 4        FN = 0
+  Problema real    FP = 0        VN = 2
+
+Termos adicionais: R = 4   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           1,0000       6/6
+  Repair Rate                  1,0000       4/4
+  Safety                       1,0000       2/2
+  Unsafe Repair Rate           0,0000       0/4
+  Referência (sempre repara)   0,6667          
+
+Descritivas, por caso
+                   Média      Mediana       Mínimo       Máximo
+  -------------------------------------------------------------
+  tempo_s        31,3280      37,1702       8,8223      52,1833
+  tokens      44972,3889   43829,0000   29554,0000   65778,3333
+  custo_usd       0,0053       0,0051       0,0035       0,0075
+
+=== agente1 · agentes · versão agentica · categoria remocao ===
+
+Casos: 6
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 4        FN = 0
+  Problema real    FP = 0        VN = 2
+
+Termos adicionais: R = 4   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           1,0000       6/6
+  Repair Rate                  1,0000       4/4
+  Safety                       1,0000       2/2
+  Unsafe Repair Rate           0,0000       0/4
+  Referência (sempre repara)   0,6667          
+
+Descritivas, por caso
+                   Média      Mediana       Mínimo       Máximo
+  -------------------------------------------------------------
+  tempo_s        29,6361      38,9521       7,4587      41,1064
+  tokens      38305,1111   38080,8333   21152,0000   63068,3333
+  custo_usd       0,0047       0,0048       0,0025       0,0075
+
+=== agente1 · agentes · versão agentica · categoria renomeacao ===
+
+Casos: 6
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 4        FN = 0
+  Problema real    FP = 2        VN = 0
+
+Termos adicionais: R = 4   M = 2   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           0,6667       4/6
+  Repair Rate                  1,0000       4/4
+  Safety                       0,0000       0/2
+  Unsafe Repair Rate           0,3333       2/6
+  Referência (sempre repara)   0,6667          
+
+Descritivas, por caso
+                   Média      Mediana       Mínimo       Máximo
+  -------------------------------------------------------------
+  tempo_s        44,8911      36,2465      34,3191      65,0819
+  tokens      47448,2222   34350,6667   28626,3333   82679,6667
+  custo_usd       0,0058       0,0042       0,0036       0,0099
+
+=== agente1 · baseline · versão - · categoria alteracao_tipo ===
+
+Casos: 6
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 1        FN = 3
+  Problema real    FP = 2        VN = 0
+
+Termos adicionais: R = 1   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           0,1667       1/6
+  Repair Rate                  0,2500       1/4
+  Safety                       1,0000       2/2
+  Unsafe Repair Rate           0,0000       0/3
+  Referência (sempre repara)   0,6667          
+
+Descritivas, por caso
+               Média   Mediana   Mínimo    Máximo
+  -----------------------------------------------
+  tempo_s     8,1916    5,8925   0,0063   21,7058
+  tokens      0,0000    0,0000   0,0000    0,0000
+  custo_usd   0,0000    0,0000   0,0000    0,0000
+
+=== agente1 · baseline · versão - · categoria campo_obrigatorio_novo ===
+
+Casos: 6
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 4        FN = 0
+  Problema real    FP = 2        VN = 0
+
+Termos adicionais: R = 4   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           0,6667       4/6
+  Repair Rate                  1,0000       4/4
+  Safety                       1,0000       2/2
+  Unsafe Repair Rate           0,0000       0/6
+  Referência (sempre repara)   0,6667          
+
+Descritivas, por caso
+                Média   Mediana    Mínimo    Máximo
+  -------------------------------------------------
+  tempo_s     12,1706   11,5619   11,3751   13,9930
+  tokens       0,0000    0,0000    0,0000    0,0000
+  custo_usd    0,0000    0,0000    0,0000    0,0000
+
+=== agente1 · baseline · versão - · categoria remocao ===
+
+Casos: 6
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 4        FN = 0
+  Problema real    FP = 2        VN = 0
+
+Termos adicionais: R = 4   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           0,6667       4/6
+  Repair Rate                  1,0000       4/4
+  Safety                       1,0000       2/2
+  Unsafe Repair Rate           0,0000       0/6
+  Referência (sempre repara)   0,6667          
+
+Descritivas, por caso
+                Média   Mediana    Mínimo    Máximo
+  -------------------------------------------------
+  tempo_s     12,6157   12,7591   11,3992   13,5764
+  tokens       0,0000    0,0000    0,0000    0,0000
+  custo_usd    0,0000    0,0000    0,0000    0,0000
+
+=== agente1 · baseline · versão - · categoria renomeacao ===
+
+Casos: 6
+
+Matriz de confusão
+  Situação real   Reparar   Não reparar
+  -------------------------------------
+  Legítima         VP = 4        FN = 0
+  Problema real    FP = 2        VN = 0
+
+Termos adicionais: R = 4   M = 0   Ip = 0
+
+Métricas
+  Métrica                       Valor   Cálculo
+  ---------------------------------------------
+  Detection Accuracy           0,6667       4/6
+  Repair Rate                  1,0000       4/4
+  Safety                       1,0000       2/2
+  Unsafe Repair Rate           0,0000       0/6
+  Referência (sempre repara)   0,6667          
+
+Descritivas, por caso
+                Média   Mediana    Mínimo    Máximo
+  -------------------------------------------------
+  tempo_s     12,4197   12,2721   11,2886   13,7880
+  tokens       0,0000    0,0000    0,0000    0,0000
+  custo_usd    0,0000    0,0000    0,0000    0,0000
