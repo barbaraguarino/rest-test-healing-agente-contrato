@@ -101,7 +101,20 @@ Códigos de saída: 0 terminou; 3 erro que repetir não resolve (400, 401, 403, 
 | `execucoes/A1-NNN-baseline-r1/` | Baseline: os mesmos arquivos, com `caminho.json` vazio (não há agente) |
 | `execucoes/A1-NNN-agente_unico-rN/` | Agente único: os mesmos arquivos dos agentes, com um laço só no `caminho.json` |
 
-Até a T50 (comparador), `equivalente_oraculo` e `cenario_alterado` saem nulos, nos dois tratamentos, e o validador recusa o arquivo nos casos legítimos reparados (D110): é o esperado.
+A rodada grava `equivalente_oraculo` e `cenario_alterado` nulos. Quem os preenche, depois, é o comparador (T50), sem Maven e sem LLM.
+
+### Comparar com a correção esperada (T50)
+
+`agente_contrato/comparar_resultados.py` aplica o comparador (`agente_contrato/comparador.py`; D95, D109) às execuções com `decisao=reparar` de uma pasta já gravada:
+
+- preenche `equivalente_oraculo` e `cenario_alterado` no próprio `resultados-agente1.json` (D138), sem mudar nenhum outro campo; o original fica no Git;
+- grava ao lado o `comparacao.json`: para cada execução reparada, a regra da D95 que deu a equivalência (1, 2 ou 3), os motivos e, se for o caso, por que vai para a revisão manual (D80, D109);
+- na revisão manual, `equivalente_oraculo` fica nulo (D110): a Barbara grava `true` ou `false` no `resultados-agente1.json` e o veredito e o motivo em `veredito_manual` e `motivo_do_veredito` do `comparacao.json`. Rodar de novo não apaga esse veredito;
+- numa regressão reparada, `equivalente_oraculo` fica nulo e `cenario_alterado` é preenchido (D119).
+
+A correção esperada e a diferença de contrato saem de uma cópia descartável da API cobaia na tag do log, com o patch do caso e a correção esperada congelada (D96), só com o Git. O oráculo é o gravado no log da rodada; antes da T53, o log não o tinha, e é preciso passar `--oraculo`.
+
+No PyCharm: **Run → Edit Configurations → + → Python**, **Module name** `agente_contrato.comparar_resultados`, **Parameters** `--api ../rest-test-healing-sut --pasta resultados/t25-final`, **Working directory** a raiz do repositório. Depois disso, o validador só recusa os casos que esperam a revisão manual.
 
 Para validar, na pasta `rest-test-healing-avaliacao`: **Run → Edit Configurations → + → Python**, **Module name** `avaliacao`, **Parameters** o caminho do `resultados-agente1.json`.
 
