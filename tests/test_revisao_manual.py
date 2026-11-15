@@ -2,6 +2,7 @@
 import unittest
 
 from agente_contrato import comparador as cp
+from agente_contrato import contrato as c
 from tests.test_comparador import comparar, java, nova
 
 
@@ -50,6 +51,29 @@ class RevisaoManualTest(unittest.TestCase):
 
     def test_regressao_sem_correcao_esperada_decide_sozinha(self):  # D119
         self.assertIsNone(cp.revisao_manual(_cmp(None, True), False, True, True, False))
+
+
+def muda_tipo(caminho, antes, depois):
+    return c.Mudanca(c.ALTERACAO_TIPO, "POST", "/pedidos", c.REQUISICAO, caminho,
+                     antes=c.Propriedade(antes, None, None, False), depois=c.Propriedade(depois, None, None, False))
+
+
+class AlteracaoDeTipoTest(unittest.TestCase):
+    """O campo que vira array é atingido pela diferença, inclusive o que fica dentro dele (A1-027 da T25)."""
+    ORIG = java('{"a": 1, "d": "x y"}')
+    MUDA = muda_tipo("d", "string", "array")
+
+    def test_campo_que_vira_array_nao_troca_cenario(self):
+        r = comparar(self.ORIG, java('{"a": 1, "d": ["x y"]}'), java('{"a": 1, "d": ["x y"]}'), self.MUDA)
+        self.assertEqual((r.equivalente, r.cenario_alterado, r.regra), (True, False, 1))
+
+    def test_valor_diferente_do_esperado_no_campo_que_mudou_de_tipo_nao_e_equivalente(self):
+        r = comparar(self.ORIG, java('{"a": 1, "d": ["x", "y"]}'), java('{"a": 1, "d": ["x y"]}'), self.MUDA)
+        self.assertEqual((r.equivalente, r.cenario_alterado), (False, False))
+
+    def test_outro_campo_mudado_continua_trocando_cenario(self):
+        r = comparar(self.ORIG, java('{"a": 2, "d": ["x y"]}'), None, self.MUDA)
+        self.assertTrue(r.cenario_alterado)
 
 
 if __name__ == "__main__":

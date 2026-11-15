@@ -189,7 +189,9 @@ def _corpo_mudou_fora_da_diferenca(orig, rep, ch: _Chamada, mudancas: list[c.Mud
         for (cam, val), n in folhas.items():
             if any(_debaixo(cam, m.caminho) for m in mudancas if m.tipo == c.REMOCAO) and so_na_origem:
                 continue
-            if any(cam == m.caminho for m in mudancas if m.tipo == c.ALTERACAO_TIPO):
+            # T50: o campo que mudou de tipo e o que fica debaixo dele (string → array vira `campo[]`) são
+            # atingidos pela diferença; na v1 só contava o caminho exato (A1-027 da T25)
+            if any(_debaixo(cam, m.caminho) for m in mudancas if m.tipo == c.ALTERACAO_TIPO):
                 continue
             if not so_na_origem and any(_debaixo(cam, m.caminho) for m in mudancas
                                         if m.tipo == c.CAMPO_OBRIGATORIO_NOVO):
