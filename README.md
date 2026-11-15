@@ -118,6 +118,12 @@ No PyCharm: **Run → Edit Configurations → + → Python**, **Module name** `a
 
 Para validar, na pasta `rest-test-healing-avaliacao`: **Run → Edit Configurations → + → Python**, **Module name** `avaliacao`, **Parameters** o caminho do `resultados-agente1.json`.
 
+### Relatório visual dos reparos (T52)
+
+`agente_contrato/relatorio_visual.py` gera uma página HTML por rodada, só com o que já está gravado: não roda Maven, não chama o LLM e não altera nada em `resultados/`. A página é um arquivo só, sem internet (CSS embutido, sem JS), e abre no celular. Para cada caso mostra o teste antes, a correção esperada do oráculo (lido só aqui, depois da execução) e, por tratamento (baseline, agentes r1 a r3, agente único), o reparo com as linhas mudadas, o caminho do agente, as recusas do guarda e: decisão, compilou, passou, erro, regra da D95, `cenario_alterado` e `equivalente_oraculo`. Nulo num legítimo reparado aparece como "revisão manual pendente". Não mostra métricas agregadas nem conclusões.
+
+No PyCharm: **Run → Edit Configurations → + → Python**, **Module name** `agente_contrato.relatorio_visual`, **Parameters** `--pasta resultados/t25-final`, **Working directory** a raiz do repositório. A página sai em `relatorios/t25-final.html` (nunca dentro de `resultados/`); abra-a pelo PyCharm (botão direito no arquivo → **Open in → Browser**) ou pelo gerenciador de arquivos. Para o piloto, `--pasta resultados/t47-rodada-teste`, que não tem `comparacao.json`: a regra da D95 aparece como "sem comparação nesta rodada".
+
 ## Regenerar os resultados do piloto
 
 Os resultados do piloto só se regeneram com o código da tag `rodada-2`: o código novo segue regras decididas depois do piloto (D114 a D116) e daria outro resultado em pelo menos um caso.
