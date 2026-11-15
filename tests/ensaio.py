@@ -143,13 +143,16 @@ def main() -> int:
     ap.add_argument("--tratamentos", nargs="+", choices=rodar.ORDEM_DOS_TRATAMENTOS,
                     default=list(rodar.ORDEM_DOS_TRATAMENTOS),
                     help="padrão: os três, na ordem da D82; o agente único roda em todos os casos do ensaio")
-    ap.add_argument("--casos", nargs="*", help="ids dos casos (padrão: os 12 do piloto)")
+    ap.add_argument("--casos", nargs="*", help="ids dos casos (padrão: todos os do oráculo)")
+    ap.add_argument("--oraculo", type=Path, default=rodar.ORACULO_PADRAO,
+                    help="arquivo do oráculo, como no runner (padrão: o do piloto; o da T25 é "
+                         "casos/oraculo-agente1-final.json)")
     ap.add_argument("--retomar", action="store_true", help="continua a rodada interrompida na mesma --saida (T53)")
     ap.add_argument("--interromper-em", nargs=2, metavar=("CASO", "REPETICAO"),
                     help="derruba a rodada no meio desta execução, para o ensaio da retomada (T53)")
     args = ap.parse_args()
     raiz_repo = rodar.RAIZ_REPO
-    do_oraculo = rodar.oraculo_do_log(rodar.ORACULO_PADRAO)
+    do_oraculo = rodar.oraculo_do_log(args.oraculo)
     oraculo = json.loads((raiz_repo / do_oraculo["arquivo"]).read_text(encoding="utf-8"))
     por_id = {c["id_caso"]: c for c in oraculo["casos"]}
     tag = oraculo["versao_api"]
