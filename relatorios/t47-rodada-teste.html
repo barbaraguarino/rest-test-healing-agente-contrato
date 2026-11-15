@@ -1,0 +1,755 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Relatório visual — t47-rodada-teste</title><style>
+:root{--bg:#f6f7f9;--fg:#1c2330;--card:#fff;--bd:#d5d9e0;--mut:#5d6675;--mais:#d7f5dd;--menos:#fadadd;--hunk:#e3e8f5;
+--ok:#1e7a3a;--ruim:#b3261e;--pend:#9a5b00;--pendbg:#fff1d6}
+@media (prefers-color-scheme:dark){:root{--bg:#14171c;--fg:#e6e9ee;--card:#1d2128;--bd:#343b46;--mut:#9aa4b2;
+--mais:#173a22;--menos:#4a1d22;--hunk:#222b3f;--ok:#6fd58a;--ruim:#ff8a80;--pend:#ffc766;--pendbg:#3d3012}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header,main{max-width:1280px;margin:0 auto;padding:12px 16px}
+h1{font-size:1.4rem;margin:.3em 0}h2{font-size:1.15rem;margin:.2em 0}h3{font-size:1.05rem;margin:.2em 0}h4{margin:.2em 0;font-size:.95rem}
+small{color:var(--mut);font-weight:400}.mut{color:var(--mut)}
+.indice{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.indice a{border:1px solid var(--bd);background:var(--card);padding:4px 8px;border-radius:6px;color:inherit;text-decoration:none;font-size:.85rem}
+.ponto{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:3px}
+.ponto.on{background:var(--ok)}.ponto.off{background:var(--bd)}
+.caso{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin:16px 0}
+.selo{font-size:.75rem;padding:2px 8px;border-radius:10px;vertical-align:middle;border:1px solid var(--bd)}
+.selo.real{background:var(--pendbg);color:var(--pend)}
+.lado{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.col,.exec{min-width:0}
+.execs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.trat{border-top:2px solid var(--bd);margin-top:14px;padding-top:6px}
+.exec{border:1px solid var(--bd);border-radius:8px;padding:8px}
+.exec.regressao{border-left:4px solid var(--pend)}
+pre.codigo{margin:4px 0;padding:8px;background:var(--bg);border:1px solid var(--bd);border-radius:6px;overflow-x:auto;
+font:12.5px/1.45 ui-monospace,Menlo,Consolas,monospace;white-space:pre;max-height:420px;overflow-y:auto}
+pre.codigo span{display:inline-block;min-width:100%}
+.mais{background:var(--mais)}.menos{background:var(--menos)}.hunk{background:var(--hunk);color:var(--mut)}.cab{color:var(--mut)}
+.ficha{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;margin:6px 0}
+.campo{border:1px solid var(--bd);border-radius:6px;padding:4px 6px;font-size:.85rem;min-width:0;overflow-wrap:anywhere}
+.campo span{display:block;color:var(--mut);font-size:.72rem}.campo.ok b{color:var(--ok)}.campo.ruim b{color:var(--ruim)}
+.campo.pend{background:var(--pendbg)}.campo.pend b{color:var(--pend)}
+.nota{font-size:.82rem;color:var(--mut);margin:2px 0}
+.aviso{background:var(--pendbg);color:var(--pend);padding:6px 8px;border-radius:6px;margin:6px 0}
+.recusa{background:var(--menos);padding:6px 8px;border-radius:6px;margin:6px 0;font-size:.88rem}
+.just{font-size:.88rem;margin:6px 0}
+.vazio{color:var(--mut);font-style:italic;margin:4px 0}
+.caminho{margin:4px 0;padding-left:20px;font-size:.85rem}.etapa{color:var(--mut)}.err{color:var(--ruim)}
+summary{cursor:pointer;font-weight:600;font-size:.9rem;margin:6px 0}
+code{font:12.5px ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+@media (max-width:700px){.lado{grid-template-columns:1fr}.execs{grid-template-columns:1fr}}
+</style></head><body><header><h1>Relatório visual dos reparos — t47-rodada-teste</h1><p class="mut">Gerado só a partir dos arquivos gravados em <code>resultados/t47-rodada-teste</code>; nada foi rodado. API: <code>linha-de-base-2</code>. Esta rodada não tem <code>comparacao.json</code>: regra da D95 e equivalência não foram calculadas. O oráculo foi lido só agora, depois da execução. 12 casos, 12 execuções.</p><nav class="indice"><a href="#A1-001">A1-001 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a><a href="#A1-002">A1-002 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a><a href="#A1-003">A1-003 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a><a href="#A1-004">A1-004 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a><a href="#A1-005">A1-005 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a><a href="#A1-006">A1-006 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a><a href="#A1-007">A1-007 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a><a href="#A1-008">A1-008 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a><a href="#A1-009">A1-009 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a><a href="#A1-010">A1-010 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a><a href="#A1-011">A1-011 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a><a href="#A1-012">A1-012 <i class="ponto off" title="Baseline: 0"></i><i class="ponto on" title="Agentes: 1"></i><i class="ponto off" title="Agente único: 0"></i></a></nav></header><main><article class="caso" id="A1-001"><h2>A1-001 <small>renomeacao · resposta</small> <span class="selo legitima">legítima</span></h2><p class="teste">Teste afetado: <code>ProdutoControllerTest.shouldReturn200WithAllFieldsWhenProductExists</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 200 OK com todos os campos e as tags na ordem de cadastro quando o produto existir&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/produto/produtos.sql&quot;})
+        void shouldReturn200WithAllFieldsWhenProductExists() throws Exception {
+            mockMvc.perform(get(&quot;/produtos/1&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.id&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.sku&quot;).value(&quot;LIV-002&quot;))
+                    .andExpect(jsonPath(&quot;$.nome&quot;).value(&quot;Livro de Java&quot;))
+                    .andExpect(jsonPath(&quot;$.descricao&quot;).value(&quot;Livro sobre Java&quot;))
+                    .andExpect(jsonPath(&quot;$.preco&quot;).value(decimal(&quot;89.90&quot;)))
+                    .andExpect(jsonPath(&quot;$.categoria&quot;).value(&quot;LIVROS&quot;))
+                    .andExpect(jsonPath(&quot;$.ativo&quot;).value(true))
+                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(is(7)))
+                    .andExpect(jsonPath(&quot;$.pesoGramas&quot;).value(is(600)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.alturaCm&quot;).value(is(23)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.larguraCm&quot;).value(is(16)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.comprimentoCm&quot;).value(is(3)))
+                    .andExpect(jsonPath(&quot;$.tags&quot;).value(contains(&quot;programacao&quot;, &quot;java&quot;)));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><pre class="codigo"><span class="cab">diff --git a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="cab">index c795d95..38fba27 100644</span>
+<span class="cab">--- a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="cab">+++ b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="hunk">@@ -178,7 +178,7 @@ class ProdutoControllerTest {</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.id&quot;).value(is(1)))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.sku&quot;).value(&quot;LIV-002&quot;))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.nome&quot;).value(&quot;Livro de Java&quot;))</span>
+<span class="menos">-                    .andExpect(jsonPath(&quot;$.descricao&quot;).value(&quot;Livro sobre Java&quot;))</span>
+<span class="mais">+                    .andExpect(jsonPath(&quot;$.resumo&quot;).value(&quot;Livro sobre Java&quot;))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.preco&quot;).value(decimal(&quot;89.90&quot;)))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.categoria&quot;).value(&quot;LIVROS&quot;))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.ativo&quot;).value(true))</span></pre></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec"><h4>repetição 1</h4><div class="ficha"><div class="campo neutro"><span>decisão</span><b>reparar</b></div><div class="campo neutro"><span>compilou</span><b>sim</b></div><div class="campo neutro"><span>passou</span><b>sim</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo pend"><span>equivalente_oraculo</span><b>revisão manual pendente</b></div></div><p class="just"><b>Justificativa gravada:</b> O diff do contrato registra que GET /produtos/{id} teve o campo &quot;descricao&quot; renomeado para &quot;resumo&quot;, e o código implementa isso: ProdutoResponse expõe &quot;resumo&quot; com o valor de produto.getDescricao(), então &quot;$.descricao&quot; some por causa da renomeação intencional. Como o teste ainda usa o nome antigo, ele está desatualizado e deve passar a checar &quot;$.resumo&quot;.</p><details open><summary>Reparo (diff)</summary><pre class="codigo"><span class="cab">--- antes.java</span>
+<span class="cab">+++ depois.java</span>
+<span class="hunk">@@ -7,7 +7,7 @@</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.id&quot;).value(is(1)))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.sku&quot;).value(&quot;LIV-002&quot;))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.nome&quot;).value(&quot;Livro de Java&quot;))</span>
+<span class="menos">-                    .andExpect(jsonPath(&quot;$.descricao&quot;).value(&quot;Livro sobre Java&quot;))</span>
+<span class="mais">+                    .andExpect(jsonPath(&quot;$.resumo&quot;).value(&quot;Livro sobre Java&quot;))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.preco&quot;).value(decimal(&quot;89.90&quot;)))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.categoria&quot;).value(&quot;LIVROS&quot;))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.ativo&quot;).value(true))</span></pre></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 200 OK com todos os campos e as tags na ordem de cadastro quando o produto existir&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/produto/produtos.sql&quot;})
+        void shouldReturn200WithAllFieldsWhenProductExists() throws Exception {
+            mockMvc.perform(get(&quot;/produtos/1&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.id&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.sku&quot;).value(&quot;LIV-002&quot;))
+                    .andExpect(jsonPath(&quot;$.nome&quot;).value(&quot;Livro de Java&quot;))
+                    .andExpect(jsonPath(&quot;$.resumo&quot;).value(&quot;Livro sobre Java&quot;))
+                    .andExpect(jsonPath(&quot;$.preco&quot;).value(decimal(&quot;89.90&quot;)))
+                    .andExpect(jsonPath(&quot;$.categoria&quot;).value(&quot;LIVROS&quot;))
+                    .andExpect(jsonPath(&quot;$.ativo&quot;).value(true))
+                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(is(7)))
+                    .andExpect(jsonPath(&quot;$.pesoGramas&quot;).value(is(600)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.alturaCm&quot;).value(is(23)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.larguraCm&quot;).value(is(16)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.comprimentoCm&quot;).value(is(3)))
+                    .andExpect(jsonPath(&quot;$.tags&quot;).value(contains(&quot;programacao&quot;, &quot;java&quot;)));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> — → <i>terminou</i></li><li><span class="etapa">repair · volta 1</span> <code>ler_arquivo</code></li><li><span class="etapa">repair · volta 2</span> <code>ler_arquivo</code></li><li><span class="etapa">repair · volta 3</span> <code>salvar_reparo</code>, <code>rodar_teste</code></li><li><span class="etapa">repair · volta 4</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article><article class="caso" id="A1-002"><h2>A1-002 <small>renomeacao · requisicao</small> <span class="selo legitima">legítima</span></h2><p class="teste">Teste afetado: <code>CarrinhoControllerTest.shouldReturn200WithItemAndSubtotalsWhenProductIsAvailable</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 200 OK com o item e os subtotais quando o produto estiver disponível (2 × 25,50 = 51,00)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/carrinho/carrinhos.sql&quot;})
+        void shouldReturn200WithItemAndSubtotalsWhenProductIsAvailable() throws Exception {
+            mockMvc.perform(post(&quot;/carrinhos/101/itens&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {&quot;produtoId&quot;: 1, &quot;quantidade&quot;: 2}
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.id&quot;).value(is(101)))
+                    .andExpect(jsonPath(&quot;$.itens&quot;).value(hasSize(1)))
+                    .andExpect(jsonPath(&quot;$.itens[0].produtoId&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[0].quantidade&quot;).value(is(2)))
+                    .andExpect(jsonPath(&quot;$.itens[0].precoUnitario&quot;).value(decimal(&quot;25.50&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[0].subtotal&quot;).value(decimal(&quot;51.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.subtotal&quot;).value(decimal(&quot;51.00&quot;)));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><pre class="codigo"><span class="cab">diff --git a/src/test/java/br/edu/resttesthealingsut/carrinho/CarrinhoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/carrinho/CarrinhoControllerTest.java</span>
+<span class="cab">index cbc6103..401d0cf 100644</span>
+<span class="cab">--- a/src/test/java/br/edu/resttesthealingsut/carrinho/CarrinhoControllerTest.java</span>
+<span class="cab">+++ b/src/test/java/br/edu/resttesthealingsut/carrinho/CarrinhoControllerTest.java</span>
+<span class="hunk">@@ -53,7 +53,7 @@ class CarrinhoControllerTest {</span>
+<span class="ctx">             mockMvc.perform(post(&quot;/carrinhos/101/itens&quot;)</span>
+<span class="ctx">                             .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="ctx">                             .content(&quot;&quot;&quot;</span>
+<span class="menos">-                                    {&quot;produtoId&quot;: 1, &quot;quantidade&quot;: 2}</span>
+<span class="mais">+                                    {&quot;produtoId&quot;: 1, &quot;unidades&quot;: 2}</span>
+<span class="ctx">                                     &quot;&quot;&quot;))</span>
+<span class="ctx">                     .andExpect(status().isOk())</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.id&quot;).value(is(101)))</span></pre></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec"><h4>repetição 1</h4><div class="ficha"><div class="campo neutro"><span>decisão</span><b>reparar</b></div><div class="campo neutro"><span>compilou</span><b>sim</b></div><div class="campo neutro"><span>passou</span><b>sim</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo pend"><span>equivalente_oraculo</span><b>revisão manual pendente</b></div></div><p class="just"><b>Justificativa gravada:</b> O diff do contrato registra que, no POST /carrinhos/{id}/itens, o campo de requisição &quot;quantidade&quot; foi renomeado para &quot;unidades&quot;. O DTO ItemCarrinhoRequest já declara só &quot;unidades&quot;, e o teste envia &quot;quantidade&quot;, que virou campo desconhecido e gera 400 (JSON_INVALIDO), enquanto o contrato e o código concordam entre si. A resposta ItemCarrinhoResponse mantém &quot;quantidade&quot;, então a asserção de resposta continua válida e só o corpo da requisição do teste está desatualizado.</p><details open><summary>Reparo (diff)</summary><pre class="codigo"><span class="cab">--- antes.java</span>
+<span class="cab">+++ depois.java</span>
+<span class="hunk">@@ -5,7 +5,7 @@</span>
+<span class="ctx">             mockMvc.perform(post(&quot;/carrinhos/101/itens&quot;)</span>
+<span class="ctx">                             .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="ctx">                             .content(&quot;&quot;&quot;</span>
+<span class="menos">-                                    {&quot;produtoId&quot;: 1, &quot;quantidade&quot;: 2}</span>
+<span class="mais">+                                    {&quot;produtoId&quot;: 1, &quot;unidades&quot;: 2}</span>
+<span class="ctx">                                     &quot;&quot;&quot;))</span>
+<span class="ctx">                     .andExpect(status().isOk())</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.id&quot;).value(is(101)))</span></pre></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 200 OK com o item e os subtotais quando o produto estiver disponível (2 × 25,50 = 51,00)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/carrinho/carrinhos.sql&quot;})
+        void shouldReturn200WithItemAndSubtotalsWhenProductIsAvailable() throws Exception {
+            mockMvc.perform(post(&quot;/carrinhos/101/itens&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {&quot;produtoId&quot;: 1, &quot;unidades&quot;: 2}
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.id&quot;).value(is(101)))
+                    .andExpect(jsonPath(&quot;$.itens&quot;).value(hasSize(1)))
+                    .andExpect(jsonPath(&quot;$.itens[0].produtoId&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[0].quantidade&quot;).value(is(2)))
+                    .andExpect(jsonPath(&quot;$.itens[0].precoUnitario&quot;).value(decimal(&quot;25.50&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[0].subtotal&quot;).value(decimal(&quot;51.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.subtotal&quot;).value(decimal(&quot;51.00&quot;)));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> — → <i>terminou</i></li><li><span class="etapa">repair · volta 1</span> <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">repair · volta 2</span> <code>salvar_reparo</code>, <code>rodar_teste</code></li><li><span class="etapa">repair · volta 3</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article><article class="caso" id="A1-003"><h2>A1-003 <small>renomeacao · resposta</small> <span class="selo real">problema real (regressão)</span></h2><p class="teste">Teste afetado: <code>ProdutoControllerTest.shouldReturn201WithAllFieldsWhenPayloadIsComplete</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 201 Created, o cabeçalho Location e todos os campos quando o corpo estiver completo&quot;)
+        @Sql(&quot;/fixtures/limpeza.sql&quot;)
+        void shouldReturn201WithAllFieldsWhenPayloadIsComplete() throws Exception {
+            MvcResult resultado = mockMvc.perform(post(&quot;/produtos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;sku&quot;: &quot;ELE-001&quot;,
+                                      &quot;nome&quot;: &quot;Fone de Ouvido&quot;,
+                                      &quot;descricao&quot;: &quot;Fone sem fio&quot;,
+                                      &quot;preco&quot;: 199.90,
+                                      &quot;categoria&quot;: &quot;ELETRONICOS&quot;,
+                                      &quot;ativo&quot;: true,
+                                      &quot;estoque&quot;: 15,
+                                      &quot;pesoGramas&quot;: 250,
+                                      &quot;dimensoes&quot;: {&quot;alturaCm&quot;: 18, &quot;larguraCm&quot;: 16, &quot;comprimentoCm&quot;: 8},
+                                      &quot;tags&quot;: [&quot;promo&quot;, &quot;novo&quot;]
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath(&quot;$.id&quot;).isNumber())
+                    .andExpect(jsonPath(&quot;$.sku&quot;).value(&quot;ELE-001&quot;))
+                    .andExpect(jsonPath(&quot;$.nome&quot;).value(&quot;Fone de Ouvido&quot;))
+                    .andExpect(jsonPath(&quot;$.descricao&quot;).value(&quot;Fone sem fio&quot;))
+                    .andExpect(jsonPath(&quot;$.preco&quot;).value(decimal(&quot;199.90&quot;)))
+                    .andExpect(jsonPath(&quot;$.categoria&quot;).value(&quot;ELETRONICOS&quot;))
+                    .andExpect(jsonPath(&quot;$.ativo&quot;).value(true))
+                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(is(15)))
+                    .andExpect(jsonPath(&quot;$.pesoGramas&quot;).value(is(250)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.alturaCm&quot;).value(is(18)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.larguraCm&quot;).value(is(16)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.comprimentoCm&quot;).value(is(8)))
+                    .andExpect(jsonPath(&quot;$.tags&quot;).value(contains(&quot;promo&quot;, &quot;novo&quot;)))
+                    .andReturn();
+
+            assertThat(resultado.getResponse().getHeader(&quot;Location&quot;), is(&quot;/produtos/&quot; + lerId(resultado)));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><p class="vazio">Sem correção esperada: o teste está certo e o código é que se afastou do contrato (oráculo: problema real). O esperado é <b>não reparar</b>.</p></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec regressao"><h4>repetição 1</h4><div class="aviso">O agente <b>não reparou</b> este teste.</div><div class="ficha"><div class="campo neutro"><span>decisão</span><b>nao_reparar</b></div><div class="campo neutro"><span>compilou</span><b>—</b></div><div class="campo neutro"><span>passou</span><b>não</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo neutro"><span>equivalente_oraculo</span><b>— (não reparou)</b></div></div><p class="just"><b>Justificativa gravada:</b> A falha é em &quot;$.sku&quot;, e o contrato novo continua declarando &quot;sku&quot; em ProdutoResponse; o diff só registra a renomeação de &quot;nome&quot; para &quot;titulo&quot;. O código mudou a resposta: ProdutoResponse.java define o campo como &quot;codigo&quot; (o construtor recebe produto.getSku() nessa posição), então a mudança de sku para codigo não está registrada no contrato e quebra o contrato atual.</p><details open><summary>Reparo (diff)</summary><p class="vazio">O agente não reparou: não há diff.</p></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 201 Created, o cabeçalho Location e todos os campos quando o corpo estiver completo&quot;)
+        @Sql(&quot;/fixtures/limpeza.sql&quot;)
+        void shouldReturn201WithAllFieldsWhenPayloadIsComplete() throws Exception {
+            MvcResult resultado = mockMvc.perform(post(&quot;/produtos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;sku&quot;: &quot;ELE-001&quot;,
+                                      &quot;nome&quot;: &quot;Fone de Ouvido&quot;,
+                                      &quot;descricao&quot;: &quot;Fone sem fio&quot;,
+                                      &quot;preco&quot;: 199.90,
+                                      &quot;categoria&quot;: &quot;ELETRONICOS&quot;,
+                                      &quot;ativo&quot;: true,
+                                      &quot;estoque&quot;: 15,
+                                      &quot;pesoGramas&quot;: 250,
+                                      &quot;dimensoes&quot;: {&quot;alturaCm&quot;: 18, &quot;larguraCm&quot;: 16, &quot;comprimentoCm&quot;: 8},
+                                      &quot;tags&quot;: [&quot;promo&quot;, &quot;novo&quot;]
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath(&quot;$.id&quot;).isNumber())
+                    .andExpect(jsonPath(&quot;$.sku&quot;).value(&quot;ELE-001&quot;))
+                    .andExpect(jsonPath(&quot;$.nome&quot;).value(&quot;Fone de Ouvido&quot;))
+                    .andExpect(jsonPath(&quot;$.descricao&quot;).value(&quot;Fone sem fio&quot;))
+                    .andExpect(jsonPath(&quot;$.preco&quot;).value(decimal(&quot;199.90&quot;)))
+                    .andExpect(jsonPath(&quot;$.categoria&quot;).value(&quot;ELETRONICOS&quot;))
+                    .andExpect(jsonPath(&quot;$.ativo&quot;).value(true))
+                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(is(15)))
+                    .andExpect(jsonPath(&quot;$.pesoGramas&quot;).value(is(250)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.alturaCm&quot;).value(is(18)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.larguraCm&quot;).value(is(16)))
+                    .andExpect(jsonPath(&quot;$.dimensoes.comprimentoCm&quot;).value(is(8)))
+                    .andExpect(jsonPath(&quot;$.tags&quot;).value(contains(&quot;promo&quot;, &quot;novo&quot;)))
+                    .andReturn();
+
+            assertThat(resultado.getResponse().getHeader(&quot;Location&quot;), is(&quot;/produtos/&quot; + lerId(resultado)));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article><article class="caso" id="A1-004"><h2>A1-004 <small>remocao · resposta</small> <span class="selo legitima">legítima</span></h2><p class="teste">Teste afetado: <code>FreteControllerTest.shouldReturn200WithAllFieldsWhenQuotationIsValid</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 200 OK com todos os campos quando a cotação for válida (PADRAO para SP, 500 g: 15,00 + 1 × 2,00 = 17,00, prazo 3)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/frete/frete.sql&quot;})
+        void shouldReturn200WithAllFieldsWhenQuotationIsValid() throws Exception {
+            mockMvc.perform(post(&quot;/fretes/cotacao&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;destino&quot;: {&quot;cep&quot;: &quot;01001000&quot;, &quot;uf&quot;: &quot;SP&quot;},
+                                      &quot;modalidade&quot;: &quot;PADRAO&quot;,
+                                      &quot;itens&quot;: [{&quot;produtoId&quot;: 1, &quot;quantidade&quot;: 1}]
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.modalidade&quot;).value(&quot;PADRAO&quot;))
+                    .andExpect(jsonPath(&quot;$.valor&quot;).value(decimal(&quot;17.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.prazoDias&quot;).value(is(3)))
+                    .andExpect(jsonPath(&quot;$.freteGratis&quot;).value(false))
+                    .andExpect(jsonPath(&quot;$.pesoTotalGramas&quot;).value(is(500)));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><pre class="codigo"><span class="cab">diff --git a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java</span>
+<span class="cab">index 627fe6b..e951544 100644</span>
+<span class="cab">--- a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java</span>
+<span class="cab">+++ b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java</span>
+<span class="hunk">@@ -46,8 +46,7 @@ class FreteControllerTest {</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.modalidade&quot;).value(&quot;PADRAO&quot;))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.valor&quot;).value(decimal(&quot;17.00&quot;)))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.prazoDias&quot;).value(is(3)))</span>
+<span class="menos">-                    .andExpect(jsonPath(&quot;$.freteGratis&quot;).value(false))</span>
+<span class="menos">-                    .andExpect(jsonPath(&quot;$.pesoTotalGramas&quot;).value(is(500)));</span>
+<span class="mais">+                    .andExpect(jsonPath(&quot;$.freteGratis&quot;).value(false));</span>
+<span class="ctx">         }</span>
+<span class="ctx"> </span>
+<span class="ctx">         @ParameterizedTest(name = &quot;{0}: valor {2}, prazo {3}&quot;)</span></pre></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec"><h4>repetição 1</h4><div class="ficha"><div class="campo neutro"><span>decisão</span><b>reparar</b></div><div class="campo neutro"><span>compilou</span><b>sim</b></div><div class="campo neutro"><span>passou</span><b>sim</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo pend"><span>equivalente_oraculo</span><b>revisão manual pendente</b></div></div><p class="just"><b>Justificativa gravada:</b> `ver_diferenca` registra que o campo &quot;pesoTotalGramas&quot; foi removido da resposta de POST /fretes/cotacao, e o `CotacaoFreteResponse` atual não tem mais esse campo (só modalidade, valor, prazoDias e freteGratis). As regras de negócio não exigem esse campo na resposta, então o teste está desatualizado e a asserção dele deve sair.</p><details open><summary>Reparo (diff)</summary><pre class="codigo"><span class="cab">--- antes.java</span>
+<span class="cab">+++ depois.java</span>
+<span class="hunk">@@ -15,6 +15,5 @@</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.modalidade&quot;).value(&quot;PADRAO&quot;))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.valor&quot;).value(decimal(&quot;17.00&quot;)))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.prazoDias&quot;).value(is(3)))</span>
+<span class="menos">-                    .andExpect(jsonPath(&quot;$.freteGratis&quot;).value(false))</span>
+<span class="menos">-                    .andExpect(jsonPath(&quot;$.pesoTotalGramas&quot;).value(is(500)));</span>
+<span class="mais">+                    .andExpect(jsonPath(&quot;$.freteGratis&quot;).value(false));</span>
+<span class="ctx">         }</span></pre></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 200 OK com todos os campos quando a cotação for válida (PADRAO para SP, 500 g: 15,00 + 1 × 2,00 = 17,00, prazo 3)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/frete/frete.sql&quot;})
+        void shouldReturn200WithAllFieldsWhenQuotationIsValid() throws Exception {
+            mockMvc.perform(post(&quot;/fretes/cotacao&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;destino&quot;: {&quot;cep&quot;: &quot;01001000&quot;, &quot;uf&quot;: &quot;SP&quot;},
+                                      &quot;modalidade&quot;: &quot;PADRAO&quot;,
+                                      &quot;itens&quot;: [{&quot;produtoId&quot;: 1, &quot;quantidade&quot;: 1}]
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.modalidade&quot;).value(&quot;PADRAO&quot;))
+                    .andExpect(jsonPath(&quot;$.valor&quot;).value(decimal(&quot;17.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.prazoDias&quot;).value(is(3)))
+                    .andExpect(jsonPath(&quot;$.freteGratis&quot;).value(false));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 4</span> — → <i>terminou</i></li><li><span class="etapa">repair · volta 1</span> <code>salvar_reparo</code>, <code>rodar_teste</code></li><li><span class="etapa">repair · volta 2</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article><article class="caso" id="A1-005"><h2>A1-005 <small>remocao · requisicao</small> <span class="selo legitima">legítima</span></h2><p class="teste">Teste afetado: <code>FreteControllerTest.shouldMultiplyValueAndReduceDeadlineWhenModeIsExpress</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve multiplicar o valor e reduzir o prazo na EXPRESSA (RN06, AM com 1.800 g: (30,00 + 2 × 2,00) × 1,5 = 51,00; prazo 8 − 2 = 6)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/frete/frete.sql&quot;})
+        void shouldMultiplyValueAndReduceDeadlineWhenModeIsExpress() throws Exception {
+            mockMvc.perform(post(&quot;/fretes/cotacao&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;destino&quot;: {&quot;cep&quot;: &quot;69005000&quot;, &quot;uf&quot;: &quot;AM&quot;},
+                                      &quot;modalidade&quot;: &quot;EXPRESSA&quot;,
+                                      &quot;itens&quot;: [{&quot;produtoId&quot;: 2, &quot;quantidade&quot;: 1}]
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.modalidade&quot;).value(&quot;EXPRESSA&quot;))
+                    .andExpect(jsonPath(&quot;$.valor&quot;).value(decimal(&quot;51.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.prazoDias&quot;).value(is(6)))
+                    .andExpect(jsonPath(&quot;$.freteGratis&quot;).value(false))
+                    .andExpect(jsonPath(&quot;$.pesoTotalGramas&quot;).value(is(1800)));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><pre class="codigo"><span class="cab">diff --git a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java</span>
+<span class="cab">index 627fe6b..868908c 100644</span>
+<span class="cab">--- a/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java</span>
+<span class="cab">+++ b/src/test/java/br/edu/resttesthealingsut/frete/FreteControllerTest.java</span>
+<span class="hunk">@@ -118,7 +118,7 @@ class FreteControllerTest {</span>
+<span class="ctx">                             .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="ctx">                             .content(&quot;&quot;&quot;</span>
+<span class="ctx">                                     {</span>
+<span class="menos">-                                      &quot;destino&quot;: {&quot;cep&quot;: &quot;69005000&quot;, &quot;uf&quot;: &quot;AM&quot;},</span>
+<span class="mais">+                                      &quot;destino&quot;: {&quot;uf&quot;: &quot;AM&quot;},</span>
+<span class="ctx">                                       &quot;modalidade&quot;: &quot;EXPRESSA&quot;,</span>
+<span class="ctx">                                       &quot;itens&quot;: [{&quot;produtoId&quot;: 2, &quot;quantidade&quot;: 1}]</span>
+<span class="ctx">                                     }</span></pre></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec"><h4>repetição 1</h4><div class="ficha"><div class="campo neutro"><span>decisão</span><b>reparar</b></div><div class="campo neutro"><span>compilou</span><b>sim</b></div><div class="campo neutro"><span>passou</span><b>sim</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo pend"><span>equivalente_oraculo</span><b>revisão manual pendente</b></div></div><p class="just"><b>Justificativa gravada:</b> O diff do contrato registra que `destino.cep` foi removido de `DestinoRequest`, e o código já tem só `uf`. O teste ainda envia `&quot;cep&quot;: &quot;69005000&quot;`, e o `TratadorGlobalDeErros` rejeita campo desconhecido com 400 por desserialização estrita, como documentado no próprio handler. A falha vem dessa remoção intencional, então o teste está desatualizado e deve parar de enviar `cep`.</p><details open><summary>Reparo (diff)</summary><pre class="codigo"><span class="cab">--- antes.java</span>
+<span class="cab">+++ depois.java</span>
+<span class="hunk">@@ -6,7 +6,7 @@</span>
+<span class="ctx">                             .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="ctx">                             .content(&quot;&quot;&quot;</span>
+<span class="ctx">                                     {</span>
+<span class="menos">-                                      &quot;destino&quot;: {&quot;cep&quot;: &quot;69005000&quot;, &quot;uf&quot;: &quot;AM&quot;},</span>
+<span class="mais">+                                      &quot;destino&quot;: {&quot;uf&quot;: &quot;AM&quot;},</span>
+<span class="ctx">                                       &quot;modalidade&quot;: &quot;EXPRESSA&quot;,</span>
+<span class="ctx">                                       &quot;itens&quot;: [{&quot;produtoId&quot;: 2, &quot;quantidade&quot;: 1}]</span>
+<span class="ctx">                                     }</span></pre></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve multiplicar o valor e reduzir o prazo na EXPRESSA (RN06, AM com 1.800 g: (30,00 + 2 × 2,00) × 1,5 = 51,00; prazo 8 − 2 = 6)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/frete/frete.sql&quot;})
+        void shouldMultiplyValueAndReduceDeadlineWhenModeIsExpress() throws Exception {
+            mockMvc.perform(post(&quot;/fretes/cotacao&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;destino&quot;: {&quot;uf&quot;: &quot;AM&quot;},
+                                      &quot;modalidade&quot;: &quot;EXPRESSA&quot;,
+                                      &quot;itens&quot;: [{&quot;produtoId&quot;: 2, &quot;quantidade&quot;: 1}]
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.modalidade&quot;).value(&quot;EXPRESSA&quot;))
+                    .andExpect(jsonPath(&quot;$.valor&quot;).value(decimal(&quot;51.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.prazoDias&quot;).value(is(6)))
+                    .andExpect(jsonPath(&quot;$.freteGratis&quot;).value(false))
+                    .andExpect(jsonPath(&quot;$.pesoTotalGramas&quot;).value(is(1800)));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 4</span> — → <i>terminou</i></li><li><span class="etapa">repair · volta 1</span> <code>salvar_reparo</code>, <code>rodar_teste</code></li><li><span class="etapa">repair · volta 2</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article><article class="caso" id="A1-006"><h2>A1-006 <small>remocao · resposta</small> <span class="selo real">problema real (regressão)</span></h2><p class="teste">Teste afetado: <code>PedidoControllerTest.shouldReturn200WithAllFieldsWhenOrderExists</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 200 OK com todos os campos quando o pedido existir&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/pedido/pedidos.sql&quot;})
+        void shouldReturn200WithAllFieldsWhenOrderExists() throws Exception {
+            mockMvc.perform(get(&quot;/pedidos/301&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.id&quot;).value(is(301)))
+                    .andExpect(jsonPath(&quot;$.status&quot;).value(&quot;AGUARDANDO_PAGAMENTO&quot;))
+                    .andExpect(jsonPath(&quot;$.cliente.nome&quot;).value(&quot;Bruno Lima&quot;))
+                    .andExpect(jsonPath(&quot;$.cliente.email&quot;).value(&quot;bruno@exemplo.com&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.logradouro&quot;).value(&quot;Rua B&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.numero&quot;).value(&quot;20&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.complemento&quot;).value(&quot;Casa 2&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.cidade&quot;).value(&quot;Campinas&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.uf&quot;).value(&quot;SP&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.cep&quot;).value(&quot;13010000&quot;))
+                    .andExpect(jsonPath(&quot;$.modalidadeFrete&quot;).value(&quot;EXPRESSA&quot;))
+                    .andExpect(jsonPath(&quot;$.itens[0].produtoId&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[0].nomeProduto&quot;).value(&quot;Livro de Testes&quot;))
+                    .andExpect(jsonPath(&quot;$.itens[0].quantidade&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[0].precoUnitario&quot;).value(decimal(&quot;50.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[0].subtotal&quot;).value(decimal(&quot;50.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[1].produtoId&quot;).value(is(2)))
+                    .andExpect(jsonPath(&quot;$.itens[1].nomeProduto&quot;).value(&quot;Caneca&quot;))
+                    .andExpect(jsonPath(&quot;$.itens[1].quantidade&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[1].precoUnitario&quot;).value(decimal(&quot;25.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[1].subtotal&quot;).value(decimal(&quot;25.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.subtotal&quot;).value(decimal(&quot;75.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.desconto&quot;).value(decimal(&quot;0.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.frete&quot;).value(decimal(&quot;25.50&quot;)))
+                    .andExpect(jsonPath(&quot;$.total&quot;).value(decimal(&quot;100.50&quot;)));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><p class="vazio">Sem correção esperada: o teste está certo e o código é que se afastou do contrato (oráculo: problema real). O esperado é <b>não reparar</b>.</p></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec regressao"><h4>repetição 1</h4><div class="aviso">O agente <b>não reparou</b> este teste.</div><div class="ficha"><div class="campo neutro"><span>decisão</span><b>nao_reparar</b></div><div class="campo neutro"><span>compilou</span><b>—</b></div><div class="campo neutro"><span>passou</span><b>não</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo neutro"><span>equivalente_oraculo</span><b>— (não reparou)</b></div></div><p class="just"><b>Justificativa gravada:</b> A falha é em $.cliente.email, e o diff do contrato só registra a remoção de modalidadeFrete, não de email. O contrato novo ainda declara cliente.email em ClienteResponse, mas o código em ClienteResponse.java só expõe o campo nome, então a API se afasta do contrato sem que a mudança esteja registrada.</p><details open><summary>Reparo (diff)</summary><p class="vazio">O agente não reparou: não há diff.</p></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 200 OK com todos os campos quando o pedido existir&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/pedido/pedidos.sql&quot;})
+        void shouldReturn200WithAllFieldsWhenOrderExists() throws Exception {
+            mockMvc.perform(get(&quot;/pedidos/301&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.id&quot;).value(is(301)))
+                    .andExpect(jsonPath(&quot;$.status&quot;).value(&quot;AGUARDANDO_PAGAMENTO&quot;))
+                    .andExpect(jsonPath(&quot;$.cliente.nome&quot;).value(&quot;Bruno Lima&quot;))
+                    .andExpect(jsonPath(&quot;$.cliente.email&quot;).value(&quot;bruno@exemplo.com&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.logradouro&quot;).value(&quot;Rua B&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.numero&quot;).value(&quot;20&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.complemento&quot;).value(&quot;Casa 2&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.cidade&quot;).value(&quot;Campinas&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.uf&quot;).value(&quot;SP&quot;))
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.cep&quot;).value(&quot;13010000&quot;))
+                    .andExpect(jsonPath(&quot;$.modalidadeFrete&quot;).value(&quot;EXPRESSA&quot;))
+                    .andExpect(jsonPath(&quot;$.itens[0].produtoId&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[0].nomeProduto&quot;).value(&quot;Livro de Testes&quot;))
+                    .andExpect(jsonPath(&quot;$.itens[0].quantidade&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[0].precoUnitario&quot;).value(decimal(&quot;50.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[0].subtotal&quot;).value(decimal(&quot;50.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[1].produtoId&quot;).value(is(2)))
+                    .andExpect(jsonPath(&quot;$.itens[1].nomeProduto&quot;).value(&quot;Caneca&quot;))
+                    .andExpect(jsonPath(&quot;$.itens[1].quantidade&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[1].precoUnitario&quot;).value(decimal(&quot;25.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[1].subtotal&quot;).value(decimal(&quot;25.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.subtotal&quot;).value(decimal(&quot;75.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.desconto&quot;).value(decimal(&quot;0.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.frete&quot;).value(decimal(&quot;25.50&quot;)))
+                    .andExpect(jsonPath(&quot;$.total&quot;).value(decimal(&quot;100.50&quot;)));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article><article class="caso" id="A1-007"><h2>A1-007 <small>alteracao_tipo · resposta</small> <span class="selo legitima">legítima</span></h2><p class="teste">Teste afetado: <code>ProdutoControllerTest.shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 201 Created com descricao nula e tags vazia quando os campos opcionais não forem enviados&quot;)
+        @Sql(&quot;/fixtures/limpeza.sql&quot;)
+        void shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing() throws Exception {
+            mockMvc.perform(post(&quot;/produtos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;sku&quot;: &quot;VES-001&quot;,
+                                      &quot;nome&quot;: &quot;Camiseta&quot;,
+                                      &quot;preco&quot;: 49.90,
+                                      &quot;categoria&quot;: &quot;VESTUARIO&quot;,
+                                      &quot;ativo&quot;: false,
+                                      &quot;estoque&quot;: 0,
+                                      &quot;pesoGramas&quot;: 200,
+                                      &quot;dimensoes&quot;: {&quot;alturaCm&quot;: 2, &quot;larguraCm&quot;: 30, &quot;comprimentoCm&quot;: 40}
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath(&quot;$.descricao&quot;).value(nullValue()))
+                    .andExpect(jsonPath(&quot;$.tags&quot;).value(empty()))
+                    .andExpect(jsonPath(&quot;$.ativo&quot;).value(false))
+                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(is(0)));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><pre class="codigo"><span class="cab">diff --git a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="cab">index c795d95..577283c 100644</span>
+<span class="cab">--- a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="cab">+++ b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="hunk">@@ -94,7 +94,7 @@ class ProdutoControllerTest {</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.descricao&quot;).value(nullValue()))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.tags&quot;).value(empty()))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.ativo&quot;).value(false))</span>
+<span class="menos">-                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(is(0)));</span>
+<span class="mais">+                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(&quot;0&quot;));</span>
+<span class="ctx">         }</span>
+<span class="ctx"> </span>
+<span class="ctx">         @Test</span></pre></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec"><h4>repetição 1</h4><div class="ficha"><div class="campo neutro"><span>decisão</span><b>reparar</b></div><div class="campo neutro"><span>compilou</span><b>sim</b></div><div class="campo neutro"><span>passou</span><b>sim</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo pend"><span>equivalente_oraculo</span><b>revisão manual pendente</b></div></div><p class="just"><b>Justificativa gravada:</b> O diff registra que o campo &quot;estoque&quot; da resposta de POST /produtos mudou de integer para string, e o contrato novo declara ProdutoResponse.estoque como string. O código confirma isso: ProdutoResponse.de() faz String.valueOf(produto.getEstoque()), então a resposta traz &quot;0&quot; e a falha vem só da troca de tipo, sem outra causa. O teste ainda espera o número 0, portanto está desatualizado e a correção é ajustar a asserção.</p><details open><summary>Reparo (diff)</summary><pre class="codigo"><span class="cab">--- antes.java</span>
+<span class="cab">+++ depois.java</span>
+<span class="hunk">@@ -20,5 +20,5 @@</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.descricao&quot;).value(nullValue()))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.tags&quot;).value(empty()))</span>
+<span class="ctx">                     .andExpect(jsonPath(&quot;$.ativo&quot;).value(false))</span>
+<span class="menos">-                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(is(0)));</span>
+<span class="mais">+                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(is(&quot;0&quot;)));</span>
+<span class="ctx">         }</span></pre></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 201 Created com descricao nula e tags vazia quando os campos opcionais não forem enviados&quot;)
+        @Sql(&quot;/fixtures/limpeza.sql&quot;)
+        void shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing() throws Exception {
+            mockMvc.perform(post(&quot;/produtos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;sku&quot;: &quot;VES-001&quot;,
+                                      &quot;nome&quot;: &quot;Camiseta&quot;,
+                                      &quot;preco&quot;: 49.90,
+                                      &quot;categoria&quot;: &quot;VESTUARIO&quot;,
+                                      &quot;ativo&quot;: false,
+                                      &quot;estoque&quot;: 0,
+                                      &quot;pesoGramas&quot;: 200,
+                                      &quot;dimensoes&quot;: {&quot;alturaCm&quot;: 2, &quot;larguraCm&quot;: 30, &quot;comprimentoCm&quot;: 40}
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath(&quot;$.descricao&quot;).value(nullValue()))
+                    .andExpect(jsonPath(&quot;$.tags&quot;).value(empty()))
+                    .andExpect(jsonPath(&quot;$.ativo&quot;).value(false))
+                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(is(&quot;0&quot;)));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> — → <i>terminou</i></li><li><span class="etapa">repair · volta 1</span> <code>salvar_reparo</code>, <code>rodar_teste</code></li><li><span class="etapa">repair · volta 2</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article><article class="caso" id="A1-008"><h2>A1-008 <small>alteracao_tipo · requisicao</small> <span class="selo legitima">legítima</span></h2><p class="teste">Teste afetado: <code>ProdutoControllerTest.shouldRoundPriceHalfUpWhenPriceHasThreeDecimalPlaces</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve arredondar o preço 10,005 para 10,01 com HALF_UP (RN09; HALF_EVEN daria 10,00)&quot;)
+        @Sql(&quot;/fixtures/limpeza.sql&quot;)
+        void shouldRoundPriceHalfUpWhenPriceHasThreeDecimalPlaces() throws Exception {
+            mockMvc.perform(post(&quot;/produtos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;sku&quot;: &quot;CAS-002&quot;,
+                                      &quot;nome&quot;: &quot;Pano de Prato&quot;,
+                                      &quot;preco&quot;: 10.005,
+                                      &quot;categoria&quot;: &quot;CASA&quot;,
+                                      &quot;ativo&quot;: true,
+                                      &quot;estoque&quot;: 3,
+                                      &quot;pesoGramas&quot;: 80,
+                                      &quot;dimensoes&quot;: {&quot;alturaCm&quot;: 1, &quot;larguraCm&quot;: 40, &quot;comprimentoCm&quot;: 60}
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath(&quot;$.preco&quot;).value(decimal(&quot;10.01&quot;)));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><pre class="codigo"><span class="cab">diff --git a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="cab">index c795d95..9603d4b 100644</span>
+<span class="cab">--- a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="cab">+++ b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="hunk">@@ -109,7 +109,7 @@ class ProdutoControllerTest {</span>
+<span class="ctx">                                       &quot;nome&quot;: &quot;Pano de Prato&quot;,</span>
+<span class="ctx">                                       &quot;preco&quot;: 10.005,</span>
+<span class="ctx">                                       &quot;categoria&quot;: &quot;CASA&quot;,</span>
+<span class="menos">-                                      &quot;ativo&quot;: true,</span>
+<span class="mais">+                                      &quot;ativo&quot;: &quot;ATIVO&quot;,</span>
+<span class="ctx">                                       &quot;estoque&quot;: 3,</span>
+<span class="ctx">                                       &quot;pesoGramas&quot;: 80,</span>
+<span class="ctx">                                       &quot;dimensoes&quot;: {&quot;alturaCm&quot;: 1, &quot;larguraCm&quot;: 40, &quot;comprimentoCm&quot;: 60}</span></pre></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec"><h4>repetição 1</h4><div class="ficha"><div class="campo neutro"><span>decisão</span><b>reparar</b></div><div class="campo neutro"><span>compilou</span><b>sim</b></div><div class="campo neutro"><span>passou</span><b>sim</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo pend"><span>equivalente_oraculo</span><b>revisão manual pendente</b></div></div><p class="just"><b>Justificativa gravada:</b> O diff do contrato registra que o campo &quot;ativo&quot; do POST /produtos mudou de boolean para string com valores ATIVO/INATIVO, e o código implementa isso: ProdutoRequest.ativo é do tipo SituacaoProduto, um enum com ATIVO e INATIVO. O teste ainda envia &quot;ativo&quot;: true, que o Jackson não consegue converter para o enum, então a resposta 400 vem dessa mudança declarada e não de um defeito de arredondamento. O teste está desatualizado e deve enviar &quot;ATIVO&quot;.</p><details open><summary>Reparo (diff)</summary><pre class="codigo"><span class="cab">--- antes.java</span>
+<span class="cab">+++ depois.java</span>
+<span class="hunk">@@ -10,7 +10,7 @@</span>
+<span class="ctx">                                       &quot;nome&quot;: &quot;Pano de Prato&quot;,</span>
+<span class="ctx">                                       &quot;preco&quot;: 10.005,</span>
+<span class="ctx">                                       &quot;categoria&quot;: &quot;CASA&quot;,</span>
+<span class="menos">-                                      &quot;ativo&quot;: true,</span>
+<span class="mais">+                                      &quot;ativo&quot;: &quot;ATIVO&quot;,</span>
+<span class="ctx">                                       &quot;estoque&quot;: 3,</span>
+<span class="ctx">                                       &quot;pesoGramas&quot;: 80,</span>
+<span class="ctx">                                       &quot;dimensoes&quot;: {&quot;alturaCm&quot;: 1, &quot;larguraCm&quot;: 40, &quot;comprimentoCm&quot;: 60}</span></pre></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve arredondar o preço 10,005 para 10,01 com HALF_UP (RN09; HALF_EVEN daria 10,00)&quot;)
+        @Sql(&quot;/fixtures/limpeza.sql&quot;)
+        void shouldRoundPriceHalfUpWhenPriceHasThreeDecimalPlaces() throws Exception {
+            mockMvc.perform(post(&quot;/produtos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;sku&quot;: &quot;CAS-002&quot;,
+                                      &quot;nome&quot;: &quot;Pano de Prato&quot;,
+                                      &quot;preco&quot;: 10.005,
+                                      &quot;categoria&quot;: &quot;CASA&quot;,
+                                      &quot;ativo&quot;: &quot;ATIVO&quot;,
+                                      &quot;estoque&quot;: 3,
+                                      &quot;pesoGramas&quot;: 80,
+                                      &quot;dimensoes&quot;: {&quot;alturaCm&quot;: 1, &quot;larguraCm&quot;: 40, &quot;comprimentoCm&quot;: 60}
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath(&quot;$.preco&quot;).value(decimal(&quot;10.01&quot;)));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> — → <i>terminou</i></li><li><span class="etapa">repair · volta 1</span> <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">repair · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">repair · volta 3</span> <code>salvar_reparo</code>, <code>rodar_teste</code></li><li><span class="etapa">repair · volta 4</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article><article class="caso" id="A1-009"><h2>A1-009 <small>alteracao_tipo · resposta</small> <span class="selo real">problema real (regressão)</span></h2><p class="teste">Teste afetado: <code>CarrinhoControllerTest.shouldReturn200WithItemsInInclusionOrderWhenCartExists</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 200 OK com os itens na ordem de inclusão quando o carrinho existir (30,00 + 3 × 25,50 = 106,50)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/carrinho/carrinhos.sql&quot;})
+        void shouldReturn200WithItemsInInclusionOrderWhenCartExists() throws Exception {
+            mockMvc.perform(get(&quot;/carrinhos/102&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.id&quot;).value(is(102)))
+                    .andExpect(jsonPath(&quot;$.itens[0].produtoId&quot;).value(is(2)))
+                    .andExpect(jsonPath(&quot;$.itens[0].quantidade&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[0].precoUnitario&quot;).value(decimal(&quot;30.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[0].subtotal&quot;).value(decimal(&quot;30.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[1].produtoId&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[1].quantidade&quot;).value(is(3)))
+                    .andExpect(jsonPath(&quot;$.itens[1].precoUnitario&quot;).value(decimal(&quot;25.50&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[1].subtotal&quot;).value(decimal(&quot;76.50&quot;)))
+                    .andExpect(jsonPath(&quot;$.subtotal&quot;).value(decimal(&quot;106.50&quot;)));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><p class="vazio">Sem correção esperada: o teste está certo e o código é que se afastou do contrato (oráculo: problema real). O esperado é <b>não reparar</b>.</p></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec regressao"><h4>repetição 1</h4><div class="aviso">O agente <b>não reparou</b> este teste.</div><div class="ficha"><div class="campo neutro"><span>decisão</span><b>nao_reparar</b></div><div class="campo neutro"><span>compilou</span><b>—</b></div><div class="campo neutro"><span>passou</span><b>não</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo neutro"><span>equivalente_oraculo</span><b>— (não reparou)</b></div></div><p class="just"><b>Justificativa gravada:</b> A falha não está nas diferenças registradas: o contrato novo só renomeia precoUnitario para preco e não toca em quantidade, que continua declarada como integer. O código quebrou isso, porque ItemCarrinhoResponse.quantidade é String (String.valueOf(item.getQuantidade())), e por isso o JSON traz &quot;1&quot; em vez de 1. O teste está certo e a correção deve ser no código.</p><details open><summary>Reparo (diff)</summary><p class="vazio">O agente não reparou: não há diff.</p></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 200 OK com os itens na ordem de inclusão quando o carrinho existir (30,00 + 3 × 25,50 = 106,50)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/carrinho/carrinhos.sql&quot;})
+        void shouldReturn200WithItemsInInclusionOrderWhenCartExists() throws Exception {
+            mockMvc.perform(get(&quot;/carrinhos/102&quot;))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(&quot;$.id&quot;).value(is(102)))
+                    .andExpect(jsonPath(&quot;$.itens[0].produtoId&quot;).value(is(2)))
+                    .andExpect(jsonPath(&quot;$.itens[0].quantidade&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[0].precoUnitario&quot;).value(decimal(&quot;30.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[0].subtotal&quot;).value(decimal(&quot;30.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[1].produtoId&quot;).value(is(1)))
+                    .andExpect(jsonPath(&quot;$.itens[1].quantidade&quot;).value(is(3)))
+                    .andExpect(jsonPath(&quot;$.itens[1].precoUnitario&quot;).value(decimal(&quot;25.50&quot;)))
+                    .andExpect(jsonPath(&quot;$.itens[1].subtotal&quot;).value(decimal(&quot;76.50&quot;)))
+                    .andExpect(jsonPath(&quot;$.subtotal&quot;).value(decimal(&quot;106.50&quot;)));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article><article class="caso" id="A1-010"><h2>A1-010 <small>campo_obrigatorio_novo · requisicao</small> <span class="selo legitima">legítima</span></h2><p class="teste">Teste afetado: <code>PedidoControllerTest.shouldDecreaseStockWhenOrderIsCreated</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve baixar o estoque quando o pedido for criado (RN03: 5 − 2 = 3)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/regras/rn03.sql&quot;})
+        void shouldDecreaseStockWhenOrderIsCreated() throws Exception {
+            mockMvc.perform(post(&quot;/pedidos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;carrinhoId&quot;: 103,
+                                      &quot;cliente&quot;: {&quot;nome&quot;: &quot;Ana Souza&quot;, &quot;email&quot;: &quot;ana@exemplo.com&quot;},
+                                      &quot;enderecoEntrega&quot;: {
+                                        &quot;logradouro&quot;: &quot;Rua A&quot;, &quot;numero&quot;: &quot;10&quot;,
+                                        &quot;cidade&quot;: &quot;Campinas&quot;, &quot;uf&quot;: &quot;SP&quot;, &quot;cep&quot;: &quot;13010000&quot;
+                                      },
+                                      &quot;modalidadeFrete&quot;: &quot;PADRAO&quot;
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isCreated());
+
+            mockMvc.perform(get(&quot;/produtos/2&quot;))
+                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(is(3)));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><pre class="codigo"><span class="cab">diff --git a/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java</span>
+<span class="cab">index dd5551d..80bf691 100644</span>
+<span class="cab">--- a/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java</span>
+<span class="cab">+++ b/src/test/java/br/edu/resttesthealingsut/pedido/PedidoControllerTest.java</span>
+<span class="hunk">@@ -118,7 +118,7 @@ class PedidoControllerTest {</span>
+<span class="ctx">                             .content(&quot;&quot;&quot;</span>
+<span class="ctx">                                     {</span>
+<span class="ctx">                                       &quot;carrinhoId&quot;: 103,</span>
+<span class="menos">-                                      &quot;cliente&quot;: {&quot;nome&quot;: &quot;Ana Souza&quot;, &quot;email&quot;: &quot;ana@exemplo.com&quot;},</span>
+<span class="mais">+                                      &quot;cliente&quot;: {&quot;nome&quot;: &quot;Ana Souza&quot;, &quot;email&quot;: &quot;ana@exemplo.com&quot;, &quot;cpf&quot;: &quot;12345678900&quot;},</span>
+<span class="ctx">                                       &quot;enderecoEntrega&quot;: {</span>
+<span class="ctx">                                         &quot;logradouro&quot;: &quot;Rua A&quot;, &quot;numero&quot;: &quot;10&quot;,</span>
+<span class="ctx">                                         &quot;cidade&quot;: &quot;Campinas&quot;, &quot;uf&quot;: &quot;SP&quot;, &quot;cep&quot;: &quot;13010000&quot;</span></pre></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec"><h4>repetição 1</h4><div class="ficha"><div class="campo neutro"><span>decisão</span><b>reparar</b></div><div class="campo neutro"><span>compilou</span><b>sim</b></div><div class="campo neutro"><span>passou</span><b>sim</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo pend"><span>equivalente_oraculo</span><b>revisão manual pendente</b></div></div><p class="just"><b>Justificativa gravada:</b> A diferença do contrato registra que `cliente.cpf` passou a ser obrigatório em POST /pedidos, e `ClienteRequest` implementa isso com `@NotBlank` no campo `cpf`. O corpo do teste não envia `cpf`, então a validação responde 400 antes de chegar ao serviço, e a falha é explicada pela mudança intencional. A correção é adicionar `&quot;cpf&quot;` ao JSON do teste.</p><details open><summary>Reparo (diff)</summary><pre class="codigo"><span class="cab">--- antes.java</span>
+<span class="cab">+++ depois.java</span>
+<span class="hunk">@@ -7,7 +7,7 @@</span>
+<span class="ctx">                             .content(&quot;&quot;&quot;</span>
+<span class="ctx">                                     {</span>
+<span class="ctx">                                       &quot;carrinhoId&quot;: 103,</span>
+<span class="menos">-                                      &quot;cliente&quot;: {&quot;nome&quot;: &quot;Ana Souza&quot;, &quot;email&quot;: &quot;ana@exemplo.com&quot;},</span>
+<span class="mais">+                                      &quot;cliente&quot;: {&quot;nome&quot;: &quot;Ana Souza&quot;, &quot;email&quot;: &quot;ana@exemplo.com&quot;, &quot;cpf&quot;: &quot;12345678909&quot;},</span>
+<span class="ctx">                                       &quot;enderecoEntrega&quot;: {</span>
+<span class="ctx">                                         &quot;logradouro&quot;: &quot;Rua A&quot;, &quot;numero&quot;: &quot;10&quot;,</span>
+<span class="ctx">                                         &quot;cidade&quot;: &quot;Campinas&quot;, &quot;uf&quot;: &quot;SP&quot;, &quot;cep&quot;: &quot;13010000&quot;</span></pre></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve baixar o estoque quando o pedido for criado (RN03: 5 − 2 = 3)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/regras/rn03.sql&quot;})
+        void shouldDecreaseStockWhenOrderIsCreated() throws Exception {
+            mockMvc.perform(post(&quot;/pedidos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;carrinhoId&quot;: 103,
+                                      &quot;cliente&quot;: {&quot;nome&quot;: &quot;Ana Souza&quot;, &quot;email&quot;: &quot;ana@exemplo.com&quot;, &quot;cpf&quot;: &quot;12345678909&quot;},
+                                      &quot;enderecoEntrega&quot;: {
+                                        &quot;logradouro&quot;: &quot;Rua A&quot;, &quot;numero&quot;: &quot;10&quot;,
+                                        &quot;cidade&quot;: &quot;Campinas&quot;, &quot;uf&quot;: &quot;SP&quot;, &quot;cep&quot;: &quot;13010000&quot;
+                                      },
+                                      &quot;modalidadeFrete&quot;: &quot;PADRAO&quot;
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isCreated());
+
+            mockMvc.perform(get(&quot;/produtos/2&quot;))
+                    .andExpect(jsonPath(&quot;$.estoque&quot;).value(is(3)));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> — → <i>terminou</i></li><li><span class="etapa">repair · volta 1</span> <code>ler_arquivo</code></li><li><span class="etapa">repair · volta 2</span> <code>ler_arquivo</code></li><li><span class="etapa">repair · volta 3</span> <code>salvar_reparo</code>, <code>rodar_teste</code></li><li><span class="etapa">repair · volta 4</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article><article class="caso" id="A1-011"><h2>A1-011 <small>campo_obrigatorio_novo · requisicao</small> <span class="selo legitima">legítima</span></h2><p class="teste">Teste afetado: <code>ProdutoControllerTest.shouldReturn422WhenSkuAlreadyExists</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 422 quando o SKU já estiver cadastrado&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/produto/produtos.sql&quot;})
+        void shouldReturn422WhenSkuAlreadyExists() throws Exception {
+            mockMvc.perform(post(&quot;/produtos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;sku&quot;: &quot;LIV-001&quot;,
+                                      &quot;nome&quot;: &quot;Livro Repetido&quot;,
+                                      &quot;preco&quot;: 10.00,
+                                      &quot;categoria&quot;: &quot;LIVROS&quot;,
+                                      &quot;ativo&quot;: true,
+                                      &quot;estoque&quot;: 1,
+                                      &quot;pesoGramas&quot;: 100,
+                                      &quot;dimensoes&quot;: {&quot;alturaCm&quot;: 1, &quot;larguraCm&quot;: 1, &quot;comprimentoCm&quot;: 1}
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().is(422))
+                    .andExpect(jsonPath(&quot;$.codigo&quot;).value(&quot;REGRA_DE_NEGOCIO&quot;))
+                    .andExpect(jsonPath(&quot;$.campos&quot;).value(empty()));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><pre class="codigo"><span class="cab">diff --git a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="cab">index c795d95..e8ff656 100644</span>
+<span class="cab">--- a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="cab">+++ b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java</span>
+<span class="hunk">@@ -129,6 +129,7 @@ class ProdutoControllerTest {</span>
+<span class="ctx">                                     {</span>
+<span class="ctx">                                       &quot;sku&quot;: &quot;LIV-001&quot;,</span>
+<span class="ctx">                                       &quot;nome&quot;: &quot;Livro Repetido&quot;,</span>
+<span class="mais">+                                      &quot;marca&quot;: &quot;Editora Exemplo&quot;,</span>
+<span class="ctx">                                       &quot;preco&quot;: 10.00,</span>
+<span class="ctx">                                       &quot;categoria&quot;: &quot;LIVROS&quot;,</span>
+<span class="ctx">                                       &quot;ativo&quot;: true,</span></pre></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec"><h4>repetição 1</h4><div class="ficha"><div class="campo neutro"><span>decisão</span><b>reparar</b></div><div class="campo neutro"><span>compilou</span><b>sim</b></div><div class="campo neutro"><span>passou</span><b>sim</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo pend"><span>equivalente_oraculo</span><b>revisão manual pendente</b></div></div><p class="just"><b>Justificativa gravada:</b> A diferença registrada no contrato torna `marca` obrigatória em POST /produtos, e o `ProdutoRequest` implementa isso com `@NotBlank` em `marca`. O teste envia o JSON sem `marca`, então a validação responde 400 antes de chegar à checagem de SKU duplicado no `ProdutoService`, que é onde estaria o 422. O teste está desatualizado e precisa incluir `marca` na requisição.</p><details open><summary>Reparo (diff)</summary><pre class="codigo"><span class="cab">--- antes.java</span>
+<span class="cab">+++ depois.java</span>
+<span class="hunk">@@ -10,6 +10,7 @@</span>
+<span class="ctx">                                       &quot;nome&quot;: &quot;Livro Repetido&quot;,</span>
+<span class="ctx">                                       &quot;preco&quot;: 10.00,</span>
+<span class="ctx">                                       &quot;categoria&quot;: &quot;LIVROS&quot;,</span>
+<span class="mais">+                                      &quot;marca&quot;: &quot;Editora Exemplo&quot;,</span>
+<span class="ctx">                                       &quot;ativo&quot;: true,</span>
+<span class="ctx">                                       &quot;estoque&quot;: 1,</span>
+<span class="ctx">                                       &quot;pesoGramas&quot;: 100,</span></pre></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 422 quando o SKU já estiver cadastrado&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/produto/produtos.sql&quot;})
+        void shouldReturn422WhenSkuAlreadyExists() throws Exception {
+            mockMvc.perform(post(&quot;/produtos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;sku&quot;: &quot;LIV-001&quot;,
+                                      &quot;nome&quot;: &quot;Livro Repetido&quot;,
+                                      &quot;preco&quot;: 10.00,
+                                      &quot;categoria&quot;: &quot;LIVROS&quot;,
+                                      &quot;marca&quot;: &quot;Editora Exemplo&quot;,
+                                      &quot;ativo&quot;: true,
+                                      &quot;estoque&quot;: 1,
+                                      &quot;pesoGramas&quot;: 100,
+                                      &quot;dimensoes&quot;: {&quot;alturaCm&quot;: 1, &quot;larguraCm&quot;: 1, &quot;comprimentoCm&quot;: 1}
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().is(422))
+                    .andExpect(jsonPath(&quot;$.codigo&quot;).value(&quot;REGRA_DE_NEGOCIO&quot;))
+                    .andExpect(jsonPath(&quot;$.campos&quot;).value(empty()));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> — → <i>terminou</i></li><li><span class="etapa">repair · volta 1</span> <code>salvar_reparo</code>, <code>rodar_teste</code></li><li><span class="etapa">repair · volta 2</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article><article class="caso" id="A1-012"><h2>A1-012 <small>campo_obrigatorio_novo · requisicao</small> <span class="selo real">problema real (regressão)</span></h2><p class="teste">Teste afetado: <code>PedidoControllerTest.shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing</code></p><div class="lado"><div class="col"><h4>Teste antes</h4><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 201 Created com desconto 0,00 e complemento nulo quando os campos opcionais não forem enviados (50,00 + 17,00 = 67,00)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/pedido/pedidos.sql&quot;})
+        void shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing() throws Exception {
+            mockMvc.perform(post(&quot;/pedidos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;carrinhoId&quot;: 102,
+                                      &quot;cliente&quot;: {&quot;nome&quot;: &quot;Ana Souza&quot;, &quot;email&quot;: &quot;ana@exemplo.com&quot;},
+                                      &quot;enderecoEntrega&quot;: {
+                                        &quot;logradouro&quot;: &quot;Rua A&quot;, &quot;numero&quot;: &quot;10&quot;,
+                                        &quot;cidade&quot;: &quot;Campinas&quot;, &quot;uf&quot;: &quot;SP&quot;, &quot;cep&quot;: &quot;13010000&quot;
+                                      },
+                                      &quot;modalidadeFrete&quot;: &quot;PADRAO&quot;
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.complemento&quot;).value(nullValue()))
+                    .andExpect(jsonPath(&quot;$.subtotal&quot;).value(decimal(&quot;50.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.desconto&quot;).value(decimal(&quot;0.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.frete&quot;).value(decimal(&quot;17.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.total&quot;).value(decimal(&quot;67.00&quot;)));
+        }</pre></div><div class="col"><h4>Correção esperada (oráculo)</h4><p class="vazio">Sem correção esperada: o teste está certo e o código é que se afastou do contrato (oráculo: problema real). O esperado é <b>não reparar</b>.</p></div></div><div class="trat vazio-trat"><h3>Baseline</h3><p class="vazio">não rodado nesta rodada.</p></div><div class="trat"><h3>Agentes</h3><div class="execs"><section class="exec regressao"><h4>repetição 1</h4><div class="ficha"><div class="campo neutro"><span>decisão</span><b>reparar</b></div><div class="campo neutro"><span>compilou</span><b>sim</b></div><div class="campo neutro"><span>passou</span><b>não</b></div><div class="campo neutro"><span>erro</span><b>nenhum</b></div><div class="campo neutro"><span>regra da D95</span><b>sem comparação nesta rodada</b></div><div class="campo neutro"><span>cenario_alterado</span><b>—</b></div><div class="campo neutro"><span>equivalente_oraculo</span><b>— (sem correção esperada)</b></div></div><p class="just"><b>Justificativa gravada:</b> O contrato novo renomeou o campo de requisição &quot;modalidadeFrete&quot; para &quot;modalidade&quot; (obrigatório), e o código já reflete isso: PedidoRequest declara `@NotNull ModalidadeFrete modalidade`. O teste ainda envia &quot;modalidadeFrete&quot;, então `modalidade` chega nulo e a validação responde 400 em vez de 201. Essa causa está inteiramente nas diferenças registradas, e o código implementa o contrato novo, então o teste é que está desatualizado.</p><details open><summary>Reparo (diff)</summary><pre class="codigo"><span class="cab">--- antes.java</span>
+<span class="cab">+++ depois.java</span>
+<span class="hunk">@@ -12,7 +12,7 @@</span>
+<span class="ctx">                                         &quot;logradouro&quot;: &quot;Rua A&quot;, &quot;numero&quot;: &quot;10&quot;,</span>
+<span class="ctx">                                         &quot;cidade&quot;: &quot;Campinas&quot;, &quot;uf&quot;: &quot;SP&quot;, &quot;cep&quot;: &quot;13010000&quot;</span>
+<span class="ctx">                                       },</span>
+<span class="menos">-                                      &quot;modalidadeFrete&quot;: &quot;PADRAO&quot;</span>
+<span class="mais">+                                      &quot;modalidade&quot;: &quot;PADRAO&quot;</span>
+<span class="ctx">                                     }</span>
+<span class="ctx">                                     &quot;&quot;&quot;))</span>
+<span class="ctx">                     .andExpect(status().isCreated())</span></pre></details><details><summary>Teste depois (depois.java)</summary><pre class="codigo">        @Test
+        @DisplayName(&quot;Deve retornar 201 Created com desconto 0,00 e complemento nulo quando os campos opcionais não forem enviados (50,00 + 17,00 = 67,00)&quot;)
+        @Sql({&quot;/fixtures/limpeza.sql&quot;, &quot;/fixtures/pedido/pedidos.sql&quot;})
+        void shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing() throws Exception {
+            mockMvc.perform(post(&quot;/pedidos&quot;)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(&quot;&quot;&quot;
+                                    {
+                                      &quot;carrinhoId&quot;: 102,
+                                      &quot;cliente&quot;: {&quot;nome&quot;: &quot;Ana Souza&quot;, &quot;email&quot;: &quot;ana@exemplo.com&quot;},
+                                      &quot;enderecoEntrega&quot;: {
+                                        &quot;logradouro&quot;: &quot;Rua A&quot;, &quot;numero&quot;: &quot;10&quot;,
+                                        &quot;cidade&quot;: &quot;Campinas&quot;, &quot;uf&quot;: &quot;SP&quot;, &quot;cep&quot;: &quot;13010000&quot;
+                                      },
+                                      &quot;modalidade&quot;: &quot;PADRAO&quot;
+                                    }
+                                    &quot;&quot;&quot;))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath(&quot;$.enderecoEntrega.complemento&quot;).value(nullValue()))
+                    .andExpect(jsonPath(&quot;$.subtotal&quot;).value(decimal(&quot;50.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.desconto&quot;).value(decimal(&quot;0.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.frete&quot;).value(decimal(&quot;17.00&quot;)))
+                    .andExpect(jsonPath(&quot;$.total&quot;).value(decimal(&quot;67.00&quot;)));
+        }</pre></details><details><summary>Caminho</summary><ol class="caminho"><li><span class="etapa">classifier · volta 1</span> <code>ver_diferenca</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">classifier · volta 3</span> — → <i>terminou</i></li><li><span class="etapa">repair · volta 1</span> <code>salvar_reparo</code>, <code>rodar_teste</code></li><li><span class="etapa">repair · volta 2</span> <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">repair · volta 3</span> <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code>, <code>ler_arquivo</code></li><li><span class="etapa">repair · volta 4</span> <code>ler_arquivo</code></li><li><span class="etapa">repair · volta 5</span> — → <i>terminou</i></li></ol></details></section></div></div><div class="trat vazio-trat"><h3>Agente único</h3><p class="vazio">não rodado nesta rodada.</p></div></article></main></body></html>
