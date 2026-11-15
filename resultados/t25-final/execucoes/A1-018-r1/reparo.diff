@@ -1,0 +1,15 @@
+--- antes.java
++++ depois.java
+@@ -7,10 +7,10 @@
+                             .content("""
+                                     {
+                                       "carrinhoId": 102,
+-                                      "cliente": {"nome": "Ana Souza", "email": "ana@exemplo.com"},
++                                      "cliente": {"nomeCompleto": "Ana Souza", "email": "ana@exemplo.com"},
+                                       "enderecoEntrega": {
+                                         "logradouro": "Rua A", "numero": "10",
+-                                        "cidade": "Campinas", "uf": "SP", "cep": "13010000"
++                                        "municipio": "Campinas", "uf": "SP", "cep": "13010000"
+                                       },
+                                       "modalidadeFrete": "PADRAO",
+                                       "cupom": "BEMVINDO10"

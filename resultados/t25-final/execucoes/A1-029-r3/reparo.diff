@@ -1,0 +1,10 @@
+--- antes.java
++++ depois.java
+@@ -12,6 +12,6 @@
+                                     }
+                                     """))
+                     .andExpect(status().isOk())
+-                    .andExpect(jsonPath("$.freteGratis").value(false))
++                    .andExpect(jsonPath("$.gratis").value(false))
+                     .andExpect(jsonPath("$.valor").value(decimal("25.50")));
+         }

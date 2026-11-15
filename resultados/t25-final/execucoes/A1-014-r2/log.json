@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-014",
+  "tratamento": "agentes",
+  "repeticao": 2,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "O contrato novo registra que o campo \"prazoDias\" da resposta de POST /fretes/cotacao foi renomeado para \"prazoEntregaDias\", e o record CotacaoFreteResponse já expõe apenas \"prazoEntregaDias\". O teste ainda procura \"$.prazoDias\", então a falha vem da renomeação registrada. O valor 25,50 e o prazo de 1 dia continuam coerentes com a RN06 (3 − 2 = 1), logo a correção é atualizar o teste para o novo nome do campo.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 2,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 34.1855
+}

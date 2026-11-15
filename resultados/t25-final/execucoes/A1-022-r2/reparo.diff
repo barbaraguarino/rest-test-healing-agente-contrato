@@ -1,0 +1,10 @@
+--- antes.java
++++ depois.java
+@@ -11,7 +11,6 @@
+                                       "preco": 10.00,
+                                       "categoria": "LIVROS",
+                                       "ativo": true,
+-                                      "estoque": 1,
+                                       "pesoGramas": 100,
+                                       "dimensoes": {"alturaCm": 1, "larguraCm": 1, "comprimentoCm": 1}
+                                     }

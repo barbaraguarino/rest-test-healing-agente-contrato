@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-030",
+  "tratamento": "agentes",
+  "repeticao": 3,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo_classifier": "problema_real",
+  "justificativa": "A renomeação de `destino.cep` para `codigoPostal` explica só parte da falha: o código já usa `codigoPostal`, então o teste ainda envia `cep` e recebe 400. Mas `CotacaoFreteRequest.modalidade` é `Boolean` no código, enquanto `docs/openapi.json` declara `modalidade` como string com enum `PADRAO`/`EXPRESSA`, e `ver_diferenca` não registra essa mudança. O teste envia `\"modalidade\": \"PADRAO\"`, conforme o contrato, então mesmo com o campo `cep` corrigido ele continuaria recebendo 400 por causa do código.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 0,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 11.5069
+}

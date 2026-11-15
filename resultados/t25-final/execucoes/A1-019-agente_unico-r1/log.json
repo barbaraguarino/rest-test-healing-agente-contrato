@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-019",
+  "tratamento": "agente_unico",
+  "repeticao": 1,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo": "legitima",
+  "justificativa": "O contrato novo remove o campo \"freteGratis\" da resposta de POST /fretes/cotacao, e o CotacaoFreteResponse atual já não tem esse campo, então a falha vem só dessa mudança registrada. A regra RN07 continua implementada na CalculadoraFrete (valor 0,00 e prazo inalterado), e o contrato não muda isso; por isso só removi a asserção sobre \"$.freteGratis\" e mantive as de valor e prazo, e o teste passou.",
+  "detalhe": null,
+  "incoerente": false,
+  "chamadas": 5,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 38.69
+}

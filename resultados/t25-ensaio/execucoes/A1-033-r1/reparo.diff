@@ -1,0 +1,10 @@
+--- antes.java
++++ depois.java
+@@ -8,6 +8,7 @@
+                                     {
+                                       "destino": {"cep": "01001000", "uf": "SP"},
+                                       "modalidade": "PADRAO",
++                                      "seguro": false,
+                                       "itens": [{"produtoId": 2, "quantidade": 1}]
+                                     }
+                                     """))

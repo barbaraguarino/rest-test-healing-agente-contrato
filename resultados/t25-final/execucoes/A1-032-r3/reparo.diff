@@ -1,0 +1,10 @@
+--- antes.java
++++ depois.java
+@@ -13,6 +13,7 @@
+                                       "ativo": true,
+                                       "estoque": 3,
+                                       "pesoGramas": 80,
++                                      "garantiaMeses": 12,
+                                       "dimensoes": {"alturaCm": 1, "larguraCm": 40, "comprimentoCm": 60}
+                                     }
+                                     """))

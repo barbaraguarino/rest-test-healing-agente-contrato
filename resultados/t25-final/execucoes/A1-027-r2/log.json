@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-027",
+  "tratamento": "agentes",
+  "repeticao": 2,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "O diff do contrato registra que `descricao` no POST /produtos mudou de string para array, e o `ProdutoRequest` do código já declara `List<String> descricao`, então o teste, que envia `\"descricao\": \"Fone sem fio\"` como string, é recusado com 400 antes de chegar às asserções. A mudança é intencional, está no contrato e no código, e a correção é atualizar o payload do teste (o campo `descricao` na resposta continua string no contrato).",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 5,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 43.1049
+}

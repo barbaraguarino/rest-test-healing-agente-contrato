@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-019",
+  "tratamento": "agentes",
+  "repeticao": 3,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "A diferença do contrato registra que o campo \"freteGratis\" foi removido da resposta de POST /fretes/cotacao, e o DTO CotacaoFreteResponse (que só tem modalidade, valor, prazoDias e pesoTotalGramas) já não o possui, então a falha \"No value at JSON path $.freteGratis\" vem dessa remoção intencional. A regra RN07 continua implementada na CalculadoraFrete (valor zerado e prazo inalterado), então as asserções de valor 0,00 e prazo 3 seguem válidas; só a asserção de freteGratis ficou desatualizada.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 5,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 42.8976
+}

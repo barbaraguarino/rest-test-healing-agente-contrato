@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-031",
+  "tratamento": "agentes",
+  "repeticao": 3,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "O contrato novo registra que `enderecoEntrega.bairro` passou a ser obrigatório, e `EnderecoRequest` implementa isso com `@NotBlank`. O JSON do teste não envia `bairro`, então o `@Valid` responde 400 antes de chegar à checagem de estoque (RN03) e o 422 nunca é gerado. A falha vem da mudança intencional no contrato, e a correção é acrescentar `bairro` ao corpo do teste.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 2,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 68.7476
+}

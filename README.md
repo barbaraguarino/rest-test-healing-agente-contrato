@@ -32,7 +32,7 @@ Botão direito na pasta `tests` → **Run 'Python tests in tests'**, com a raiz 
 
 1. **Run → Edit Configurations → + → Python**.
 2. Em **Module name**, `tests.ensaio`; em **Parameters**, `--api ../rest-test-healing-sut --saida resultados/NOME-NOVO`; em **Working directory**, a raiz deste repositório.
-3. **Run**. A última linha diz `ENSAIO OK` ou `ENSAIO FALHOU`. Por padrão, roda os três tratamentos (baseline, agentes e agente único, D82), com o agente único nos 12 casos; `--tratamentos baseline agentes` deixa o agente único de fora.
+3. **Run**. A última linha diz `ENSAIO OK` ou `ENSAIO FALHOU`. Por padrão, roda os três tratamentos (baseline, agentes e agente único, D82), com o agente único em todos os casos; `--tratamentos baseline agentes` deixa o agente único de fora. Por padrão, usa o oráculo do piloto; `--oraculo casos/oraculo-agente1-final.json` roda os 24 casos finais (T25, D135; resultado em `resultados/t25-ensaio/`).
 
 Ensaio da retomada (T53): em **Parameters**, acrescente `--interromper-em A1-007 1`. A rodada cai no meio dessa execução, depois do reparo salvo, como um Ctrl+C. Depois, troque `--interromper-em A1-007 1` por `--retomar`, com a mesma `--saida`, e clique em **Run** de novo. O LLM simulado grava cada chamada no `chamadas.jsonl` com custo zero, para a conta das chamadas sem registro aparecer.
 

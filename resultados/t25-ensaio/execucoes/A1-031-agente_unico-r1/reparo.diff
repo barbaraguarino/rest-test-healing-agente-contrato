@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -10,7 +10,7 @@
+                                       "cliente": {"nome": "Ana Souza", "email": "ana@exemplo.com"},
+                                       "enderecoEntrega": {
+                                         "logradouro": "Rua A", "numero": "10",
+-                                        "cidade": "Campinas", "uf": "SP", "cep": "13010000"
++                                        "cidade": "Campinas", "uf": "SP", "cep": "13010000", "bairro": "Centro"
+                                       },
+                                       "modalidadeFrete": "PADRAO"
+                                     }

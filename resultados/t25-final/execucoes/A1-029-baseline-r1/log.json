@@ -1,0 +1,20 @@
+{
+  "id_caso": "A1-029",
+  "tratamento": "baseline",
+  "repeticao": 1,
+  "decisao": "reparar",
+  "erro": null,
+  "aplicadas": [
+    "POST /fretes/cotacao, resposta: o campo \"freteGratis\" foi renomeado para \"gratis\" (boolean)"
+  ],
+  "ignoradas": [],
+  "recusas_do_guarda": [],
+  "detalhe": null,
+  "causa": null,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": false,
+  "tempo_s": 15.6455,
+  "commit_do_prompt": null,
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b"
+}

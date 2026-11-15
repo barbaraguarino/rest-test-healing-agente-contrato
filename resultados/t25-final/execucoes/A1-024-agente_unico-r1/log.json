@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-024",
+  "tratamento": "agente_unico",
+  "repeticao": 1,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo": "problema_real",
+  "justificativa": "A renomeação de carrinhoId para idCarrinho explica o 400, mas não a falha inteira: a RN08 exige 422 para cupom inexistente, e o código não implementa isso. O PedidoRequest não tem o campo cupom, PedidoService.criar fixa o desconto em zero sem consultar Cupom.porCodigo (a classe Cupom existe, mas nunca é usada) e o contrato continua declarando cupom. Assim, mesmo com o nome corrigido no teste, a requisição com cupom NAOEXISTE seria aceita, e o teste esperaria o comportamento que o código deixou de ter.",
+  "detalhe": null,
+  "incoerente": false,
+  "chamadas": 4,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 11.7461
+}

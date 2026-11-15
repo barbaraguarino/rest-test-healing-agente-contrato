@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-018",
+  "tratamento": "agente_unico",
+  "repeticao": 3,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo": "problema_real",
+  "justificativa": "O diff registra só a troca de cliente.nome por cliente.nomeCompleto, mas o contrato também exige enderecoEntrega.cidade, e o código (EnderecoRequest) exige municipio, sem que isso conste nas diferenças. Ajustar só o nome do cliente não resolveu o 400, e o contrato e o código divergem numa causa não registrada; restaurei o método original, sem alterações no teste.",
+  "detalhe": null,
+  "incoerente": true,
+  "chamadas": 6,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": false,
+  "tempo_s": 52.6406
+}

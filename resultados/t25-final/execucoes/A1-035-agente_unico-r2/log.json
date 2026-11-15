@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-035",
+  "tratamento": "agente_unico",
+  "repeticao": 2,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo": "problema_real",
+  "justificativa": "A diferença registrada explica só a renomeação de enderecoEntrega.numero para numeroImovel, mas o contrato novo deixa complemento fora de \"required\" e o código (EnderecoRequest) o marca com @NotBlank, então o 400 tem uma causa que o contrato não descreve. O teste omite complemento e espera 201, como também esperam o teste de campos opcionais (\"complemento pode ser null\" em EnderecoResponse), por isso o teste está certo e a correção é no código, não no teste. Não alterei o método.",
+  "detalhe": null,
+  "incoerente": false,
+  "chamadas": 4,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 13.6721
+}
