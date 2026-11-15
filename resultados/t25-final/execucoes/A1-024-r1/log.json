@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-024",
+  "tratamento": "agentes",
+  "repeticao": 1,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo_classifier": "problema_real",
+  "justificativa": "O 400 vem da renomeação de carrinhoId para idCarrinho, que o contrato registra, mas isso não explica tudo: o PedidoRequest atual não tem campo cupom e o PedidoService fixa o desconto em zero, sem validar cupom. Assim, mesmo corrigido o nome do campo, um cupom inexistente não geraria 422 como exige a RN08, e essa remoção não aparece nas diferenças do contrato.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 0,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 11.1184
+}

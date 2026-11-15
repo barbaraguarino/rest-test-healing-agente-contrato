@@ -1,0 +1,128 @@
+[
+  {
+    "etapa": "classifier",
+    "volta": 1,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "ver_diferenca",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "classifier",
+    "volta": 2,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "classifier",
+    "volta": 3,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "classifier",
+    "volta": 4,
+    "terminou": true,
+    "ferramentas": []
+  },
+  {
+    "etapa": "repair",
+    "volta": 1,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "repair",
+    "volta": 2,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "repair",
+    "volta": 3,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "salvar_reparo",
+        "erro": false
+      },
+      {
+        "nome": "rodar_teste",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "repair",
+    "volta": 4,
+    "terminou": true,
+    "ferramentas": []
+  }
+]

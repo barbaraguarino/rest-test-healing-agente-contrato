@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-029",
+  "tratamento": "agentes",
+  "repeticao": 2,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "O diff do contrato registra que `freteGratis` foi renomeado para `gratis` na resposta de POST /fretes/cotacao, e `CotacaoFreteResponse` já expõe `gratis` (Boolean), então a falha 'No value at JSON path $.freteGratis' vem só da renomeação. O cálculo do valor (15,00 + 2,00) × 1,5 = 25,50 em `CalculadoraFrete` continua igual à RN06, então o código não contradiz o contrato novo e o teste só precisa usar o nome atualizado.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 4,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": false,
+  "tempo_s": 39.9376
+}

@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-024",
+  "tratamento": "agentes",
+  "repeticao": 2,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo_classifier": "problema_real",
+  "justificativa": "A falha de 400 vem do rename de carrinhoId para idCarrinho, que está no diff e no código, então o teste envia um campo que a API já não aceita. Mas o contrato novo ainda declara o campo \"cupom\" em PedidoRequest, e o código não o implementa: o record PedidoRequest não tem o campo e PedidoService fixa o desconto em zero com o comentário \"cupom opcional; ausente significa desconto zero\". Assim, depois de corrigir só o nome do campo, o pedido com cupom NAOEXISTE seria criado com 201 em vez de ser recusado com 422 pela RN08, o que mostra que o código se afasta do contrato e das regras.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 0,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 10.6886
+}

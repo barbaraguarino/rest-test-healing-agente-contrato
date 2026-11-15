@@ -1,0 +1,50 @@
+[
+  {
+    "etapa": "classifier",
+    "volta": 1,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "ver_diferenca",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "classifier",
+    "volta": 2,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "classifier",
+    "volta": 3,
+    "terminou": true,
+    "ferramentas": []
+  }
+]

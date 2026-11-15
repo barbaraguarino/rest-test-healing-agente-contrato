@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-029",
+  "tratamento": "agente_unico",
+  "repeticao": 3,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo": "problema_real",
+  "justificativa": "A diferença registrada no contrato renomeia `freteGratis` para `gratis`, e o código o implementa, mas isso não é a causa total da falha: depois de atualizar o nome do campo no teste, a asserção seguinte falhou porque `valor` chega como string (\"25.50\"), e o contrato novo declara `valor` como `number`, o que nenhuma diferença registrada explica. Assim, o código contradiz o contrato; restaurei o método original do teste, que está correto, e a correção deve ser feita no código (CotacaoFreteResponse.valor é String).",
+  "detalhe": null,
+  "incoerente": true,
+  "chamadas": 5,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": false,
+  "tempo_s": 50.9697
+}

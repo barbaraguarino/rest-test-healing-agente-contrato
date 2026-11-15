@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-035",
+  "tratamento": "agente_unico",
+  "repeticao": 3,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo": "problema_real",
+  "justificativa": "A diferença registrada explica só parte da falha: o contrato renomeou `enderecoEntrega.numero` para `numeroImovel`, e o teste ainda envia `numero`. Mas `EnderecoRequest.java` também marca `complemento` com `@NotBlank`, enquanto o `docs/openapi.json` só lista `cep`, `cidade`, `logradouro`, `numeroImovel` e `uf` como obrigatórios. Mesmo que o teste passasse a enviar `numeroImovel`, a requisição sem complemento continuaria recebendo 400, então o código se afasta do contrato novo e a correção deve ser no código, não no teste. Não alterei o teste.",
+  "detalhe": null,
+  "incoerente": false,
+  "chamadas": 3,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 10.9838
+}

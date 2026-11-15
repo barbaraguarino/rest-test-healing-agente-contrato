@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-015",
+  "tratamento": "agente_unico",
+  "repeticao": 3,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo": "legitima",
+  "justificativa": "O diff do contrato registra que `cliente.email` foi renomeado para `cliente.emailContato` (obrigatório em ClienteRequest, conforme o OpenAPI novo). Com o campo antigo, a validação devolvia 400 VALIDACAO antes de chegar à regra RN10, então a falha vem dessa mudança registrada. Reparei o teste trocando apenas a chave JSON para `emailContato`; o status 422, o código REGRA_DE_NEGOCIO e as demais asserções ficaram iguais, e o teste passou.",
+  "detalhe": null,
+  "incoerente": false,
+  "chamadas": 4,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 33.6723
+}

@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -5,7 +5,7 @@
+             mockMvc.perform(post("/carrinhos/102/itens")
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .content("""
+-                                    {"produtoId": 2, "quantidade": 2}
++                                    {"idProduto": 2, "quantidade": 2}
+                                     """))
+                     .andExpect(status().isOk())
+                     .andExpect(jsonPath("$.itens[*].produtoId").value(contains(2, 1)))

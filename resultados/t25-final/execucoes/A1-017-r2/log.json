@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-017",
+  "tratamento": "agentes",
+  "repeticao": 2,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "O diff do contrato registra que o campo \"desconto\" da resposta de POST /pedidos foi renomeado para \"valorDesconto\", e o PedidoResponse atual já expõe \"valorDesconto\" (o schema OpenAPI também o declara), então o teste ainda lê o nome antigo. O cálculo do desconto está correto: Cupom aplica 10% com Dinheiro.arredondar em HALF_UP, dando 10,01 para 100,05, então a falha se deve só ao nome do campo e o teste deve ser atualizado para \"$.valorDesconto\".",
+  "detalhe": null,
+  "chamadas_classifier": 4,
+  "chamadas_repair": 5,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 71.4641
+}

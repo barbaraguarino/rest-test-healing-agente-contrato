@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -6,7 +6,7 @@
+                             .contentType(MediaType.APPLICATION_JSON)
+                             .content("""
+                                     {
+-                                      "carrinhoId": 101,
++                                      "idCarrinho": 101,
+                                       "cliente": {"nome": "Ana Souza", "email": "ana@exemplo.com"},
+                                       "enderecoEntrega": {
+                                         "logradouro": "Rua A", "numero": "10",

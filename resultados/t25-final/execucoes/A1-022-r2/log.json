@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-022",
+  "tratamento": "agentes",
+  "repeticao": 2,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "A diferença do contrato registra a remoção do campo \"estoque\" do POST /produtos, e o código já reflete isso: o ProdutoRequest não tem mais esse campo e o service fixa o estoque em 0. O teste ainda envia \"estoque\": 1, e a desserialização estrita do Jackson rejeita o campo desconhecido com 400 antes de chegar à checagem de SKU duplicado, que devolveria 422. O 400 vem da mudança intencional, então a correção é remover \"estoque\" do corpo do teste.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 2,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 38.0116
+}

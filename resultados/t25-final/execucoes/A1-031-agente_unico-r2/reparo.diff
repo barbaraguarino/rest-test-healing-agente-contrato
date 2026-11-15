@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -9,7 +9,7 @@
+                                       "carrinhoId": 104,
+                                       "cliente": {"nome": "Ana Souza", "email": "ana@exemplo.com"},
+                                       "enderecoEntrega": {
+-                                        "logradouro": "Rua A", "numero": "10",
++                                        "logradouro": "Rua A", "numero": "10", "bairro": "Centro",
+                                         "cidade": "Campinas", "uf": "SP", "cep": "13010000"
+                                       },
+                                       "modalidadeFrete": "PADRAO"
