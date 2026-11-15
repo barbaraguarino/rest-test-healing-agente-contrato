@@ -885,8 +885,8 @@
         "não equivalente pelas regras 1 a 3 da D95"
       ],
       "revisao_manual": "D80: não equivalente, mas compila, passa e não enfraquece asserções",
-      "veredito_manual": null,
-      "motivo_do_veredito": null
+      "veredito_manual": true,
+      "motivo_do_veredito": "Aceito: a lista continua válida no novo contrato e o texto final enviado ao serviço é o mesmo da correção esperada, porque o serviço junta os itens com um espaço (\"Fone sem fio\"). O teste compila, passa, mantém a mesma asserção e não altera o cenário; só quebra o texto em mais de um item em vez de usar um item único."
     },
     {
       "id_caso": "A1-027",
@@ -915,8 +915,8 @@
         "não equivalente pelas regras 1 a 3 da D95"
       ],
       "revisao_manual": "D80: não equivalente, mas compila, passa e não enfraquece asserções",
-      "veredito_manual": null,
-      "motivo_do_veredito": null
+      "veredito_manual": true,
+      "motivo_do_veredito": "Aceito: a lista continua válida no novo contrato e o texto final enviado ao serviço é o mesmo da correção esperada, porque o serviço junta os itens com um espaço (\"Fone sem fio\"). O teste compila, passa, mantém a mesma asserção e não altera o cenário; só quebra o texto em mais de um item em vez de usar um item único."
     },
     {
       "id_caso": "A1-028",
