@@ -1,0 +1,23 @@
+{
+  "id_caso": "A1-027",
+  "tratamento": "baseline",
+  "repeticao": 1,
+  "decisao": "nao_reparar",
+  "erro": null,
+  "aplicadas": [],
+  "ignoradas": [
+    [
+      "POST /produtos, requisicao: o campo \"descricao\" mudou de string para array",
+      "nenhuma regra se aplica ao que o teste contém"
+    ]
+  ],
+  "recusas_do_guarda": [],
+  "detalhe": null,
+  "causa": null,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 0.0097,
+  "commit_do_prompt": null,
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b"
+}
