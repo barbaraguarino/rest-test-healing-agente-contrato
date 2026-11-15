@@ -1,0 +1,10 @@
+McNEMAR MID-P · Bonferroni dentro de cada agente: α = 0,05, limiar por teste α/3 = 0,01667
+
+=== Agente 1 ===
+  Hipótese             Pares   Acertos baseline   Acertos agêntica   b   c   n         p   Limiar α/3   Maior lado          Decisão
+  ---------------------------------------------------------------------------------------------------------------------------------
+  Detection Accuracy      24              13/24              20/24   0   7   7   0,00781      0,01667     agêntica       rejeita H0
+  Repair Rate             16              13/16              16/16   0   3   3   0,12500      0,01667     agêntica   não rejeita H0
+  Safety                   8                8/8                6/8   2   0   2   0,25000      0,01667     baseline   não rejeita H0
+
+b = só a baseline acertou; c = só a agêntica acertou; n = b + c.
