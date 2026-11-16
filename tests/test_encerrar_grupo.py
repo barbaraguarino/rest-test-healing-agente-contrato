@@ -2,12 +2,14 @@ import os
 import signal
 import subprocess
 import sys
+import time
 import unittest
 from pathlib import Path
 
 from agente_contrato.execucao import encerrar_grupo
 
 PROCESSO_FALSO = Path(__file__).parent / "processo_falso.py"
+PRAZO_DO_GRUPO_S = 5.0
 
 
 class TestProvocarProcessLookupError(unittest.TestCase):
@@ -26,8 +28,16 @@ class TestEncerrarGrupo(unittest.TestCase):
         proc.stdout.readline()  # espera o "pronto": o neto já foi aberto
         encerrar_grupo(proc)
         proc.stdout.close()
-        with self.assertRaises(ProcessLookupError):
-            os.killpg(proc.pid, 0)  # sinal 0 só pergunta se o grupo existe
+        # O SIGKILL não espera o neto sumir: ele fica zumbi até o sistema recolhê-lo.
+        # Por isso se pergunta de novo, até um prazo, em vez de perguntar uma vez só.
+        limite = time.monotonic() + PRAZO_DO_GRUPO_S
+        while time.monotonic() < limite:
+            try:
+                os.killpg(proc.pid, 0)  # sinal 0 só pergunta se o grupo existe
+            except ProcessLookupError:
+                return
+            time.sleep(0.05)
+        self.fail(f"o grupo ainda existe depois de {PRAZO_DO_GRUPO_S} s")
 
     def test_tolera_grupo_que_ja_terminou(self):
         proc = subprocess.Popen([sys.executable, str(PROCESSO_FALSO), "0.1"],
