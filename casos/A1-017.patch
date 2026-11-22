@@ -1,0 +1,40 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..757aa61 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -578,9 +578,6 @@
+           "cliente" : {
+             "$ref" : "#/components/schemas/ClienteResponse"
+           },
+-          "desconto" : {
+-            "type" : "number"
+-          },
+           "enderecoEntrega" : {
+             "$ref" : "#/components/schemas/EnderecoResponse"
+           },
+@@ -610,6 +607,9 @@
+           },
+           "total" : {
+             "type" : "number"
++          },
++          "valorDesconto" : {
++            "type" : "number"
+           }
+         }
+       },
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java b/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java
+index 33ea3bb..b88398c 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/dto/PedidoResponse.java
+@@ -15,9 +15,9 @@ public record PedidoResponse(
+         ModalidadeFrete modalidadeFrete,
+         List<ItemPedidoResponse> itens,
+         BigDecimal subtotal,
+-        BigDecimal desconto,
++        BigDecimal valorDesconto,
+         BigDecimal frete,
+-        BigDecimal total) {
++        BigDecimal valorTotal) {
+ 
+     public static PedidoResponse de(Pedido pedido) {
+         return new PedidoResponse(

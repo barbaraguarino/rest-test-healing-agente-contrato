@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-021",
+  "tratamento": "agentes",
+  "repeticao": 2,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "O contrato novo removeu o campo \"quantidade\" do corpo de POST /carrinhos/{id}/itens, e o ItemCarrinhoRequest agora tem só produtoId. O teste ainda envia \"quantidade\": 1, então o TratadorGlobalDeErros responde 400 com 'campo desconhecido' (desserialização estrita), e não a regra RN02. A correção é remover o campo do teste, já que o serviço passou a incluir 1 unidade por chamada e a regra de 10 unidades continua valendo.",
+  "detalhe": null,
+  "chamadas_classifier": 4,
+  "chamadas_repair": 4,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 42.9408
+}

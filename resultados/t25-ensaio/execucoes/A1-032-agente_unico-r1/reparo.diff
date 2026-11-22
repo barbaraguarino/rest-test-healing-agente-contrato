@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -11,7 +11,7 @@
+                                       "preco": 10.005,
+                                       "categoria": "CASA",
+                                       "ativo": true,
+-                                      "estoque": 3,
++                                      "estoque": 3, "garantiaMeses": 12,
+                                       "pesoGramas": 80,
+                                       "dimensoes": {"alturaCm": 1, "larguraCm": 40, "comprimentoCm": 60}
+                                     }

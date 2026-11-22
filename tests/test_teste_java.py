@@ -1,130 +1,99 @@
 import unittest
 
-from agente_contrato import teste_java as tj
+from agente_contrato.teste_java import ErroDeAnalise, _depois_do_literal, localizar_metodo, texto_do_metodo
 
-JAVA = '''\
-class PedidoControllerTest {
-    // chave solta no comentário: }
+CLASSE = '''class ProdutoTest {
     @Test
-    void outroTeste() throws Exception {
-        mockMvc.perform(get("/produtos/1")).andExpect(status().isOk());
+    @Sql("/produtos.sql")
+    void lista() throws Exception {
+        // a resposta tem } no comentário
+        mockMvc.perform(post("/produtos").content("""
+            { "nome": "x" }
+            """))
+            .andExpect(jsonPath("$.descricao").value("a { b"));
+        if (ok) { contar('}'); }
     }
 
     @Test
-    void shouldDecreaseStockWhenOrderIsCreated() throws Exception {
-        String s = "texto com } chave";
-        mockMvc.perform(post("/pedidos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "carrinhoId": 103,
-                                  "cliente": {"nome": "Ana, S.", "email": "ana@exemplo.com"},
-                                  "itens": [{"produtoId": 2, "quantidade": 1}, {"produtoId": 3}],
-                                  "modalidadeFrete": "PADRAO"
-                                }
-                                """))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.itens[0].subtotal").value(1));
-
-        mockMvc.perform(get("/produtos/2"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.estoque").value(is(3)));
+    void outro() {
     }
 }
 '''
-ROTAS = {"GET": {"/produtos/{id}"}, "POST": {"/pedidos", "/carrinhos/{id}/itens"}}
 
 
-class MetodoTest(unittest.TestCase):
-    def test_localiza_o_corpo_ignorando_chaves_em_literais_e_comentarios(self):
-        m = tj.localizar_metodo(JAVA, "shouldDecreaseStockWhenOrderIsCreated")
-        self.assertEqual(JAVA[m.inicio], "{")
-        self.assertEqual(JAVA[m.fim - 1], "}")
-        self.assertIn("estoque", JAVA[m.inicio:m.fim])
-        self.assertNotIn("outroTeste", JAVA[m.inicio:m.fim])
+class TestDepoisDoLiteral(unittest.TestCase):
+    """Cada caso começa o texto no literal ou comentário e espera o índice logo depois dele."""
 
-    def test_metodo_inexistente_falha(self):
-        with self.assertRaises(tj.ErroDeAnalise):
-            tj.localizar_metodo(JAVA, "naoExiste")
+    def test_codigo_comum_nao_anda(self):
+        self.assertEqual(_depois_do_literal("{ x }", 0), 0)
 
-    def test_nome_repetido_falha_em_vez_de_adivinhar(self):
-        with self.assertRaises(tj.ErroDeAnalise):
-            tj.localizar_metodo(JAVA + JAVA, "outroTeste")
+    def test_texto_entre_aspas(self):
+        texto = '"a { b" + x'
+        self.assertEqual(texto[_depois_do_literal(texto, 0):], " + x")
 
+    def test_aspas_escapadas_nao_fecham_o_texto(self):
+        texto = r'"diz \"oi\" {" ;'
+        self.assertEqual(texto[_depois_do_literal(texto, 0):], " ;")
 
-class ChamadasTest(unittest.TestCase):
-    def setUp(self):
-        m = tj.localizar_metodo(JAVA, "shouldDecreaseStockWhenOrderIsCreated")
-        self.chamadas = tj.analisar_chamadas(JAVA, m, ROTAS)
+    def test_caractere(self):
+        texto = "'{' ;"
+        self.assertEqual(texto[_depois_do_literal(texto, 0):], " ;")
 
-    def test_acha_as_duas_chamadas_com_rota_e_status(self):
-        self.assertEqual([(c.metodo_http, c.url, c.rota, c.status_esperado) for c in self.chamadas],
-                         [("POST", "/pedidos", "/pedidos", 201),
-                          ("GET", "/produtos/2", "/produtos/{id}", 200)])
+    def test_text_block(self):
+        texto = '"""\n{ "nome": "x" }\n""" ;'
+        self.assertEqual(texto[_depois_do_literal(texto, 0):], " ;")
 
-    def test_assercao_fica_na_chamada_certa(self):
-        self.assertEqual([[a.expressao for a in c.assercoes] for c in self.chamadas],
-                         [["$.itens[0].subtotal"], ["$.estoque"]])
+    def test_comentario_de_linha(self):
+        texto = "// fecha } aqui\nx"
+        self.assertEqual(texto[_depois_do_literal(texto, 0):], "\nx")
 
-    def test_posicoes_da_assercao_apontam_para_a_expressao(self):
-        a = self.chamadas[1].assercoes[0]
-        self.assertEqual(JAVA[a.ini_expressao:a.fim_expressao], "$.estoque")
-        self.assertIn("jsonPath", JAVA[a.ini_linha:a.fim_linha])
-        self.assertTrue(JAVA[a.ini_linha:a.fim_linha].endswith("\n"))
+    def test_comentario_de_bloco(self):
+        texto = "/* { } */ x"
+        self.assertEqual(texto[_depois_do_literal(texto, 0):], " x")
 
-    def test_chamada_sem_corpo(self):
-        self.assertIsNone(self.chamadas[1].corpo)
+    def test_text_block_sem_fechamento(self):
+        with self.assertRaises(ErroDeAnalise):
+            _depois_do_literal('"""\n{ aberto', 0)
+
+    def test_comentario_sem_fechamento(self):
+        with self.assertRaises(ErroDeAnalise):
+            _depois_do_literal("/* aberto", 0)
 
 
-class CorpoJsonTest(unittest.TestCase):
-    def setUp(self):
-        m = tj.localizar_metodo(JAVA, "shouldDecreaseStockWhenOrderIsCreated")
-        self.corpo = tj.analisar_chamadas(JAVA, m, ROTAS)[0].corpo
+class TestLocalizarMetodo(unittest.TestCase):
+    def test_acha_o_corpo_inteiro_com_chaves_em_textos_e_comentarios(self):
+        m = localizar_metodo(CLASSE, "lista")
+        corpo = CLASSE[m.inicio:m.fim]
+        self.assertTrue(corpo.startswith("{\n        // a resposta"))
+        self.assertTrue(corpo.endswith("contar('}'); }\n    }"))
 
-    def _texto(self, membro):
-        return JAVA[membro.ini:membro.fim]
+    def test_anotacoes_e_assinatura_ficam_fora_do_corpo(self):
+        m = localizar_metodo(CLASSE, "lista")
+        self.assertTrue(CLASSE[:m.inicio].endswith('@Sql("/produtos.sql")\n    void lista() throws Exception '))
 
-    def test_membro_simples_e_aninhado(self):
-        [m] = tj.localizar_membros(self.corpo, "modalidadeFrete")
-        self.assertEqual(self._texto(m), '"modalidadeFrete": "PADRAO"')
-        [m] = tj.localizar_membros(self.corpo, "cliente.nome")
-        self.assertEqual(self._texto(m), '"nome": "Ana, S."')  # vírgula dentro da string
+    def test_nome_que_e_prefixo_de_outro_nao_casa(self):
+        with self.assertRaisesRegex(ErroDeAnalise, "0 ocorrências"):
+            localizar_metodo(CLASSE, "list")
 
-    def test_membro_dentro_de_array_devolve_todos_os_que_existem(self):
-        achados = tj.localizar_membros(self.corpo, "itens[].quantidade")
-        self.assertEqual([self._texto(m) for m in achados], ['"quantidade": 1'])
-        self.assertEqual(len(tj.localizar_membros(self.corpo, "itens[].produtoId")), 2)
+    def test_metodo_repetido(self):
+        with self.assertRaisesRegex(ErroDeAnalise, "2 ocorrências"):
+            localizar_metodo(CLASSE + "class B { void lista() {} }", "lista")
 
-    def test_caminho_inexistente_devolve_lista_vazia(self):
-        self.assertEqual(tj.localizar_membros(self.corpo, "cliente.cpf"), [])
-        self.assertEqual(tj.localizar_membros(self.corpo, "naoExiste.x"), [])
-
-    def test_objetos_para_insercao(self):
-        [raiz] = tj.localizar_objetos(self.corpo, "")
-        self.assertEqual(JAVA[raiz.ini], "{")
-        [cliente] = tj.localizar_objetos(self.corpo, "cliente")
-        self.assertEqual(JAVA[cliente.fim - 1], "}")
-        self.assertEqual(len(tj.localizar_objetos(self.corpo, "itens[]")), 2)
-
-    def test_json_invalido_falha(self):
-        with self.assertRaises(tj.ErroDeAnalise):
-            tj.analisar_json('{"a" 1}', 0)
-        with self.assertRaises(tj.ErroDeAnalise):
-            tj.analisar_json('{"a": 1', 0)
+    def test_metodo_sem_fechamento(self):
+        with self.assertRaisesRegex(ErroDeAnalise, "sem fechamento"):
+            localizar_metodo("void lista() { if (x) {", "lista")
 
 
-class RotaEExpressaoTest(unittest.TestCase):
-    def test_resolver_rota(self):
-        self.assertEqual(tj.resolver_rota("POST", "/carrinhos/103/itens", ROTAS), "/carrinhos/{id}/itens")
-        self.assertIsNone(tj.resolver_rota("GET", "/carrinhos/103/itens", ROTAS))
-        self.assertIsNone(tj.resolver_rota("POST", "/pedidos/1/outro", ROTAS))
+class TestTextoDoMetodo(unittest.TestCase):
+    def test_leva_as_anotacoes_a_assinatura_e_o_corpo(self):
+        texto = texto_do_metodo(CLASSE, "lista")
+        self.assertTrue(texto.startswith("    @Test\n    @Sql(\"/produtos.sql\")\n    void lista()"))
+        self.assertTrue(texto.endswith("contar('}'); }\n    }"))
+        self.assertNotIn("outro", texto)
 
-    def test_caminho_da_expressao(self):
-        casos = {"$.estoque": "estoque", "$.itens[0].subtotal": "itens[].subtotal",
-                 "$.itens[*].quantidade": "itens[].quantidade", "$[*].sku": "[].sku",
-                 "$[0].descricao": "[].descricao", "$.cliente.nome": "cliente.nome"}
-        for expressao, esperado in casos.items():
-            self.assertEqual(tj.caminho_da_expressao(expressao), esperado)
+    def test_nao_sobe_alem_das_anotacoes(self):
+        texto = texto_do_metodo(CLASSE, "outro")
+        self.assertEqual(texto, "    @Test\n    void outro() {\n    }")
 
 
 if __name__ == "__main__":

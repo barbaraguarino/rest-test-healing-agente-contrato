@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-014",
+  "tratamento": "agentes",
+  "repeticao": 3,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "O contrato novo registra a renomeação de \"prazoDias\" para \"prazoEntregaDias\", e o DTO CotacaoFreteResponse já expõe prazoEntregaDias, então o campo sumiu do JSON por causa dessa mudança intencional. As asserções de status e de valor (25,50) passam, e a RN06 (3 − 2 = 1, mínimo 1) confirma que o valor do prazo continua correto, então só o nome do campo no teste está desatualizado.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 2,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 37.3038
+}

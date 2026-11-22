@@ -1,0 +1,440 @@
+[
+ {
+  "id_caso": "A1-013",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "PedidoControllerTest.shouldReturn200WithAllFieldsWhenOrderExists",
+   "PedidoControllerTest.shouldReturn201WithAllFieldsWhenOrderHasCouponAndComplement",
+   "PedidoControllerTest.shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-014",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "FreteControllerTest.shouldChargeRegionBaseAndDeadlineWhenModeIsStandard",
+   "FreteControllerTest.shouldGiveFreeShippingWhenSubtotalIsAtThreshold",
+   "FreteControllerTest.shouldMultiplyValueAndReduceDeadlineWhenModeIsExpress",
+   "FreteControllerTest.shouldReturn200WithAllFieldsWhenQuotationIsValid"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-015",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "PedidoControllerTest.shouldAcceptCouponWhenSubtotalIsAtMinimum",
+   "PedidoControllerTest.shouldDecreaseStockWhenOrderIsCreated",
+   "PedidoControllerTest.shouldEmptyCartWhenOrderIsCreated",
+   "PedidoControllerTest.shouldGiveFreeShippingUsingSubtotalBeforeDiscount",
+   "PedidoControllerTest.shouldReturn201WithAllFieldsWhenOrderHasCouponAndComplement",
+   "PedidoControllerTest.shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn400WithSortedFieldsWhenAddressFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn404WhenCartDoesNotExist",
+   "PedidoControllerTest.shouldReturn422AndKeepStockAndCartWhenStockIsNoLongerEnough",
+   "PedidoControllerTest.shouldReturn422WhenCouponCaseDoesNotMatch",
+   "PedidoControllerTest.shouldReturn422WhenCouponDoesNotExist",
+   "PedidoControllerTest.shouldReturn422WhenSubtotalIsOneCentBelowCouponMinimum",
+   "PedidoControllerTest.shouldRoundDiscountHalfUp"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-016",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "CarrinhoControllerTest.shouldReturn200WhenCartIsOneUnitBelowMaximum",
+   "CarrinhoControllerTest.shouldReturn200WhenCartIsOneUnitBelowStock",
+   "CarrinhoControllerTest.shouldReturn200WithItemAndSubtotalsWhenProductIsAvailable",
+   "CarrinhoControllerTest.shouldReturn400WhenBodyHasUnknownField",
+   "CarrinhoControllerTest.shouldReturn400WhenQuantityIsMissing",
+   "CarrinhoControllerTest.shouldReturn422WhenCartAlreadyHasAllUnitsInStock",
+   "CarrinhoControllerTest.shouldReturn422WhenCartAlreadyHasMaximumUnits",
+   "CarrinhoControllerTest.shouldReturn422WhenProductIsInactive"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-017",
+  "a": true,
+  "b": true,
+  "c": null,
+  "d": true,
+  "e": true,
+  "outros": [
+   "PedidoControllerTest.shouldReturn200WithAllFieldsWhenOrderExists",
+   "PedidoControllerTest.shouldReturn201WithAllFieldsWhenOrderHasCouponAndComplement",
+   "PedidoControllerTest.shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-018",
+  "a": true,
+  "b": true,
+  "c": null,
+  "d": true,
+  "e": true,
+  "outros": [
+   "PedidoControllerTest.shouldAcceptCouponWhenSubtotalIsAtMinimum",
+   "PedidoControllerTest.shouldDecreaseStockWhenOrderIsCreated",
+   "PedidoControllerTest.shouldEmptyCartWhenOrderIsCreated",
+   "PedidoControllerTest.shouldGiveFreeShippingUsingSubtotalBeforeDiscount",
+   "PedidoControllerTest.shouldReturn201WithAllFieldsWhenOrderHasCouponAndComplement",
+   "PedidoControllerTest.shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn400WithSortedFieldsWhenAddressFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn404WhenCartDoesNotExist",
+   "PedidoControllerTest.shouldReturn422AndKeepStockAndCartWhenStockIsNoLongerEnough",
+   "PedidoControllerTest.shouldReturn422WhenCartIsEmpty",
+   "PedidoControllerTest.shouldReturn422WhenCouponCaseDoesNotMatch",
+   "PedidoControllerTest.shouldReturn422WhenCouponDoesNotExist",
+   "PedidoControllerTest.shouldRoundDiscountHalfUp"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-019",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "FreteControllerTest.shouldChargeShippingWhenModeIsExpressEvenAtThreshold",
+   "FreteControllerTest.shouldChargeShippingWhenSubtotalIsOneCentBelowThreshold",
+   "FreteControllerTest.shouldMultiplyValueAndReduceDeadlineWhenModeIsExpress",
+   "FreteControllerTest.shouldReturn200WithAllFieldsWhenQuotationIsValid"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-020",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "PedidoControllerTest.shouldReturn200WithAllFieldsWhenOrderExists",
+   "PedidoControllerTest.shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-021",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "CarrinhoControllerTest.shouldAddQuantityToExistingItemWhenProductIsAlreadyInCart",
+   "CarrinhoControllerTest.shouldReturn200WhenCartIsOneUnitBelowStock",
+   "CarrinhoControllerTest.shouldReturn200WithItemAndSubtotalsWhenProductIsAvailable",
+   "CarrinhoControllerTest.shouldReturn400WhenBodyHasUnknownField",
+   "CarrinhoControllerTest.shouldReturn400WhenQuantityIsMissing",
+   "CarrinhoControllerTest.shouldReturn422WhenCartAlreadyHasAllUnitsInStock",
+   "CarrinhoControllerTest.shouldReturn422WhenCartAlreadyHasMaximumUnits",
+   "CarrinhoControllerTest.shouldReturn422WhenProductIsInactive"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-022",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "ProdutoControllerTest.shouldReturn201WithAllFieldsWhenPayloadIsComplete",
+   "ProdutoControllerTest.shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing",
+   "ProdutoControllerTest.shouldReturn400WithSortedFieldsWhenRequiredFieldsAreMissing",
+   "ProdutoControllerTest.shouldRoundPriceHalfUpWhenPriceHasThreeDecimalPlaces"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-023",
+  "a": true,
+  "b": true,
+  "c": null,
+  "d": true,
+  "e": true,
+  "outros": [
+   "CarrinhoControllerTest.shouldAddQuantityToExistingItemWhenProductIsAlreadyInCart",
+   "CarrinhoControllerTest.shouldReturn200WithItemAndSubtotalsWhenProductIsAvailable",
+   "CarrinhoControllerTest.shouldReturn200WithItemsInInclusionOrderWhenCartExists",
+   "PedidoControllerTest.shouldEmptyCartWhenOrderIsCreated",
+   "PedidoControllerTest.shouldReturn422AndKeepStockAndCartWhenStockIsNoLongerEnough"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-024",
+  "a": true,
+  "b": true,
+  "c": null,
+  "d": true,
+  "e": true,
+  "outros": [
+   "PedidoControllerTest.shouldAcceptCouponWhenSubtotalIsAtMinimum",
+   "PedidoControllerTest.shouldDecreaseStockWhenOrderIsCreated",
+   "PedidoControllerTest.shouldEmptyCartWhenOrderIsCreated",
+   "PedidoControllerTest.shouldGiveFreeShippingUsingSubtotalBeforeDiscount",
+   "PedidoControllerTest.shouldReturn201WithAllFieldsWhenOrderHasCouponAndComplement",
+   "PedidoControllerTest.shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn400WithSortedFieldsWhenAddressFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn404WhenCartDoesNotExist",
+   "PedidoControllerTest.shouldReturn422AndKeepStockAndCartWhenStockIsNoLongerEnough",
+   "PedidoControllerTest.shouldReturn422WhenCartIsEmpty",
+   "PedidoControllerTest.shouldReturn422WhenCouponCaseDoesNotMatch",
+   "PedidoControllerTest.shouldReturn422WhenSubtotalIsOneCentBelowCouponMinimum",
+   "PedidoControllerTest.shouldRoundDiscountHalfUp"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-025",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "PedidoControllerTest.shouldReturn200WithAllFieldsWhenOrderExists",
+   "PedidoControllerTest.shouldReturn201WithAllFieldsWhenOrderHasCouponAndComplement"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-026",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "ProdutoControllerTest.shouldReturn200WithAllFieldsWhenProductExists",
+   "ProdutoControllerTest.shouldReturn201WithAllFieldsWhenPayloadIsComplete",
+   "ProdutoControllerTest.shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-027",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-028",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "PedidoControllerTest.shouldAcceptCouponWhenSubtotalIsAtMinimum",
+   "PedidoControllerTest.shouldDecreaseStockWhenOrderIsCreated",
+   "PedidoControllerTest.shouldEmptyCartWhenOrderIsCreated",
+   "PedidoControllerTest.shouldGiveFreeShippingUsingSubtotalBeforeDiscount",
+   "PedidoControllerTest.shouldReturn201WithAllFieldsWhenOrderHasCouponAndComplement",
+   "PedidoControllerTest.shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn400WithSortedFieldsWhenAddressFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn422AndKeepStockAndCartWhenStockIsNoLongerEnough",
+   "PedidoControllerTest.shouldReturn422WhenCartIsEmpty",
+   "PedidoControllerTest.shouldReturn422WhenCouponCaseDoesNotMatch",
+   "PedidoControllerTest.shouldReturn422WhenCouponDoesNotExist",
+   "PedidoControllerTest.shouldReturn422WhenSubtotalIsOneCentBelowCouponMinimum",
+   "PedidoControllerTest.shouldRoundDiscountHalfUp"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-029",
+  "a": true,
+  "b": true,
+  "c": null,
+  "d": true,
+  "e": true,
+  "outros": [
+   "FreteControllerTest.shouldChargeRegionBaseAndDeadlineWhenModeIsStandard",
+   "FreteControllerTest.shouldChargeShippingWhenSubtotalIsOneCentBelowThreshold",
+   "FreteControllerTest.shouldCountOneKilogramWhenWeightIsExactlyOneKilogram",
+   "FreteControllerTest.shouldCountStartedKilogramWhenWeightExceedsKilogramByOneGram",
+   "FreteControllerTest.shouldGiveFreeShippingWhenSubtotalIsAtThreshold",
+   "FreteControllerTest.shouldMultiplyValueAndReduceDeadlineWhenModeIsExpress",
+   "FreteControllerTest.shouldReturn200WithAllFieldsWhenQuotationIsValid",
+   "FreteControllerTest.shouldReturnOneDayDeadlineWhenModeIsExpressInSoutheast",
+   "FreteControllerTest.shouldSumRepeatedItemsAndIgnoreActiveAndStockRules"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-030",
+  "a": true,
+  "b": true,
+  "c": null,
+  "d": true,
+  "e": true,
+  "outros": [
+   "FreteControllerTest.shouldChargeRegionBaseAndDeadlineWhenModeIsStandard",
+   "FreteControllerTest.shouldChargeShippingWhenModeIsExpressEvenAtThreshold",
+   "FreteControllerTest.shouldChargeShippingWhenSubtotalIsOneCentBelowThreshold",
+   "FreteControllerTest.shouldCountStartedKilogramWhenWeightExceedsKilogramByOneGram",
+   "FreteControllerTest.shouldGiveFreeShippingWhenSubtotalIsAtThreshold",
+   "FreteControllerTest.shouldMultiplyValueAndReduceDeadlineWhenModeIsExpress",
+   "FreteControllerTest.shouldReturn200WithAllFieldsWhenQuotationIsValid",
+   "FreteControllerTest.shouldReturn400WithSortedFieldsWhenCepAndQuantityAreInvalid",
+   "FreteControllerTest.shouldReturn404WhenProductDoesNotExist",
+   "FreteControllerTest.shouldReturnOneDayDeadlineWhenModeIsExpressInSoutheast",
+   "FreteControllerTest.shouldSumRepeatedItemsAndIgnoreActiveAndStockRules"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-031",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "PedidoControllerTest.shouldAcceptCouponWhenSubtotalIsAtMinimum",
+   "PedidoControllerTest.shouldDecreaseStockWhenOrderIsCreated",
+   "PedidoControllerTest.shouldEmptyCartWhenOrderIsCreated",
+   "PedidoControllerTest.shouldGiveFreeShippingUsingSubtotalBeforeDiscount",
+   "PedidoControllerTest.shouldReturn201WithAllFieldsWhenOrderHasCouponAndComplement",
+   "PedidoControllerTest.shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn400WithSortedFieldsWhenAddressFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn404WhenCartDoesNotExist",
+   "PedidoControllerTest.shouldReturn422WhenCartIsEmpty",
+   "PedidoControllerTest.shouldReturn422WhenCouponCaseDoesNotMatch",
+   "PedidoControllerTest.shouldReturn422WhenCouponDoesNotExist",
+   "PedidoControllerTest.shouldReturn422WhenSubtotalIsOneCentBelowCouponMinimum",
+   "PedidoControllerTest.shouldRoundDiscountHalfUp"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-032",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "ProdutoControllerTest.shouldReturn201WithAllFieldsWhenPayloadIsComplete",
+   "ProdutoControllerTest.shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing",
+   "ProdutoControllerTest.shouldReturn400WithSortedFieldsWhenRequiredFieldsAreMissing",
+   "ProdutoControllerTest.shouldReturn422WhenSkuAlreadyExists"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-033",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "FreteControllerTest.shouldChargeRegionBaseAndDeadlineWhenModeIsStandard",
+   "FreteControllerTest.shouldChargeShippingWhenModeIsExpressEvenAtThreshold",
+   "FreteControllerTest.shouldChargeShippingWhenSubtotalIsOneCentBelowThreshold",
+   "FreteControllerTest.shouldCountOneKilogramWhenWeightIsExactlyOneKilogram",
+   "FreteControllerTest.shouldGiveFreeShippingWhenSubtotalIsAtThreshold",
+   "FreteControllerTest.shouldMultiplyValueAndReduceDeadlineWhenModeIsExpress",
+   "FreteControllerTest.shouldReturn200WithAllFieldsWhenQuotationIsValid",
+   "FreteControllerTest.shouldReturn400WithSortedFieldsWhenCepAndQuantityAreInvalid",
+   "FreteControllerTest.shouldReturn404WhenProductDoesNotExist",
+   "FreteControllerTest.shouldReturnOneDayDeadlineWhenModeIsExpressInSoutheast",
+   "FreteControllerTest.shouldSumRepeatedItemsAndIgnoreActiveAndStockRules"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-034",
+  "a": true,
+  "b": true,
+  "c": true,
+  "d": null,
+  "e": true,
+  "outros": [
+   "CarrinhoControllerTest.shouldAddQuantityToExistingItemWhenProductIsAlreadyInCart",
+   "CarrinhoControllerTest.shouldReturn200WhenCartIsOneUnitBelowMaximum",
+   "CarrinhoControllerTest.shouldReturn200WhenCartIsOneUnitBelowStock",
+   "CarrinhoControllerTest.shouldReturn200WithItemAndSubtotalsWhenProductIsAvailable",
+   "CarrinhoControllerTest.shouldReturn400WhenQuantityIsMissing",
+   "CarrinhoControllerTest.shouldReturn422WhenCartAlreadyHasAllUnitsInStock",
+   "CarrinhoControllerTest.shouldReturn422WhenCartAlreadyHasMaximumUnits"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-035",
+  "a": true,
+  "b": true,
+  "c": null,
+  "d": true,
+  "e": true,
+  "outros": [
+   "PedidoControllerTest.shouldDecreaseStockWhenOrderIsCreated",
+   "PedidoControllerTest.shouldEmptyCartWhenOrderIsCreated",
+   "PedidoControllerTest.shouldGiveFreeShippingUsingSubtotalBeforeDiscount",
+   "PedidoControllerTest.shouldReturn201WithAllFieldsWhenOrderHasCouponAndComplement",
+   "PedidoControllerTest.shouldReturn201WithZeroDiscountWhenOptionalFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn400WithSortedFieldsWhenAddressFieldsAreMissing",
+   "PedidoControllerTest.shouldReturn404WhenCartDoesNotExist",
+   "PedidoControllerTest.shouldReturn422AndKeepStockAndCartWhenStockIsNoLongerEnough",
+   "PedidoControllerTest.shouldReturn422WhenCartIsEmpty",
+   "PedidoControllerTest.shouldReturn422WhenCouponCaseDoesNotMatch",
+   "PedidoControllerTest.shouldReturn422WhenCouponDoesNotExist",
+   "PedidoControllerTest.shouldReturn422WhenSubtotalIsOneCentBelowCouponMinimum",
+   "PedidoControllerTest.shouldRoundDiscountHalfUp"
+  ],
+  "notas": []
+ },
+ {
+  "id_caso": "A1-036",
+  "a": true,
+  "b": true,
+  "c": null,
+  "d": true,
+  "e": true,
+  "outros": [
+   "PedidoControllerTest.shouldDecreaseStockWhenOrderIsCreated",
+   "PedidoControllerTest.shouldReturn200AndReturnStockWhenOrderIsAwaitingPayment",
+   "PedidoControllerTest.shouldReturn422AndKeepStockAndCartWhenStockIsNoLongerEnough",
+   "PedidoControllerTest.shouldReturn422WhenOrderIsAlreadyCancelled",
+   "ProdutoControllerTest.shouldReturn200WithAllFieldsWhenProductExists",
+   "ProdutoControllerTest.shouldReturn201WithAllFieldsWhenPayloadIsComplete",
+   "ProdutoControllerTest.shouldReturn400WithSortedFieldsWhenRequiredFieldsAreMissing",
+   "ProdutoControllerTest.shouldReturn422WhenSkuAlreadyExists",
+   "ProdutoControllerTest.shouldRoundPriceHalfUpWhenPriceHasThreeDecimalPlaces"
+  ],
+  "notas": []
+ }
+]

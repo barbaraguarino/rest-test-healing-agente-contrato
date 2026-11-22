@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-035",
+  "tratamento": "agente_unico",
+  "repeticao": 1,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo": "problema_real",
+  "justificativa": "A diferença registrada explica só parte da falha: `numero` virou `numeroImovel`, e o teste ainda envia `numero`. Mas `EnderecoRequest.java` também marca `complemento` com `@NotBlank`, enquanto o `docs/openapi.json` novo lista `complemento` como opcional (fora de `required`). Como o teste não envia `complemento`, ele receberia 400 mesmo com o campo renomeado. Essa exigência não está nas diferenças registradas e contradiz o contrato, então o problema está no código, e o teste não foi alterado.",
+  "detalhe": null,
+  "incoerente": false,
+  "chamadas": 4,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 9.2862
+}

@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-015",
+  "tratamento": "agentes",
+  "repeticao": 2,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "O contrato novo registra que `cliente.email` foi renomeado para `cliente.emailContato`, e o código implementa isso em `ClienteRequest`, que tem `emailContato` obrigatório e desserialização estrita. O teste ainda envia `\"email\"`, então o Jackson rejeita o campo desconhecido e a requisição falha com 400 antes de chegar à checagem de carrinho vazio (RN10) do `PedidoService`. A correção é atualizar o JSON do teste para `emailContato`.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 2,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 35.7311
+}

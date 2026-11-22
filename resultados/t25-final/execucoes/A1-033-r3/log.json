@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-033",
+  "tratamento": "agentes",
+  "repeticao": 3,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "A diferença do contrato registra que \"seguro\" passou a ser obrigatório em POST /fretes/cotacao, e o corpo do teste não envia esse campo. `CotacaoFreteRequest` declara `@NotNull(message = OBRIGATORIO) Boolean seguro`, então a validação devolve 400 antes de chegar ao cálculo, e a própria RN05 (1.001 g → 2 kg → 19,00) está implementada corretamente em `CalculadoraFrete`. O teste está desatualizado e a correção é incluir `\"seguro\": false` no corpo.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 3,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 35.8081
+}

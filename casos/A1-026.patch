@@ -1,0 +1,36 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..82249b2 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -665,7 +665,8 @@
+         "type" : "object",
+         "properties" : {
+           "ativo" : {
+-            "type" : "boolean"
++            "type" : "string",
++            "enum" : [ "ATIVO", "INATIVO" ]
+           },
+           "categoria" : {
+             "type" : "string",
+diff --git a/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java b/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
+index 6831150..5afa796 100644
+--- a/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/produto/dto/ProdutoResponse.java
+@@ -16,7 +16,7 @@ public record ProdutoResponse(
+         String descricao,
+         BigDecimal preco,
+         Categoria categoria,
+-        Boolean ativo,
++        String ativo,
+         Integer estoque,
+         Integer pesoGramas,
+         DimensoesResponse dimensoes,
+@@ -30,7 +30,7 @@ public record ProdutoResponse(
+                 produto.getDescricao(),
+                 produto.getPreco(),
+                 produto.getCategoria(),
+-                produto.isAtivo(),
++                produto.isAtivo() ? "ATIVO" : "INATIVO",
+                 produto.getEstoque(),
+                 produto.getPesoGramas(),
+                 DimensoesResponse.de(produto.getDimensoes()),

@@ -1,0 +1,34 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..4b3bc0d 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -353,7 +353,7 @@
+       "CotacaoFreteResponse" : {
+         "type" : "object",
+         "properties" : {
+-          "freteGratis" : {
++          "gratis" : {
+             "type" : "boolean"
+           },
+           "modalidade" : {
+diff --git a/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteResponse.java b/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteResponse.java
+index 41825f4..9ee1fbd 100644
+--- a/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteResponse.java
++++ b/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteResponse.java
+@@ -7,13 +7,13 @@ import java.math.BigDecimal;
+ /** Corpo da resposta da cotação de frete. */
+ public record CotacaoFreteResponse(
+         ModalidadeFrete modalidade,
+-        BigDecimal valor,
++        String valor,
+         Integer prazoDias,
+-        Boolean freteGratis,
++        Boolean gratis,
+         Integer pesoTotalGramas) {
+ 
+     public static CotacaoFreteResponse de(ModalidadeFrete modalidade, ResultadoFrete resultado) {
+         return new CotacaoFreteResponse(
+-                modalidade, resultado.valor(), resultado.prazoDias(), resultado.freteGratis(), resultado.pesoTotalGramas());
++                modalidade, resultado.valor().toPlainString(), resultado.prazoDias(), resultado.freteGratis(), resultado.pesoTotalGramas());
+     }
+ }

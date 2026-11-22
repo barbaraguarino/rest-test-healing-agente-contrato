@@ -1,0 +1,9 @@
+--- antes.java
++++ depois.java
+@@ -5,5 +5,5 @@
+             mockMvc.perform(get("/produtos"))
+                     .andExpect(status().isOk())
+                     .andExpect(jsonPath("$[*].sku").value(contains("CAS-001", "LIV-001", "LIV-002")))
+-                    .andExpect(jsonPath("$[*].ativo").value(contains(true, false, true)));
++                    .andExpect(jsonPath("$[*].ativo").value(contains("ATIVO", "INATIVO", "ATIVO")));
+         }

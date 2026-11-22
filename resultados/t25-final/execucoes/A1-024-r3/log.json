@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-024",
+  "tratamento": "agentes",
+  "repeticao": 3,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo_classifier": "problema_real",
+  "justificativa": "A diferença registrada explica só o 400: `carrinhoId` virou `idCarrinho`, então o teste precisa de atualização nesse campo. Mas o código também deixou de implementar o cupom: `PedidoRequest` não tem o campo `cupom`, e `PedidoService.criar` fixa `desconto = Dinheiro.ZERO` sem chamar `Cupom.porCodigo`. O contrato, que não mudou nesse ponto, ainda declara `cupom`, e a RN08 manda recusar cupom inexistente com 422. Depois de corrigir o nome do campo, o teste continuaria falhando, agora por causa desse problema real no código.",
+  "detalhe": null,
+  "chamadas_classifier": 4,
+  "chamadas_repair": 0,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 9.4311
+}

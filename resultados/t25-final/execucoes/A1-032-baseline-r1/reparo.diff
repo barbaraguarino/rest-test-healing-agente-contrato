@@ -1,0 +1,12 @@
+--- antes.java
++++ depois.java
+@@ -13,7 +13,8 @@
+                                       "ativo": true,
+                                       "estoque": 3,
+                                       "pesoGramas": 80,
+-                                      "dimensoes": {"alturaCm": 1, "larguraCm": 40, "comprimentoCm": 60}
++                                      "dimensoes": {"alturaCm": 1, "larguraCm": 40, "comprimentoCm": 60},
++                                      "garantiaMeses": 1
+                                     }
+                                     """))
+                     .andExpect(status().isCreated())

@@ -1,0 +1,10 @@
+--- antes.java
++++ depois.java
+@@ -10,6 +10,7 @@
+                                       "nome": "Livro Repetido",
+                                       "preco": 10.00,
+                                       "categoria": "LIVROS",
++                                      "marca": "Editora Exemplo",
+                                       "ativo": true,
+                                       "estoque": 1,
+                                       "pesoGramas": 100,

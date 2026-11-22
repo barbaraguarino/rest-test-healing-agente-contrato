@@ -1,0 +1,29 @@
+{
+  "id_caso": "A1-001",
+  "tratamento": "baseline",
+  "repeticao": 1,
+  "decisao": "reparar",
+  "erro": null,
+  "aplicadas": [
+    "GET /produtos/{id}, resposta: o campo \"descricao\" foi renomeado para \"resumo\" (string)"
+  ],
+  "ignoradas": [
+    [
+      "GET /produtos, resposta: o campo \"[].descricao\" foi renomeado para \"[].resumo\" (string)",
+      "a mudança não atinge o teste"
+    ],
+    [
+      "POST /produtos, resposta: o campo \"descricao\" foi renomeado para \"resumo\" (string)",
+      "a mudança não atinge o teste"
+    ]
+  ],
+  "recusas_do_guarda": [],
+  "detalhe": null,
+  "causa": null,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 24.9687,
+  "commit_do_prompt": null,
+  "commit_do_codigo": "04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2"
+}

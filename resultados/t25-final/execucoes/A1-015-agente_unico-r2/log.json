@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-015",
+  "tratamento": "agente_unico",
+  "repeticao": 2,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo": "legitima",
+  "justificativa": "O contrato novo renomeou cliente.email para cliente.emailContato e o torna obrigatório; o teste enviava \"email\", então emailContato chegava nulo, a validação @NotBlank respondia 400 antes de a RN10 ser avaliada. Troquei apenas a chave do JSON de \"email\" para \"emailContato\" no corpo da requisição, sem tocar nas asserções, e o teste passou após o reparo.",
+  "detalhe": null,
+  "incoerente": false,
+  "chamadas": 4,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 33.189
+}

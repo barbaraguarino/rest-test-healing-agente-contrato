@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -8,7 +8,7 @@
+                                     {
+                                       "sku": "ELE-001",
+                                       "nome": "Fone de Ouvido",
+-                                      "descricao": "Fone sem fio",
++                                      "descricao": ["Fone sem fio"],
+                                       "preco": 199.90,
+                                       "categoria": "ELETRONICOS",
+                                       "ativo": true,

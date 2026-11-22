@@ -1,0 +1,30 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..8551ed5 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -346,9 +346,12 @@
+           "modalidade" : {
+             "type" : "string",
+             "enum" : [ "PADRAO", "EXPRESSA" ]
++          },
++          "seguro" : {
++            "type" : "boolean"
+           }
+         },
+-        "required" : [ "destino", "itens", "modalidade" ]
++        "required" : [ "destino", "itens", "modalidade", "seguro" ]
+       },
+       "CotacaoFreteResponse" : {
+         "type" : "object",
+diff --git a/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteRequest.java b/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteRequest.java
+index f95c780..b02dd7b 100644
+--- a/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/frete/dto/CotacaoFreteRequest.java
+@@ -16,5 +16,6 @@ import java.util.List;
+ public record CotacaoFreteRequest(
+         @NotNull(message = OBRIGATORIO) @Valid DestinoRequest destino,
+         @NotNull(message = OBRIGATORIO) ModalidadeFrete modalidade,
+-        @NotEmpty(message = PELO_MENOS_UM_ITEM) List<@NotNull(message = OBRIGATORIO) @Valid ItemCotacaoRequest> itens) {
++        @NotEmpty(message = PELO_MENOS_UM_ITEM) List<@NotNull(message = OBRIGATORIO) @Valid ItemCotacaoRequest> itens,
++        @NotNull(message = OBRIGATORIO) Boolean seguro) {
+ }

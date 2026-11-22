@@ -1,0 +1,29 @@
+{
+  "id_caso": "A1-036",
+  "tratamento": "baseline",
+  "repeticao": 1,
+  "decisao": "reparar",
+  "erro": null,
+  "aplicadas": [
+    "POST /produtos, resposta: o campo \"estoque\" foi renomeado para \"quantidadeEstoque\" (integer (int32))"
+  ],
+  "ignoradas": [
+    [
+      "GET /produtos, resposta: o campo \"[].estoque\" foi renomeado para \"[].quantidadeEstoque\" (integer (int32))",
+      "a mudança não atinge o teste"
+    ],
+    [
+      "GET /produtos/{id}, resposta: o campo \"estoque\" foi renomeado para \"quantidadeEstoque\" (integer (int32))",
+      "a mudança não atinge o teste"
+    ]
+  ],
+  "recusas_do_guarda": [],
+  "detalhe": null,
+  "causa": null,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": false,
+  "tempo_s": 11.3751,
+  "commit_do_prompt": null,
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b"
+}

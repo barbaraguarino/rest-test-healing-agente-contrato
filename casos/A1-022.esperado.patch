@@ -1,0 +1,12 @@
+diff --git a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+index c795d95..5f65389 100644
+--- a/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
++++ b/src/test/java/br/edu/resttesthealingsut/produto/ProdutoControllerTest.java
+@@ -132,7 +132,6 @@ class ProdutoControllerTest {
+                                       "preco": 10.00,
+                                       "categoria": "LIVROS",
+                                       "ativo": true,
+-                                      "estoque": 1,
+                                       "pesoGramas": 100,
+                                       "dimensoes": {"alturaCm": 1, "larguraCm": 1, "comprimentoCm": 1}
+                                     }

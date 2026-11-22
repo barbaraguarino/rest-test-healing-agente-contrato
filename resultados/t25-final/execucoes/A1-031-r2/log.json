@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-031",
+  "tratamento": "agentes",
+  "repeticao": 2,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "A diferença do contrato torna `enderecoEntrega.bairro` obrigatório, e o teste não envia esse campo. O `EnderecoRequest` tem `@NotBlank(message = OBRIGATORIO) String bairro`, então o `@Valid` rejeita a requisição com 400 antes de chegar à regra RN03 do `PedidoService`. O 400 vem da validação do campo novo, não de uma quebra da regra de estoque, e o teste ficou desatualizado por não incluir o `bairro`.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 4,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 50.1499
+}

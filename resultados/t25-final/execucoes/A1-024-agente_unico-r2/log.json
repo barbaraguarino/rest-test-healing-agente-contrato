@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-024",
+  "tratamento": "agente_unico",
+  "repeticao": 2,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo": "problema_real",
+  "justificativa": "A diferença registrada explica só metade da falha: o campo foi renomeado de \"carrinhoId\" para \"idCarrinho\", mas o contrato novo ainda declara \"cupom\" como string opcional em PedidoRequest, e o código não o tem: o record PedidoRequest não possui o campo cupom, e PedidoService usa desconto ZERO sem consultar Cupom.porCodigo. Assim, mesmo com o teste atualizado para idCarrinho, o campo cupom continuaria sendo rejeitado com 400 e o cupom inexistente nunca chegaria à RN08 (422), que docs/regras-de-negocio.md mantém. O teste está certo e o código perdeu a funcionalidade de cupom, então a correção é no código e não no teste.",
+  "detalhe": null,
+  "incoerente": false,
+  "chamadas": 3,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 9.5645
+}

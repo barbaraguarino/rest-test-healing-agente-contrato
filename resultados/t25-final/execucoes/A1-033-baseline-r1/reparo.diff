@@ -1,0 +1,12 @@
+--- antes.java
++++ depois.java
+@@ -8,7 +8,8 @@
+                                     {
+                                       "destino": {"cep": "01001000", "uf": "SP"},
+                                       "modalidade": "PADRAO",
+-                                      "itens": [{"produtoId": 2, "quantidade": 1}]
++                                      "itens": [{"produtoId": 2, "quantidade": 1}],
++                                      "seguro": true
+                                     }
+                                     """))
+                     .andExpect(status().isOk())

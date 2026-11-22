@@ -1,0 +1,905 @@
+{
+  "versao_api": "linha-de-base-2",
+  "tratamentos": [
+    {
+      "agente": "agente1",
+      "tratamento": "agente_unico",
+      "versao_agente": "agentica",
+      "n_casos": 8,
+      "termos": {
+        "vp": 4,
+        "fn": 0,
+        "fp": 2,
+        "vn": 2,
+        "r": 4,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 0.75,
+          "numerador": 6,
+          "denominador": 8
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 4,
+          "denominador": 4
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 4,
+          "denominador": 4
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 6
+        }
+      },
+      "referencia_sempre_repara": 0.5,
+      "descritivas": {
+        "tempo_s": {
+          "media": 34.333375,
+          "mediana": 35.783183333333334,
+          "minimo": 10.631300000000001,
+          "maximo": 53.09086666666667
+        },
+        "tokens": {
+          "media": 71710.91666666667,
+          "mediana": 64619.5,
+          "minimo": 34679.666666666664,
+          "maximo": 135140.33333333334
+        },
+        "custo_usd": {
+          "media": 0.008005758333333333,
+          "mediana": 0.0070982833333333335,
+          "minimo": 0.004167833333333333,
+          "maximo": 0.015069100000000002
+        }
+      },
+      "avisos": []
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "agentes",
+      "versao_agente": "agentica",
+      "n_casos": 24,
+      "termos": {
+        "vp": 16,
+        "fn": 0,
+        "fp": 4,
+        "vn": 4,
+        "r": 16,
+        "m": 2,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 0.8333333333333334,
+          "numerador": 20,
+          "denominador": 24
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 16,
+          "denominador": 16
+        },
+        "safety": {
+          "valor": 0.75,
+          "numerador": 6,
+          "denominador": 8
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.1,
+          "numerador": 2,
+          "denominador": 20
+        }
+      },
+      "referencia_sempre_repara": 0.6666666666666666,
+      "descritivas": {
+        "tempo_s": {
+          "media": 36.79484305555555,
+          "mediana": 37.669000000000004,
+          "minimo": 7.4587,
+          "maximo": 65.08193333333334
+        },
+        "tokens": {
+          "media": 47311.791666666664,
+          "mediana": 41356.66666666667,
+          "minimo": 21152.0,
+          "maximo": 86775.0
+        },
+        "custo_usd": {
+          "media": 0.005657084722222223,
+          "mediana": 0.005119466666666666,
+          "minimo": 0.002488666666666667,
+          "maximo": 0.009968566666666666
+        }
+      },
+      "avisos": []
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "baseline",
+      "versao_agente": null,
+      "n_casos": 24,
+      "termos": {
+        "vp": 13,
+        "fn": 3,
+        "fp": 8,
+        "vn": 0,
+        "r": 13,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 0.5416666666666666,
+          "numerador": 13,
+          "denominador": 24
+        },
+        "repair_rate": {
+          "valor": 0.8125,
+          "numerador": 13,
+          "denominador": 16
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 8,
+          "denominador": 8
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 21
+        }
+      },
+      "referencia_sempre_repara": 0.6666666666666666,
+      "descritivas": {
+        "tempo_s": {
+          "media": 11.349370833333333,
+          "mediana": 11.99035,
+          "minimo": 0.0063,
+          "maximo": 21.7058
+        },
+        "tokens": {
+          "media": 0.0,
+          "mediana": 0.0,
+          "minimo": 0.0,
+          "maximo": 0.0
+        },
+        "custo_usd": {
+          "media": 0.0,
+          "mediana": 0.0,
+          "minimo": 0.0,
+          "maximo": 0.0
+        }
+      },
+      "avisos": []
+    }
+  ],
+  "por_categoria": [
+    {
+      "agente": "agente1",
+      "tratamento": "agente_unico",
+      "versao_agente": "agentica",
+      "n_casos": 2,
+      "termos": {
+        "vp": 1,
+        "fn": 0,
+        "fp": 1,
+        "vn": 0,
+        "r": 1,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 0.5,
+          "numerador": 1,
+          "denominador": 2
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 1,
+          "denominador": 1
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 1,
+          "denominador": 1
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 2
+        }
+      },
+      "referencia_sempre_repara": 0.5,
+      "descritivas": {
+        "tempo_s": {
+          "media": 41.1804,
+          "mediana": 41.1804,
+          "minimo": 35.4108,
+          "maximo": 46.949999999999996
+        },
+        "tokens": {
+          "media": 73308.33333333333,
+          "mediana": 73308.33333333333,
+          "minimo": 58293.333333333336,
+          "maximo": 88323.33333333333
+        },
+        "custo_usd": {
+          "media": 0.008143166666666667,
+          "mediana": 0.008143166666666667,
+          "minimo": 0.006464666666666667,
+          "maximo": 0.009821666666666666
+        }
+      },
+      "avisos": [],
+      "categoria": "alteracao_tipo"
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "agente_unico",
+      "versao_agente": "agentica",
+      "n_casos": 2,
+      "termos": {
+        "vp": 1,
+        "fn": 0,
+        "fp": 0,
+        "vn": 1,
+        "r": 1,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 1.0,
+          "numerador": 2,
+          "denominador": 2
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 1,
+          "denominador": 1
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 1,
+          "denominador": 1
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 1
+        }
+      },
+      "referencia_sempre_repara": 0.5,
+      "descritivas": {
+        "tempo_s": {
+          "media": 28.7528,
+          "mediana": 28.7528,
+          "minimo": 11.314033333333333,
+          "maximo": 46.19156666666667
+        },
+        "tokens": {
+          "media": 66546.33333333333,
+          "mediana": 66546.33333333333,
+          "minimo": 52141.333333333336,
+          "maximo": 80951.33333333333
+        },
+        "custo_usd": {
+          "media": 0.007416366666666667,
+          "mediana": 0.007416366666666667,
+          "minimo": 0.006003733333333333,
+          "maximo": 0.008829
+        }
+      },
+      "avisos": [],
+      "categoria": "campo_obrigatorio_novo"
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "agente_unico",
+      "versao_agente": "agentica",
+      "n_casos": 2,
+      "termos": {
+        "vp": 1,
+        "fn": 0,
+        "fp": 0,
+        "vn": 1,
+        "r": 1,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 1.0,
+          "numerador": 2,
+          "denominador": 2
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 1,
+          "denominador": 1
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 1,
+          "denominador": 1
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 1
+        }
+      },
+      "referencia_sempre_repara": 0.5,
+      "descritivas": {
+        "tempo_s": {
+          "media": 23.393433333333334,
+          "mediana": 23.393433333333334,
+          "minimo": 10.631300000000001,
+          "maximo": 36.155566666666665
+        },
+        "tokens": {
+          "media": 43946.0,
+          "mediana": 43946.0,
+          "minimo": 34679.666666666664,
+          "maximo": 53212.333333333336
+        },
+        "custo_usd": {
+          "media": 0.005063,
+          "mediana": 0.005063,
+          "minimo": 0.004167833333333333,
+          "maximo": 0.005958166666666667
+        }
+      },
+      "avisos": [],
+      "categoria": "remocao"
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "agente_unico",
+      "versao_agente": "agentica",
+      "n_casos": 2,
+      "termos": {
+        "vp": 1,
+        "fn": 0,
+        "fp": 1,
+        "vn": 0,
+        "r": 1,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 0.5,
+          "numerador": 1,
+          "denominador": 2
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 1,
+          "denominador": 1
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 1,
+          "denominador": 1
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 2
+        }
+      },
+      "referencia_sempre_repara": 0.5,
+      "descritivas": {
+        "tempo_s": {
+          "media": 44.00686666666667,
+          "mediana": 44.00686666666667,
+          "minimo": 34.922866666666664,
+          "maximo": 53.09086666666667
+        },
+        "tokens": {
+          "media": 103043.0,
+          "mediana": 103043.0,
+          "minimo": 70945.66666666667,
+          "maximo": 135140.33333333334
+        },
+        "custo_usd": {
+          "media": 0.011400500000000001,
+          "mediana": 0.011400500000000001,
+          "minimo": 0.0077319,
+          "maximo": 0.015069100000000002
+        }
+      },
+      "avisos": [],
+      "categoria": "renomeacao"
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "agentes",
+      "versao_agente": "agentica",
+      "n_casos": 6,
+      "termos": {
+        "vp": 4,
+        "fn": 0,
+        "fp": 2,
+        "vn": 0,
+        "r": 4,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 0.6666666666666666,
+          "numerador": 4,
+          "denominador": 6
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 4,
+          "denominador": 4
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 2,
+          "denominador": 2
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 6
+        }
+      },
+      "referencia_sempre_repara": 0.6666666666666666,
+      "descritivas": {
+        "tempo_s": {
+          "media": 41.32427222222223,
+          "mediana": 42.63673333333333,
+          "minimo": 34.02433333333333,
+          "maximo": 46.56256666666667
+        },
+        "tokens": {
+          "media": 58521.444444444445,
+          "mediana": 62796.5,
+          "minimo": 22011.333333333332,
+          "maximo": 86775.0
+        },
+        "custo_usd": {
+          "media": 0.006889233333333334,
+          "mediana": 0.007396383333333334,
+          "minimo": 0.0028018,
+          "maximo": 0.009968566666666666
+        }
+      },
+      "avisos": [],
+      "categoria": "alteracao_tipo"
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "agentes",
+      "versao_agente": "agentica",
+      "n_casos": 6,
+      "termos": {
+        "vp": 4,
+        "fn": 0,
+        "fp": 0,
+        "vn": 2,
+        "r": 4,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 1.0,
+          "numerador": 6,
+          "denominador": 6
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 4,
+          "denominador": 4
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 2,
+          "denominador": 2
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 4
+        }
+      },
+      "referencia_sempre_repara": 0.6666666666666666,
+      "descritivas": {
+        "tempo_s": {
+          "media": 31.32797777777778,
+          "mediana": 37.17021666666666,
+          "minimo": 8.822266666666666,
+          "maximo": 52.1833
+        },
+        "tokens": {
+          "media": 44972.38888888888,
+          "mediana": 43829.0,
+          "minimo": 29554.0,
+          "maximo": 65778.33333333333
+        },
+        "custo_usd": {
+          "media": 0.005287861111111111,
+          "mediana": 0.005139100000000001,
+          "minimo": 0.0035232,
+          "maximo": 0.007531566666666667
+        }
+      },
+      "avisos": [],
+      "categoria": "campo_obrigatorio_novo"
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "agentes",
+      "versao_agente": "agentica",
+      "n_casos": 6,
+      "termos": {
+        "vp": 4,
+        "fn": 0,
+        "fp": 0,
+        "vn": 2,
+        "r": 4,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 1.0,
+          "numerador": 6,
+          "denominador": 6
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 4,
+          "denominador": 4
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 2,
+          "denominador": 2
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 4
+        }
+      },
+      "referencia_sempre_repara": 0.6666666666666666,
+      "descritivas": {
+        "tempo_s": {
+          "media": 29.636055555555558,
+          "mediana": 38.95206666666667,
+          "minimo": 7.4587,
+          "maximo": 41.106366666666666
+        },
+        "tokens": {
+          "media": 38305.11111111111,
+          "mediana": 38080.83333333333,
+          "minimo": 21152.0,
+          "maximo": 63068.333333333336
+        },
+        "custo_usd": {
+          "media": 0.004689622222222222,
+          "mediana": 0.004804016666666666,
+          "minimo": 0.002488666666666667,
+          "maximo": 0.0075123
+        }
+      },
+      "avisos": [],
+      "categoria": "remocao"
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "agentes",
+      "versao_agente": "agentica",
+      "n_casos": 6,
+      "termos": {
+        "vp": 4,
+        "fn": 0,
+        "fp": 2,
+        "vn": 0,
+        "r": 4,
+        "m": 2,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 0.6666666666666666,
+          "numerador": 4,
+          "denominador": 6
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 4,
+          "denominador": 4
+        },
+        "safety": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 2
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.3333333333333333,
+          "numerador": 2,
+          "denominador": 6
+        }
+      },
+      "referencia_sempre_repara": 0.6666666666666666,
+      "descritivas": {
+        "tempo_s": {
+          "media": 44.89106666666667,
+          "mediana": 36.246516666666665,
+          "minimo": 34.3191,
+          "maximo": 65.08193333333334
+        },
+        "tokens": {
+          "media": 47448.22222222222,
+          "mediana": 34350.66666666667,
+          "minimo": 28626.333333333332,
+          "maximo": 82679.66666666667
+        },
+        "custo_usd": {
+          "media": 0.005761622222222222,
+          "mediana": 0.004189933333333333,
+          "minimo": 0.0035505,
+          "maximo": 0.009937833333333333
+        }
+      },
+      "avisos": [],
+      "categoria": "renomeacao"
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "baseline",
+      "versao_agente": null,
+      "n_casos": 6,
+      "termos": {
+        "vp": 1,
+        "fn": 3,
+        "fp": 2,
+        "vn": 0,
+        "r": 1,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 0.16666666666666666,
+          "numerador": 1,
+          "denominador": 6
+        },
+        "repair_rate": {
+          "valor": 0.25,
+          "numerador": 1,
+          "denominador": 4
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 2,
+          "denominador": 2
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 3
+        }
+      },
+      "referencia_sempre_repara": 0.6666666666666666,
+      "descritivas": {
+        "tempo_s": {
+          "media": 8.191566666666667,
+          "mediana": 5.8925,
+          "minimo": 0.0063,
+          "maximo": 21.7058
+        },
+        "tokens": {
+          "media": 0.0,
+          "mediana": 0.0,
+          "minimo": 0.0,
+          "maximo": 0.0
+        },
+        "custo_usd": {
+          "media": 0.0,
+          "mediana": 0.0,
+          "minimo": 0.0,
+          "maximo": 0.0
+        }
+      },
+      "avisos": [],
+      "categoria": "alteracao_tipo"
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "baseline",
+      "versao_agente": null,
+      "n_casos": 6,
+      "termos": {
+        "vp": 4,
+        "fn": 0,
+        "fp": 2,
+        "vn": 0,
+        "r": 4,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 0.6666666666666666,
+          "numerador": 4,
+          "denominador": 6
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 4,
+          "denominador": 4
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 2,
+          "denominador": 2
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 6
+        }
+      },
+      "referencia_sempre_repara": 0.6666666666666666,
+      "descritivas": {
+        "tempo_s": {
+          "media": 12.17055,
+          "mediana": 11.56195,
+          "minimo": 11.3751,
+          "maximo": 13.993
+        },
+        "tokens": {
+          "media": 0.0,
+          "mediana": 0.0,
+          "minimo": 0.0,
+          "maximo": 0.0
+        },
+        "custo_usd": {
+          "media": 0.0,
+          "mediana": 0.0,
+          "minimo": 0.0,
+          "maximo": 0.0
+        }
+      },
+      "avisos": [],
+      "categoria": "campo_obrigatorio_novo"
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "baseline",
+      "versao_agente": null,
+      "n_casos": 6,
+      "termos": {
+        "vp": 4,
+        "fn": 0,
+        "fp": 2,
+        "vn": 0,
+        "r": 4,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 0.6666666666666666,
+          "numerador": 4,
+          "denominador": 6
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 4,
+          "denominador": 4
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 2,
+          "denominador": 2
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 6
+        }
+      },
+      "referencia_sempre_repara": 0.6666666666666666,
+      "descritivas": {
+        "tempo_s": {
+          "media": 12.61565,
+          "mediana": 12.75915,
+          "minimo": 11.3992,
+          "maximo": 13.5764
+        },
+        "tokens": {
+          "media": 0.0,
+          "mediana": 0.0,
+          "minimo": 0.0,
+          "maximo": 0.0
+        },
+        "custo_usd": {
+          "media": 0.0,
+          "mediana": 0.0,
+          "minimo": 0.0,
+          "maximo": 0.0
+        }
+      },
+      "avisos": [],
+      "categoria": "remocao"
+    },
+    {
+      "agente": "agente1",
+      "tratamento": "baseline",
+      "versao_agente": null,
+      "n_casos": 6,
+      "termos": {
+        "vp": 4,
+        "fn": 0,
+        "fp": 2,
+        "vn": 0,
+        "r": 4,
+        "m": 0,
+        "ip": 0
+      },
+      "metricas": {
+        "detection_accuracy": {
+          "valor": 0.6666666666666666,
+          "numerador": 4,
+          "denominador": 6
+        },
+        "repair_rate": {
+          "valor": 1.0,
+          "numerador": 4,
+          "denominador": 4
+        },
+        "safety": {
+          "valor": 1.0,
+          "numerador": 2,
+          "denominador": 2
+        },
+        "unsafe_repair_rate": {
+          "valor": 0.0,
+          "numerador": 0,
+          "denominador": 6
+        }
+      },
+      "referencia_sempre_repara": 0.6666666666666666,
+      "descritivas": {
+        "tempo_s": {
+          "media": 12.419716666666666,
+          "mediana": 12.27215,
+          "minimo": 11.2886,
+          "maximo": 13.788
+        },
+        "tokens": {
+          "media": 0.0,
+          "mediana": 0.0,
+          "minimo": 0.0,
+          "maximo": 0.0
+        },
+        "custo_usd": {
+          "media": 0.0,
+          "mediana": 0.0,
+          "minimo": 0.0,
+          "maximo": 0.0
+        }
+      },
+      "avisos": [],
+      "categoria": "renomeacao"
+    }
+  ],
+  "excluidos": []
+}

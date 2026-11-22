@@ -1,0 +1,21 @@
+{
+  "id_caso": "A1-009",
+  "repeticao": 1,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo_classifier": "problema_real",
+  "justificativa": "A falha não está nas diferenças registradas: o contrato novo só renomeia precoUnitario para preco e não toca em quantidade, que continua declarada como integer. O código quebrou isso, porque ItemCarrinhoResponse.quantidade é String (String.valueOf(item.getQuantidade())), e por isso o JSON traz \"1\" em vez de 1. O teste está certo e a correção deve ser no código.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 0,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "c458680c09f23e45d2b2125c3888d178a6f33e00",
+  "commit_do_codigo": "e904cc6e158141cf846a223774d7c6bfc0e78e11",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 5.4354
+}

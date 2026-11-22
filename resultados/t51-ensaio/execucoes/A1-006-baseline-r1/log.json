@@ -1,0 +1,29 @@
+{
+  "id_caso": "A1-006",
+  "tratamento": "baseline",
+  "repeticao": 1,
+  "decisao": "reparar",
+  "erro": null,
+  "aplicadas": [
+    "GET /pedidos/{id}, resposta: o campo \"modalidadeFrete\" foi removido (string, valores ['PADRAO', 'EXPRESSA'])"
+  ],
+  "ignoradas": [
+    [
+      "POST /pedidos, resposta: o campo \"modalidadeFrete\" foi removido (string, valores ['PADRAO', 'EXPRESSA'])",
+      "a mudança não atinge o teste"
+    ],
+    [
+      "POST /pedidos/{id}/cancelamento, resposta: o campo \"modalidadeFrete\" foi removido (string, valores ['PADRAO', 'EXPRESSA'])",
+      "a mudança não atinge o teste"
+    ]
+  ],
+  "recusas_do_guarda": [],
+  "detalhe": null,
+  "causa": null,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": false,
+  "tempo_s": 0.0253,
+  "commit_do_prompt": null,
+  "commit_do_codigo": "a44836c92e9dbb6daeadafbe550d8ad9c6236b88"
+}

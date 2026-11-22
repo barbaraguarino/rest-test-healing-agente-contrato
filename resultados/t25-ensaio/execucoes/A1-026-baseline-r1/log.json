@@ -1,0 +1,31 @@
+{
+  "id_caso": "A1-026",
+  "tratamento": "baseline",
+  "repeticao": 1,
+  "decisao": "nao_reparar",
+  "erro": null,
+  "aplicadas": [],
+  "ignoradas": [
+    [
+      "GET /produtos, resposta: o campo \"[].ativo\" mudou de boolean para string, valores ['ATIVO', 'INATIVO']",
+      "nenhuma regra se aplica ao que o teste contém"
+    ],
+    [
+      "GET /produtos/{id}, resposta: o campo \"ativo\" mudou de boolean para string, valores ['ATIVO', 'INATIVO']",
+      "a mudança não atinge o teste"
+    ],
+    [
+      "POST /produtos, resposta: o campo \"ativo\" mudou de boolean para string, valores ['ATIVO', 'INATIVO']",
+      "a mudança não atinge o teste"
+    ]
+  ],
+  "recusas_do_guarda": [],
+  "detalhe": null,
+  "causa": null,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 0.0057,
+  "commit_do_prompt": null,
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b"
+}

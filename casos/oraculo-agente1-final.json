@@ -1,0 +1,221 @@
+{
+  "versao_api": "linha-de-base-2",
+  "casos": [
+    {
+      "id_caso": "A1-013",
+      "categoria": "renomeacao",
+      "lado": "resposta",
+      "teste_afetado": "PedidoControllerTest.shouldGiveFreeShippingUsingSubtotalBeforeDiscount",
+      "patch": "casos/A1-013.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-013.esperado.patch"
+    },
+    {
+      "id_caso": "A1-014",
+      "categoria": "renomeacao",
+      "lado": "resposta",
+      "teste_afetado": "FreteControllerTest.shouldReturnOneDayDeadlineWhenModeIsExpressInSoutheast",
+      "patch": "casos/A1-014.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-014.esperado.patch"
+    },
+    {
+      "id_caso": "A1-015",
+      "categoria": "renomeacao",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldReturn422WhenCartIsEmpty",
+      "patch": "casos/A1-015.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-015.esperado.patch"
+    },
+    {
+      "id_caso": "A1-016",
+      "categoria": "renomeacao",
+      "lado": "requisicao",
+      "teste_afetado": "CarrinhoControllerTest.shouldAddQuantityToExistingItemWhenProductIsAlreadyInCart",
+      "patch": "casos/A1-016.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-016.esperado.patch"
+    },
+    {
+      "id_caso": "A1-017",
+      "categoria": "renomeacao",
+      "lado": "resposta",
+      "teste_afetado": "PedidoControllerTest.shouldRoundDiscountHalfUp",
+      "patch": "casos/A1-017.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-018",
+      "categoria": "renomeacao",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldReturn422WhenSubtotalIsOneCentBelowCouponMinimum",
+      "patch": "casos/A1-018.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-019",
+      "categoria": "remocao",
+      "lado": "resposta",
+      "teste_afetado": "FreteControllerTest.shouldGiveFreeShippingWhenSubtotalIsAtThreshold",
+      "patch": "casos/A1-019.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-019.esperado.patch"
+    },
+    {
+      "id_caso": "A1-020",
+      "categoria": "remocao",
+      "lado": "resposta",
+      "teste_afetado": "PedidoControllerTest.shouldReturn201WithAllFieldsWhenOrderHasCouponAndComplement",
+      "patch": "casos/A1-020.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-020.esperado.patch"
+    },
+    {
+      "id_caso": "A1-021",
+      "categoria": "remocao",
+      "lado": "requisicao",
+      "teste_afetado": "CarrinhoControllerTest.shouldReturn200WhenCartIsOneUnitBelowMaximum",
+      "patch": "casos/A1-021.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-021.esperado.patch"
+    },
+    {
+      "id_caso": "A1-022",
+      "categoria": "remocao",
+      "lado": "requisicao",
+      "teste_afetado": "ProdutoControllerTest.shouldReturn422WhenSkuAlreadyExists",
+      "patch": "casos/A1-022.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-022.esperado.patch"
+    },
+    {
+      "id_caso": "A1-023",
+      "categoria": "remocao",
+      "lado": "resposta",
+      "teste_afetado": "CarrinhoControllerTest.shouldReturn201WithEmptyCartWhenCartIsCreated",
+      "patch": "casos/A1-023.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-024",
+      "categoria": "remocao",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldReturn422WhenCouponDoesNotExist",
+      "patch": "casos/A1-024.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-025",
+      "categoria": "alteracao_tipo",
+      "lado": "resposta",
+      "teste_afetado": "PedidoControllerTest.shouldReturn200AndReturnStockWhenOrderIsAwaitingPayment",
+      "patch": "casos/A1-025.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-025.esperado.patch"
+    },
+    {
+      "id_caso": "A1-026",
+      "categoria": "alteracao_tipo",
+      "lado": "resposta",
+      "teste_afetado": "ProdutoControllerTest.shouldReturnAllProductsIncludingInactiveWhenCategoryIsMissing",
+      "patch": "casos/A1-026.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-026.esperado.patch"
+    },
+    {
+      "id_caso": "A1-027",
+      "categoria": "alteracao_tipo",
+      "lado": "requisicao",
+      "teste_afetado": "ProdutoControllerTest.shouldReturn201WithAllFieldsWhenPayloadIsComplete",
+      "patch": "casos/A1-027.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-027.esperado.patch"
+    },
+    {
+      "id_caso": "A1-028",
+      "categoria": "alteracao_tipo",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldReturn404WhenCartDoesNotExist",
+      "patch": "casos/A1-028.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-028.esperado.patch"
+    },
+    {
+      "id_caso": "A1-029",
+      "categoria": "alteracao_tipo",
+      "lado": "resposta",
+      "teste_afetado": "FreteControllerTest.shouldChargeShippingWhenModeIsExpressEvenAtThreshold",
+      "patch": "casos/A1-029.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-030",
+      "categoria": "alteracao_tipo",
+      "lado": "requisicao",
+      "teste_afetado": "FreteControllerTest.shouldCountOneKilogramWhenWeightIsExactlyOneKilogram",
+      "patch": "casos/A1-030.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-031",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldReturn422AndKeepStockAndCartWhenStockIsNoLongerEnough",
+      "patch": "casos/A1-031.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-031.esperado.patch"
+    },
+    {
+      "id_caso": "A1-032",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "ProdutoControllerTest.shouldRoundPriceHalfUpWhenPriceHasThreeDecimalPlaces",
+      "patch": "casos/A1-032.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-032.esperado.patch"
+    },
+    {
+      "id_caso": "A1-033",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "FreteControllerTest.shouldCountStartedKilogramWhenWeightExceedsKilogramByOneGram",
+      "patch": "casos/A1-033.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-033.esperado.patch"
+    },
+    {
+      "id_caso": "A1-034",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "CarrinhoControllerTest.shouldReturn422WhenProductIsInactive",
+      "patch": "casos/A1-034.patch",
+      "rotulo_oraculo": "legitima",
+      "correcao_esperada": "casos/A1-034.esperado.patch"
+    },
+    {
+      "id_caso": "A1-035",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "PedidoControllerTest.shouldAcceptCouponWhenSubtotalIsAtMinimum",
+      "patch": "casos/A1-035.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    },
+    {
+      "id_caso": "A1-036",
+      "categoria": "campo_obrigatorio_novo",
+      "lado": "requisicao",
+      "teste_afetado": "ProdutoControllerTest.shouldReturn201WithNullDescriptionAndEmptyTagsWhenOptionalFieldsAreMissing",
+      "patch": "casos/A1-036.patch",
+      "rotulo_oraculo": "problema_real",
+      "correcao_esperada": null
+    }
+  ]
+}

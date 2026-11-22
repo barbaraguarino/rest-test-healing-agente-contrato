@@ -1,0 +1,55 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..d1572c2 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -484,14 +484,9 @@
+           "produtoId" : {
+             "type" : "integer",
+             "format" : "int64"
+-          },
+-          "quantidade" : {
+-            "type" : "integer",
+-            "format" : "int32",
+-            "minimum" : 1
+           }
+         },
+-        "required" : [ "produtoId", "quantidade" ]
++        "required" : [ "produtoId" ]
+       },
+       "ItemCarrinhoResponse" : {
+         "type" : "object",
+diff --git a/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java b/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java
+index 8b2cee3..0e16249 100644
+--- a/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java
++++ b/src/main/java/br/edu/resttesthealingsut/carrinho/CarrinhoService.java
+@@ -34,7 +34,7 @@ public class CarrinhoService {
+     public CarrinhoResponse adicionarItem(Long carrinhoId, ItemCarrinhoRequest request) {
+         Carrinho carrinho = buscarEntidade(carrinhoId);
+         Produto produto = produtoService.buscarEntidade(request.produtoId());
+-        carrinho.adicionar(produto, request.quantidade());
++        carrinho.adicionar(produto, 1);
+         // saveAndFlush grava agora e gera o id do item novo antes de montar a resposta.
+         return CarrinhoResponse.de(repository.saveAndFlush(carrinho));
+     }
+diff --git a/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java b/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
+index a73d2d2..3c50f73 100644
+--- a/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/carrinho/dto/ItemCarrinhoRequest.java
+@@ -1,9 +1,7 @@
+ package br.edu.resttesthealingsut.carrinho.dto;
+ 
+-import static br.edu.resttesthealingsut.shared.validacao.MensagensValidacao.MINIMO_UM;
+ import static br.edu.resttesthealingsut.shared.validacao.MensagensValidacao.OBRIGATORIO;
+ 
+-import jakarta.validation.constraints.Min;
+ import jakarta.validation.constraints.NotNull;
+ 
+ /**
+@@ -11,6 +9,5 @@ import jakarta.validation.constraints.NotNull;
+  * por produto (RN02) é regra de negócio e fica em {@code Carrinho}, fora do contrato.
+  */
+ public record ItemCarrinhoRequest(
+-        @NotNull(message = OBRIGATORIO) Long produtoId,
+-        @NotNull(message = OBRIGATORIO) @Min(value = 1, message = MINIMO_UM) Integer quantidade) {
++        @NotNull(message = OBRIGATORIO) Long produtoId) {
+ }

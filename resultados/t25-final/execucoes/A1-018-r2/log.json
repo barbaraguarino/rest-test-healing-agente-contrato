@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-018",
+  "tratamento": "agentes",
+  "repeticao": 2,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "O contrato novo registra que `cliente.nome` foi renomeado para `cliente.nomeCompleto`, e o código já implementa isso (`ClienteRequest` tem só `nomeCompleto` e `email`). O teste ainda envia `\"nome\"`, então o Jackson rejeita o campo desconhecido e a validação devolve 400 antes de chegar à RN08. O 422 esperado nunca é alcançado, e a falha vem do campo renomeado, não de uma regra de cupom quebrada.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 5,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 77.7883
+}

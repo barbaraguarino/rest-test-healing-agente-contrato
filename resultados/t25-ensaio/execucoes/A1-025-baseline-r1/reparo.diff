@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -4,7 +4,7 @@
+         void shouldReturn200AndReturnStockWhenOrderIsAwaitingPayment() throws Exception {
+             mockMvc.perform(post("/pedidos/301/cancelamento"))
+                     .andExpect(status().isOk())
+-                    .andExpect(jsonPath("$.id").value(is(301)))
++                    .andExpect(jsonPath("$.id").value(is("301")))
+                     .andExpect(jsonPath("$.status").value("CANCELADO"));
+ 
+             mockMvc.perform(get("/produtos/1"))

@@ -1,8 +1,11 @@
-"""Comparação do reparo com a correção esperada do oráculo (passo 8, D80 e D95).
+"""Comparação do reparo com a correção esperada do oráculo (T50; D80, D95, D109, D110, D119).
 
-Código determinístico. Só quem escreve o registro de resultados usa o oráculo, e
-só depois da execução. Uma regra que não consegue decidir devolve None: o caso
-vai para a revisão manual (D80), nunca é adivinhado.
+Código determinístico, sem LLM e sem Maven: igual ao da v1 (tag `rodada-2`), sobre o `teste_java.py` e o
+`contrato.py` da develop. Só roda depois da execução, porque lê o oráculo. Uma regra que não consegue
+decidir devolve None: o caso vai para a revisão manual (D80), nunca é adivinhado.
+
+Novo na T50: `Comparacao.regra` diz qual regra da D95 deu a equivalência (1, 2 ou 3), e `revisao_manual`
+traz para cá o critério da D80 e da D109, que na v1 ficava no `rodar_baseline`.
 """
 
 import json
@@ -19,6 +22,7 @@ class Comparacao:
     equivalente: bool | None       # None: sem correção esperada ou a regra não decide
     cenario_alterado: bool | None  # None: a regra não decide
     motivos: tuple[str, ...]
+    regra: int | None = None       # a regra da D95 que deu a equivalência (1, 2 ou 3); None se não deu
 
 
 # ---------------------------------------------------------------- extração
@@ -185,7 +189,9 @@ def _corpo_mudou_fora_da_diferenca(orig, rep, ch: _Chamada, mudancas: list[c.Mud
         for (cam, val), n in folhas.items():
             if any(_debaixo(cam, m.caminho) for m in mudancas if m.tipo == c.REMOCAO) and so_na_origem:
                 continue
-            if any(cam == m.caminho for m in mudancas if m.tipo == c.ALTERACAO_TIPO):
+            # T50: o campo que mudou de tipo e o que fica debaixo dele (string → array vira `campo[]`) são
+            # atingidos pela diferença; na v1 só contava o caminho exato (A1-027 da T25)
+            if any(_debaixo(cam, m.caminho) for m in mudancas if m.tipo == c.ALTERACAO_TIPO):
                 continue
             if not so_na_origem and any(_debaixo(cam, m.caminho) for m in mudancas
                                         if m.tipo == c.CAMPO_OBRIGATORIO_NOVO):
@@ -238,14 +244,41 @@ def comparar(original: str, reparado: str, esperado: str | None, nome_metodo: st
     except tj.ErroDeAnalise as e:
         cenario = None
         motivos.append(f"cenário: a regra não decide ({e})")
-    equivalente = None
+    equivalente, regra = None, None
     if esperado is not None:
         try:
             e = _extrair(esperado, nome_metodo, rotas)
-            equivalente = (_sem_espacos(r.corpo) == _sem_espacos(e.corpo)
-                           or _regra_2(r, e) or _regra_3(r, e, mudancas))
+            if _sem_espacos(r.corpo) == _sem_espacos(e.corpo):
+                regra = 1
+            elif _regra_2(r, e):
+                regra = 2
+            elif _regra_3(r, e, mudancas):
+                regra = 3
+            equivalente = regra is not None
             if not equivalente:
                 motivos.append("não equivalente pelas regras 1 a 3 da D95")
         except tj.ErroDeAnalise as exc:
             motivos.append(f"equivalência: a regra não decide ({exc})")
-    return Comparacao(equivalente, cenario, tuple(motivos))
+    return Comparacao(equivalente, cenario, tuple(motivos), regra)
+
+
+# ---------------------------------------------------------------- revisão manual (D80, D109)
+
+def revisao_manual(cmp: Comparacao, tem_esperado: bool, compilou: bool | None, passou: bool | None,
+                   assercoes_enfraquecidas: bool | None) -> str | None:
+    """Por que o reparo vai para a revisão manual da Barbara, ou None se a regra decide sozinha.
+
+    - D80: a regra não decide a equivalência (havendo correção esperada) ou a troca de cenário;
+    - D109: equivalente e com troca de cenário ao mesmo tempo (a correção esperada não troca o cenário);
+    - D80: não equivalente, mas compila, passa e não enfraquece asserções.
+    Numa regressão (D119) não há correção esperada: só a troca de cenário pode levar à revisão.
+    """
+    if cmp.cenario_alterado is None:
+        return "D80: a regra não decide a troca de cenário"
+    if tem_esperado and cmp.equivalente is None:
+        return "D80: a regra não decide a equivalência"
+    if cmp.equivalente is True and cmp.cenario_alterado is True:
+        return "D109: equivalente e com troca de cenário ao mesmo tempo"
+    if cmp.equivalente is False and compilou and passou and assercoes_enfraquecidas is False:
+        return "D80: não equivalente, mas compila, passa e não enfraquece asserções"
+    return None

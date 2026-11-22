@@ -1,7 +1,9 @@
+"""Testes da baseline (T51, D75, D114): os da tag rodada-2, com a alteração de tipo da resposta na D114."""
 import unittest
 
 from agente_contrato import baseline as b
 from agente_contrato import contrato as c
+from agente_contrato import guarda
 
 ROTAS = {"GET": {"/produtos/{id}"}, "POST": {"/pedidos", "/produtos"}}
 
@@ -125,16 +127,42 @@ class RespostaTest(unittest.TestCase):
         self.assertIn('.andExpect(jsonPath("$.a").value(1));', r.texto)
         self.assertNotIn("$.b", r.texto)
 
-    def test_converte_asserção_de_inteiro_para_string_e_de_decimal(self):
-        asserts = (self.RESP + '                .andExpect(jsonPath("$.n").value(is(0)))\n'
-                   '                .andExpect(jsonPath("$.p").value(decimal("89.90")));')
-        r = reparar(java("{}", asserts),
-                    mudanca(c.ALTERACAO_TIPO, c.RESPOSTA, "n", antes=propriedade("integer"),
-                            depois=propriedade("string")),
-                    mudanca(c.ALTERACAO_TIPO, c.RESPOSTA, "p", antes=propriedade("number"),
-                            depois=propriedade("string")))
-        self.assertIn('jsonPath("$.n").value("0")', r.texto)
-        self.assertIn('jsonPath("$.p").value("89.90")', r.texto)
+    def _tipo(self, valor, antes, depois):
+        asserts = self.RESP + f'                .andExpect(jsonPath("$.n").value({valor}));'
+        return reparar(java("{}", asserts),
+                       mudanca(c.ALTERACAO_TIPO, c.RESPOSTA, "n", antes=antes, depois=depois))
+
+    def test_d114_mantem_o_matcher_is_com_o_valor_no_tipo_novo(self):
+        r = self._tipo("is(0)", propriedade("integer"), propriedade("string"))
+        self.assertIn('jsonPath("$.n").value(is("0")));', r.texto)
+        self.assertNotIn('.value("0")', r.texto)  # o literal da v1, que a D113 mostrou errado
+
+    def test_d114_decimal_para_texto_vira_is_com_texto(self):
+        r = self._tipo('decimal("89.90")', propriedade("number"), propriedade("string"))
+        self.assertIn('jsonPath("$.n").value(is("89.90")));', r.texto)
+
+    def test_d114_decimal_continua_decimal_quando_o_tipo_novo_e_numero(self):
+        r = self._tipo('decimal("3.0")', propriedade("number"), propriedade("integer"))
+        self.assertIn('jsonPath("$.n").value(decimal("3")));', r.texto)
+
+    def test_d114_is_de_texto_para_numero_continua_is(self):
+        r = self._tipo('is("12")', propriedade("string"), propriedade("integer"))
+        self.assertIn('jsonPath("$.n").value(is(12)));', r.texto)
+
+    def test_literal_de_texto_para_numero_ganha_matcher_d53(self):
+        r = self._tipo('"12"', propriedade("string"), propriedade("integer"))
+        self.assertIn('jsonPath("$.n").value(is(12)));', r.texto)
+        r = self._tipo('"1.5"', propriedade("string"), propriedade("number"))
+        self.assertIn('jsonPath("$.n").value(decimal("1.5")));', r.texto)
+
+    def test_literal_booleano_para_enum_continua_literal(self):
+        r = self._tipo("true", propriedade("boolean"), propriedade("string", ["ATIVO", "INATIVO"]))
+        self.assertIn('jsonPath("$.n").value("ATIVO"));', r.texto)
+
+    def test_alteracao_de_tipo_sem_regra_nao_repara(self):
+        r = self._tipo("is(produto.getId())", propriedade("integer"), propriedade("string"))
+        self.assertEqual(r.decisao, b.NAO_REPARAR)
+        self.assertIn("nenhuma regra", r.ignoradas[0][1])
 
     def test_resposta_de_erro_nao_e_editada(self):
         asserts = "                .andExpect(status().is(422))\n" \
@@ -146,6 +174,20 @@ class RespostaTest(unittest.TestCase):
         asserts = self.RESP + '                .andExpect(jsonPath("$.a").value(1)).andExpect(jsonPath("$.b").value(2));'
         with self.assertRaises(b.tj.ErroDeAnalise):
             reparar(java("{}", asserts), mudanca(c.REMOCAO, c.RESPOSTA, "a", antes=propriedade("integer")))
+
+
+class GuardaTest(unittest.TestCase):
+    """O reparo da D114 passa no guarda da develop (D115); o literal da v1 não passaria."""
+    RESP = RespostaTest.RESP
+
+    def test_reparo_d114_e_aceito_e_o_literal_da_v1_e_recusado(self):
+        t = java("{}", self.RESP + '                .andExpect(jsonPath("$.n").value(is(0)));')
+        m = mudanca(c.ALTERACAO_TIPO, c.RESPOSTA, "n", antes=propriedade("integer"),
+                    depois=propriedade("string"))
+        r = reparar(t, m)
+        self.assertTrue(guarda.avaliar(t, r.texto, "teste", [m], ROTAS).aceito)
+        v1 = t.replace(".value(is(0))", '.value("0")')
+        self.assertFalse(guarda.avaliar(t, v1, "teste", [m], ROTAS).aceito)
 
 
 class DecisaoTest(unittest.TestCase):

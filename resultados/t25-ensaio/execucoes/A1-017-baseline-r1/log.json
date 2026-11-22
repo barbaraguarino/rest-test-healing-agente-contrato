@@ -1,0 +1,29 @@
+{
+  "id_caso": "A1-017",
+  "tratamento": "baseline",
+  "repeticao": 1,
+  "decisao": "reparar",
+  "erro": null,
+  "aplicadas": [
+    "POST /pedidos, resposta: o campo \"desconto\" foi renomeado para \"valorDesconto\" (number)"
+  ],
+  "ignoradas": [
+    [
+      "GET /pedidos/{id}, resposta: o campo \"desconto\" foi renomeado para \"valorDesconto\" (number)",
+      "a mudança não atinge o teste"
+    ],
+    [
+      "POST /pedidos/{id}/cancelamento, resposta: o campo \"desconto\" foi renomeado para \"valorDesconto\" (number)",
+      "a mudança não atinge o teste"
+    ]
+  ],
+  "recusas_do_guarda": [],
+  "detalhe": null,
+  "causa": null,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": false,
+  "tempo_s": 20.722,
+  "commit_do_prompt": null,
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b"
+}

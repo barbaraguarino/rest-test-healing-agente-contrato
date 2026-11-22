@@ -1,0 +1,16 @@
+TOTAIS POR TRATAMENTO (somados de resultados-agente1.json)
+  tratamento     execucoes  casos     tempo_s     tokens   custo_usd
+  agente_unico          24      8       824.0    1721062    0.192138
+  agentes               72     24      2649.2    3406449    0.407310
+  baseline              24     24       272.4          0    0.000000
+
+CHAMADAS AO LLM (chamadas.jsonl; linha sem 'tratamento' é dos agentes, T49)
+  agente_unico   chamadas=110  entrada=1670982  saida=50080  custo_usd=0.192138
+  agentes        chamadas=431  entrada=3239786  saida=166663  custo_usd=0.407310
+  total custo_usd=0.599448  chamadas=541
+
+VARIAÇÃO ENTRE AS 3 REPETIÇÕES (casos em que algum resultado binário não foi unânime)
+  agentes      A1-018  renomeacao              problema_real {'passou': [True, True, False], 'cenario_alterado': [True, True, False]}
+  agentes      A1-030  alteracao_tipo          problema_real {'decisao': ['reparar', 'reparar', 'nao_reparar'], 'passou': [False, True, False], 'cenario_alterado': [False, True, None]}
+  agente_unico: 8 de 8 casos unânimes nos 4 campos
+  agentes: 22 de 24 casos unânimes nos 4 campos

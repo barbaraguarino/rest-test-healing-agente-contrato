@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-024",
+  "tratamento": "agente_unico",
+  "repeticao": 3,
+  "motivo": "nao_reparar",
+  "decisao": "nao_reparar",
+  "erro": null,
+  "rotulo": "problema_real",
+  "justificativa": "A falha 400 vem da renomeação de carrinhoId para idCarrinho, que está no contrato e no código, então sozinha seria legítima. Mas o contrato declara o campo \"cupom\" em PedidoRequest e a RN08 exige 422 para cupom inexistente, e o código não cobre isso: o record PedidoRequest não tem o campo cupom e o PedidoService fixa o desconto em zero, ignorando o cupom. Depois de corrigir só o nome do campo, o pedido com cupom NAOEXISTE seria criado com 201 e não com 422, então o teste não deve ser alterado e a correção está no código.",
+  "detalhe": null,
+  "incoerente": false,
+  "chamadas": 3,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": null,
+  "passou": false,
+  "tempo_s": 10.5833
+}

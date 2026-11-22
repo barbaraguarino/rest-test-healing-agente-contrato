@@ -1,0 +1,11 @@
+--- antes.java
++++ depois.java
+@@ -17,6 +17,6 @@
+                                     }
+                                     """))
+                     .andExpect(status().isCreated())
+-                    .andExpect(jsonPath("$.desconto").value(decimal("10.01")))
+-                    .andExpect(jsonPath("$.total").value(decimal("107.04")));
++                    .andExpect(jsonPath("$.valorDesconto").value(decimal("10.01")))
++                    .andExpect(jsonPath("$.valorTotal").value(decimal("107.04")));
+         }

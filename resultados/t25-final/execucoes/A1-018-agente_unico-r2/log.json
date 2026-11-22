@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-018",
+  "tratamento": "agente_unico",
+  "repeticao": 2,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo": "problema_real",
+  "justificativa": "A única diferença registrada é o rename de cliente.nome para cliente.nomeCompleto, mas o teste ainda falha com 400 mesmo com esse campo corrigido. O contrato exige enderecoEntrega.cidade, enquanto EnderecoRequest.java (código) espera o campo municipio, e o Jackson rejeita cidade como propriedade desconhecida. Essa divergência código-contrato não está nas diferenças registradas, então o teste está certo e o código quebrou; restaurei o método ao original, sem alterações.",
+  "detalhe": null,
+  "incoerente": true,
+  "chamadas": 7,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": false,
+  "tempo_s": 57.762
+}

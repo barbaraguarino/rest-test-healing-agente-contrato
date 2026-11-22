@@ -1,10 +1,9 @@
-"""Prompts versionados do Agente 1 (D70) e o commit em que estavam (D105).
+"""Prompts versionados do Agente 1 (D70): os textos ficam em `prompts/*.md`, no repositório.
 
-Os textos ficam em `prompts/*.md`, no repositório, para o pacote de replicação mostrar
-exatamente o que o modelo recebeu. Os resultados da T10 só valem com os prompts
-congelados num commit, registrado em cada execução.
+Assim o pacote de replicação mostra exatamente o que o modelo recebeu. `carregar` e
+`commit_dos_prompts` são iguais aos da v1 (tag `rodada-2`); o commit vai para o log de cada
+execução (D105, T23h).
 """
-
 import subprocess
 from pathlib import Path
 
@@ -21,16 +20,17 @@ def carregar(nome: str, pasta: Path = PASTA_PADRAO) -> str:
 
 
 def commit_dos_prompts(pasta: Path = PASTA_PADRAO) -> str:
-    """Hash do último commit que mexeu na pasta de prompts.
+    """Hash do último commit que mexeu na pasta (D105).
 
-    Termina em `+alterado` quando há mudança não commitada ou arquivo novo na pasta: o
-    resultado dessa execução não vale para a T10. Sem nenhum commit ainda, devolve
-    `sem-commit` (com o sufixo, se for o caso).
+    Termina em `+alterado` quando há mudança não commitada ou arquivo novo na pasta: o resultado
+    dessa execução não diz com que prompt rodou. Sem nenhum commit ainda, devolve `sem-commit`.
+    Também serve para o código, com a pasta `agente_contrato`, e para um arquivo só, como o oráculo (T53).
     """
     def git(*args: str) -> str:
-        proc = subprocess.run(["git", *args, "--", str(pasta)], cwd=pasta, capture_output=True, text=True)
+        proc = subprocess.run(["git", *args, "--", str(pasta)], cwd=pasta if pasta.is_dir() else pasta.parent,
+                              capture_output=True, text=True)
         if proc.returncode != 0 and "does not have any commits" in proc.stderr:
-            return ""  # repositório novo: ainda não há commit de prompt
+            return ""  # repositório novo: ainda não há commit
         if proc.returncode != 0:
             raise RuntimeError(f"git {args[0]}: {proc.stderr.strip()}")
         return proc.stdout.strip()

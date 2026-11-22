@@ -1,0 +1,65 @@
+[
+  {
+    "etapa": "agente_unico",
+    "volta": 1,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "ver_diferenca",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "agente_unico",
+    "volta": 2,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      },
+      {
+        "nome": "ler_arquivo",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "agente_unico",
+    "volta": 3,
+    "terminou": false,
+    "ferramentas": [
+      {
+        "nome": "salvar_reparo",
+        "erro": false
+      },
+      {
+        "nome": "rodar_teste",
+        "erro": false
+      }
+    ]
+  },
+  {
+    "etapa": "agente_unico",
+    "volta": 4,
+    "terminou": true,
+    "ferramentas": []
+  }
+]

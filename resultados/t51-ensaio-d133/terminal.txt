@@ -1,0 +1,17 @@
+casos A1-001, A1-002, A1-003, A1-004, A1-005, A1-006, A1-007, A1-008, A1-009, A1-010, A1-011, A1-012 | só a baseline, 1 repetição (D92) | sem LLM, gasto US$ 0
+limites: teste 120 s, caso 180 s, chamada ao LLM 120 s (D111) | prompts c458680c09f23e45d2b2125c3888d178a6f33e00 | código 04d9ff07b7ecb2b4cde260ea5cfe93f6a98971c2
+oráculo: casos/oraculo-agente1.json (commit b6608b6c82777a72d0dac65629f18ee004e69f95)
+aquecimento do Maven (D111f, fora das métricas): ProdutoControllerTest.shouldReturn200WithAllFieldsWhenProductExists passou=True maven=23.94 s erro=None
+A1-001 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-002 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-003 baseline r1: decisao=reparar compilou=True passou=False erro=None
+A1-004 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-005 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-006 baseline r1: decisao=reparar compilou=True passou=False erro=None
+A1-007 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-008 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-009 baseline r1: decisao=reparar compilou=True passou=False erro=None
+A1-010 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-011 baseline r1: decisao=reparar compilou=True passou=True erro=None
+A1-012 baseline r1: decisao=reparar compilou=True passou=False erro=None
+exclusões (fora das métricas): 0 (nenhuma)

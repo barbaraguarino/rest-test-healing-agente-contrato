@@ -1,0 +1,49 @@
+{
+  "alfa": 0.05,
+  "limiar": 0.016666666666666666,
+  "hipoteses_por_agente": 3,
+  "testes": [
+    {
+      "agente": "agente1",
+      "hipotese": "detection_accuracy",
+      "nome": "Detection Accuracy",
+      "n_pares": 24,
+      "acertos_baseline": 13,
+      "acertos_agentica": 20,
+      "b": 0,
+      "c": 7,
+      "p": 0.0078125,
+      "limiar": 0.016666666666666666,
+      "rejeita": true,
+      "n": 7
+    },
+    {
+      "agente": "agente1",
+      "hipotese": "repair_rate",
+      "nome": "Repair Rate",
+      "n_pares": 16,
+      "acertos_baseline": 13,
+      "acertos_agentica": 16,
+      "b": 0,
+      "c": 3,
+      "p": 0.125,
+      "limiar": 0.016666666666666666,
+      "rejeita": false,
+      "n": 3
+    },
+    {
+      "agente": "agente1",
+      "hipotese": "safety",
+      "nome": "Safety",
+      "n_pares": 8,
+      "acertos_baseline": 8,
+      "acertos_agentica": 6,
+      "b": 2,
+      "c": 0,
+      "p": 0.25,
+      "limiar": 0.016666666666666666,
+      "rejeita": false,
+      "n": 2
+    }
+  ]
+}

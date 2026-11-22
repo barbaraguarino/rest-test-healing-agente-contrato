@@ -1,0 +1,94 @@
+{
+  "rodada": "resultados/t25-final",
+  "totais_por_tratamento": {
+    "agente_unico": {
+      "execucoes": 24,
+      "casos": 8,
+      "tempo_s": 824.001,
+      "tokens": 1721062,
+      "custo_usd": 0.1921382
+    },
+    "agentes": {
+      "execucoes": 72,
+      "casos": 24,
+      "tempo_s": 2649.2287,
+      "tokens": 3406449,
+      "custo_usd": 0.4073101
+    },
+    "baseline": {
+      "execucoes": 24,
+      "casos": 24,
+      "tempo_s": 272.3849,
+      "tokens": 0,
+      "custo_usd": 0.0
+    }
+  },
+  "chamadas_por_tratamento": {
+    "agente_unico": {
+      "chamadas": 110,
+      "input_tokens": 1670982,
+      "output_tokens": 50080,
+      "custo_usd": 0.1921382
+    },
+    "agentes": {
+      "chamadas": 431,
+      "input_tokens": 3239786,
+      "output_tokens": 166663,
+      "custo_usd": 0.4073101
+    }
+  },
+  "variacao_entre_repeticoes": [
+    {
+      "tratamento": "agentes",
+      "id_caso": "A1-018",
+      "categoria": "renomeacao",
+      "rotulo_oraculo": "problema_real",
+      "por_repeticao": {
+        "passou": [
+          true,
+          true,
+          false
+        ],
+        "cenario_alterado": [
+          true,
+          true,
+          false
+        ]
+      }
+    },
+    {
+      "tratamento": "agentes",
+      "id_caso": "A1-030",
+      "categoria": "alteracao_tipo",
+      "rotulo_oraculo": "problema_real",
+      "por_repeticao": {
+        "decisao": [
+          "reparar",
+          "reparar",
+          "nao_reparar"
+        ],
+        "passou": [
+          false,
+          true,
+          false
+        ],
+        "cenario_alterado": [
+          false,
+          true,
+          null
+        ]
+      }
+    }
+  ],
+  "custo_total_usd": 0.5994483,
+  "unanimes": {
+    "agente_unico": {
+      "unanimes": 8,
+      "casos": 8
+    },
+    "agentes": {
+      "unanimes": 22,
+      "casos": 24
+    }
+  }
+}

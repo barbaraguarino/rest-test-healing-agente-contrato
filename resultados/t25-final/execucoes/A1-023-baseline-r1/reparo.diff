@@ -1,0 +1,10 @@
+--- antes.java
++++ depois.java
+@@ -5,6 +5,5 @@
+             mockMvc.perform(post("/carrinhos"))
+                     .andExpect(status().isCreated())
+                     .andExpect(jsonPath("$.id").isNumber())
+-                    .andExpect(jsonPath("$.itens").value(empty()))
+-                    .andExpect(jsonPath("$.subtotal").value(decimal("0.00")));
++                    .andExpect(jsonPath("$.itens").value(empty()));
+         }

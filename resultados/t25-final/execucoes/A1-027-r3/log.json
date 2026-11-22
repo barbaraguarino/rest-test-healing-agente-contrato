@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-027",
+  "tratamento": "agentes",
+  "repeticao": 3,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "A diferença do contrato declara que `descricao` na requisição de POST /produtos passou de string para array, e o `ProdutoRequest` do código já usa `List<String> descricao`. O teste ainda envia `\"descricao\": \"Fone sem fio\"`, então o Jackson recusa a conversão, o `TratadorGlobalDeErros` responde 400 e a asserção de 201 falha. A causa está inteiramente nessa mudança registrada, então o teste está desatualizado; a resposta continua com `descricao` como string no contrato, então a asserção de resposta também precisa ser revista ao atualizar o envio.",
+  "detalhe": null,
+  "chamadas_classifier": 4,
+  "chamadas_repair": 4,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 47.7215
+}

@@ -1,0 +1,50 @@
+diff --git a/docs/openapi.json b/docs/openapi.json
+index f706557..b891248 100644
+--- a/docs/openapi.json
++++ b/docs/openapi.json
+@@ -443,7 +443,7 @@
+             "type" : "string",
+             "minLength" : 1
+           },
+-          "numero" : {
++          "numeroImovel" : {
+             "type" : "string",
+             "minLength" : 1
+           },
+@@ -452,7 +452,7 @@
+             "enum" : [ "AC", "AP", "AM", "PA", "RO", "RR", "TO", "AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE", "DF", "GO", "MT", "MS", "ES", "MG", "RJ", "SP", "PR", "RS", "SC" ]
+           }
+         },
+-        "required" : [ "cep", "cidade", "logradouro", "numero", "uf" ]
++        "required" : [ "cep", "cidade", "logradouro", "numeroImovel", "uf" ]
+       },
+       "EnderecoResponse" : {
+         "type" : "object",
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java b/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
+index 2937d49..ba5112b 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/PedidoService.java
+@@ -48,7 +48,7 @@ public class PedidoService {
+         Carrinho carrinho = carrinhoService.buscarEntidade(request.carrinhoId());
+         ClienteRequest c = request.cliente();
+         EnderecoRequest e = request.enderecoEntrega();
+-        Endereco endereco = new Endereco(e.logradouro(), e.numero(), e.complemento(), e.cidade(), e.uf(), e.cep());
++        Endereco endereco = new Endereco(e.logradouro(), e.numeroImovel(), e.complemento(), e.cidade(), e.uf(), e.cep());
+ 
+         Pedido pedido = Pedido.criar(
+                 new Cliente(c.nome(), c.email()), endereco, request.modalidadeFrete(), carrinho.getItens());
+diff --git a/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoRequest.java b/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoRequest.java
+index 8c73cae..a1693fa 100644
+--- a/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoRequest.java
++++ b/src/main/java/br/edu/resttesthealingsut/pedido/dto/EnderecoRequest.java
+@@ -15,8 +15,8 @@ import jakarta.validation.constraints.Pattern;
+  */
+ public record EnderecoRequest(
+         @NotBlank(message = OBRIGATORIO) String logradouro,
+-        @NotBlank(message = OBRIGATORIO) String numero,
+-        String complemento,
++        @NotBlank(message = OBRIGATORIO) String numeroImovel,
++        @NotBlank(message = OBRIGATORIO) String complemento,
+         @NotBlank(message = OBRIGATORIO) String cidade,
+         @NotNull(message = OBRIGATORIO) Uf uf,
+         @NotNull(message = OBRIGATORIO) @Pattern(regexp = PADRAO_CEP, message = OITO_DIGITOS) String cep) {

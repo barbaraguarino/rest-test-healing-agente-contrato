@@ -1,0 +1,22 @@
+{
+  "id_caso": "A1-020",
+  "tratamento": "agentes",
+  "repeticao": 3,
+  "motivo": "reparo",
+  "decisao": "reparar",
+  "erro": null,
+  "rotulo_classifier": "legitima",
+  "justificativa": "A diferença do contrato registra a remoção de \"enderecoEntrega.complemento\" nas respostas de POST /pedidos, GET /pedidos/{id} e cancelamento, e o código implementa exatamente isso: o record EnderecoResponse não tem o campo complemento e PedidoResponse usa EnderecoResponse.de. O teste ainda espera \"Apto 1\" nesse caminho, então a falha é de teste desatualizado; a persistência do complemento na entidade Endereco não é exposta e não contradiz o contrato novo.",
+  "detalhe": null,
+  "chamadas_classifier": 3,
+  "chamadas_repair": 2,
+  "recusas_do_guarda": [],
+  "commit_do_prompt": "4c5675549664ec645ba3402bf1955df9b05d3c4b",
+  "commit_do_codigo": "70079b59c239f67fdcf90125c18f53e7835e999b",
+  "causa": null,
+  "tentativas": 1,
+  "tentativas_maven_inicial": 1,
+  "compilou": true,
+  "passou": true,
+  "tempo_s": 40.2535
+}

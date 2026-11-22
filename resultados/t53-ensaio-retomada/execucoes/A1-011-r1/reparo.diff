@@ -1,0 +1,10 @@
+--- antes.java
++++ depois.java
+@@ -8,6 +8,7 @@
+                                     {
+                                       "sku": "LIV-001",
+                                       "nome": "Livro Repetido",
++                                      "marca": "Editora Exemplo",
+                                       "preco": 10.00,
+                                       "categoria": "LIVROS",
+                                       "ativo": true,

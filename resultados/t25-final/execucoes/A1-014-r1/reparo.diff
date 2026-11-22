@@ -1,0 +1,9 @@
+--- antes.java
++++ depois.java
+@@ -13,5 +13,5 @@
+                                     """))
+                     .andExpect(status().isOk())
+                     .andExpect(jsonPath("$.valor").value(decimal("25.50")))
+-                    .andExpect(jsonPath("$.prazoDias").value(is(1)));
++                    .andExpect(jsonPath("$.prazoEntregaDias").value(is(1)));
+         }
