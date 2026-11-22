@@ -1,19 +1,54 @@
 # Rest Test Healing (Agente - Contrato)
 
-Agente 1 do estudo "Manutenção de Testes de APIs REST usando Agentes de IA" (disciplina IA Generativa para Engenharia de Software, 2026.2). O agente repara testes de API quebrados por mudança no contrato OpenAPI da API cobaia (`rest-test-healing-sut`) e não repara quando a quebra é uma regressão do código.
+Agente 1 do estudo "Manutenção de Testes de APIs REST usando Agentes de IA" (disciplina IA Generativa para Engenharia de Software, 2026.2). O agente repara testes de API quebrados por mudança no contrato OpenAPI da API cobaia (no artigo, API-alvo; repositório [`rest-test-healing-sut`](https://github.com/barbaraguarino/rest-test-healing-sut)) e não repara quando a quebra é uma regressão do código.
 
-## Estado
+Os códigos D·· e T·· remetem ao registro interno do estudo, que não é publicado.
 
-A versão agêntica (Classifier e Repair em laço com ferramentas, D62) está sendo escrita do zero na branch `develop` (tarefa T23). Este README cresce junto com o código e, no fim, é o guia completo de reprodução.
+## Versões
+
+A versão agêntica (Classifier e Repair em laço com ferramentas, D62) é a versão final do Agente 1: foi a usada na execução final do estudo (T25), cujos resultados estão em `resultados/t25-final/`. Este README é o guia de reprodução dessa versão.
 
 A versão apresentada na Rodada 2 (baseline determinística e v1 com pipeline fixo Classifier → Repair) está preservada na tag **`rodada-2`** (commit `263862a`), com o código, os testes, os prompts e o README de execução da época.
+
+## Reproduzir os resultados do artigo sem gastar
+
+Os resultados da execução final já estão gravados em `resultados/t25-final/`. Para refazer as métricas, o teste de hipóteses e o relatório visual a partir deles, não é preciso chave, LLM nem Maven; basta o Python 3.
+
+1. Clone os três repositórios na mesma pasta-mãe:
+
+   ```bash
+   git clone https://github.com/barbaraguarino/rest-test-healing-agente-contrato.git
+   git clone https://github.com/barbaraguarino/rest-test-healing-avaliacao.git
+   git clone https://github.com/barbaraguarino/rest-test-healing-sut.git
+   ```
+
+2. Métricas e teste de hipóteses, a partir da pasta `rest-test-healing-avaliacao` (veja o README dela):
+
+   ```bash
+   python -m avaliacao ../rest-test-healing-agente-contrato/resultados/t25-final/resultados-agente1.json
+   python -m avaliacao.mcnemar ../rest-test-healing-agente-contrato/resultados/t25-final/resultados-agente1.json
+   ```
+
+   A saída deve ser igual a `resultados/t25-final/analise-t27/metricas.txt` e `mcnemar.txt`.
+
+3. Totais de tempo, tokens e custo, a partir da pasta deste repositório:
+
+   ```bash
+   python -I resultados/t25-final/analise-t27/scripts/descritivo_t27.py resultados/t25-final
+   ```
+
+   A saída deve ser igual a `resultados/t25-final/analise-t27/descritivo.txt`.
+
+4. O relatório visual dos reparos de cada caso já está em `relatorios/t25-final.html`; para gerá-lo de novo, veja "Relatório visual dos reparos" abaixo.
+
+Para rodar o agente de novo (a rodada paga), siga a seção seguinte.
 
 ## Como reproduzir a versão agêntica
 
 ### O que é preciso
 
 - Python 3.13 ou 3.14 e Java 21.
-- Os repositórios lado a lado, na mesma pasta-mãe: este, `rest-test-healing-sut` (a API cobaia, com a tag `linha-de-base-2`) e, para validar o arquivo de resultados, `rest-test-healing-avaliacao`.
+- Os repositórios lado a lado, na mesma pasta-mãe (veja o `git clone` acima): este, `rest-test-healing-sut` (a API cobaia, com a tag `linha-de-base-2`; o runner faz a cópia na tag sozinho) e, para validar o arquivo de resultados, `rest-test-healing-avaliacao`.
 - Linux ou Mac: o limite de tempo do Maven encerra o grupo de processos (`os.killpg`).
 
 ### Instalar (PyCharm)
@@ -56,8 +91,10 @@ Tradução para o formato comum (D74, D87: `tratamento` `agente_unico`, `versao_
 
 ### Configurar a chave (só para a rodada paga)
 
+A rodada paga chama a API da Anthropic e precisa de uma chave **sua** (crie em [console.anthropic.com](https://console.anthropic.com)); o gasto vai para a sua conta. Como referência, a execução final (T25: 24 casos, baseline, agentes com 3 repetições e agente único nos 8 casos sorteados) fez 541 chamadas e custou US$ 0,60 (`resultados/t25-final/analise-t27/descritivo.txt`).
+
 1. Copie `.env.example` para `.env`, na raiz do repositório.
-2. Preencha `ANTHROPIC_API_KEY=` com a chave do workspace. O `.env` é ignorado pelo Git; a chave nunca vai para código, log, commit nem PR.
+2. Preencha `ANTHROPIC_API_KEY=` com a sua chave. O `.env` é ignorado pelo Git; a chave nunca vai para código, log, commit nem PR.
 
 O código lê a chave só desse arquivo (`cliente_claude.ler_chave`), não da variável de ambiente.
 
@@ -135,13 +172,15 @@ Os resultados do piloto só se regeneram com o código da tag `rodada-2`: o cód
 
 ## Casos e oráculo
 
-`casos/` guarda os 12 casos do piloto, congelados na tag `oraculo-piloto`:
+`casos/` guarda 36 casos: os 12 do piloto (A1-001 a A1-012, congelados na tag `oraculo-piloto`) e os 24 finais da execução do estudo (A1-013 a A1-036, T48, tag `oraculo-final`):
 
 | Arquivo | Conteúdo |
 |---|---|
 | `casos/A1-NNN.patch` | A mudança do caso: código em `src/` e o `docs/openapi.json` novo, aplicados sobre a tag `linha-de-base-2` da API cobaia |
 | `casos/A1-NNN.esperado.patch` | A correção esperada do teste afetado, só nos casos de mudança legítima |
-| `casos/oraculo-agente1.json` | Rótulo, categoria, lado, teste afetado e correção esperada de cada caso |
+| `casos/oraculo-agente1.json` | Oráculo do piloto: rótulo, categoria, lado, teste afetado e correção esperada de cada caso |
+| `casos/oraculo-agente1-final.json` | Oráculo dos 24 casos finais, no mesmo formato |
+| `casos/sorteio-agente-unico.json` | Os 8 casos finais sorteados para o agente único (semente 4949) |
 
 O agente nunca lê o oráculo. Ele recebe só o patch aplicado na API cobaia e o nome do teste afetado; o rótulo é copiado para o resultado depois da execução.
 
@@ -162,9 +201,23 @@ O agente nunca lê o oráculo. Ele recebe só o patch aplicado na API cobaia e o
 | `resultados/t51-ensaio/` | Ensaio da baseline nova (T51) nos 12 casos do piloto, Maven de verdade, 1 repetição, sem LLM; `comparacao-t42.json` compara com a t42-baseline da v1 (só o A1-007 muda, pela D114); não são resultados do estudo |
 | `resultados/t49-ensaio/` | Ensaio do agente único (T49) nos 12 casos do piloto, Maven de verdade e LLM simulado, 1 repetição, com os três tratamentos (baseline, agentes e agente único, este nos 12 casos); `terminal.txt` tem a saída; não são resultados do estudo |
 | `resultados/t51-ensaio-d133/` | O ensaio da T51 refeito depois da D133 (o `tempo_s` da baseline conta o Maven final), mesmos 12 casos e 1 repetição: `comparacao-t42.txt` (só o A1-007 muda, pela D114) e `comparacao-t51-ensaio.txt` (contra o `t51-ensaio`, só o `tempo_s` muda); não são resultados do estudo |
+| `resultados/t25-ensaio/` | Ensaio da execução final nos 24 casos finais, Maven de verdade e LLM simulado (T25); não são resultados do estudo |
+| `resultados/t25-final/` | **Execução final do estudo** (T25): 24 casos, baseline (1 repetição), agentes (3 repetições) e agente único (8 casos sorteados, 3 repetições); `resultados-agente1.json`, `chamadas.jsonl`, `log-agentica.json`, `comparacao.json` e `execucoes/` |
+| `resultados/t25-final/analise-t27/` | Análise da execução final (T27): métricas, teste de hipóteses, descritivo e a sensibilidade exploratória da D141, com os comandos que geraram cada arquivo (README próprio) |
 | `resultados/t48-conferencia/` | Conferência automática dos 24 casos finais (T48), sem LLM e sem API: `tabela.md` (a a e por caso) e `resultado.json`; não são resultados do estudo |
 
-Os detalhes de cada rodada estão no README da tag `rodada-2` e na Operação do Estudo (repositório `rest-test-healing-estudo`).
+Os detalhes das rodadas anteriores à versão agêntica estão no README da tag `rodada-2`.
+
+A pasta `relatorios/` guarda as páginas do relatório visual: `t25-final.html` (execução final) e `t47-rodada-teste.html` (rodada de teste).
+
+## Repositórios do estudo
+
+| Repositório | Papel |
+|---|---|
+| [`rest-test-healing-sut`](https://github.com/barbaraguarino/rest-test-healing-sut) | A API cobaia (no artigo, API-alvo); a versão do experimento é a tag `linha-de-base-2` |
+| [`rest-test-healing-avaliacao`](https://github.com/barbaraguarino/rest-test-healing-avaliacao) | Validação do arquivo de resultados, métricas e teste de hipóteses |
+| `rest-test-healing-agente-contrato` (este) | Agente 1: mudanças de contrato |
+| [`rest-test-healing-agente-fixtures`](https://github.com/joaovitorbranq/rest-test-healing-agente-fixtures) | Agente 2: fixtures desatualizadas por mudança de regra de negócio |
 
 ## Licença
 
